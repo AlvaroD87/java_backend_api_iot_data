@@ -1,4 +1,4 @@
-package com.futuro.api_iot_data.model;
+package com.futuro.api_iot_data.models;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

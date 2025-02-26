@@ -1,7 +1,7 @@
-package com.futuro.api_iot_data.service;
+package com.futuro.api_iot_data.services;
 
-import com.futuro.api_iot_data.model.Company;
-import com.futuro.api_iot_data.repository.CompanyRepository;
+import com.futuro.api_iot_data.models.Company;
+import com.futuro.api_iot_data.repositories.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
