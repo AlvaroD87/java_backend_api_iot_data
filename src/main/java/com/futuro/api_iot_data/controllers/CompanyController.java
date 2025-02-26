@@ -1,7 +1,7 @@
-package com.futuro.api_iot_data.controller;
+package com.futuro.api_iot_data.controllers;
 
-import com.futuro.api_iot_data.model.Company;
-import com.futuro.api_iot_data.service.CompanyService;
+import com.futuro.api_iot_data.models.Company;
+import com.futuro.api_iot_data.services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
