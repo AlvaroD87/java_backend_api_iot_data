@@ -1,4 +1,0 @@
-driver=org.postgresql.Driver
-url=jdbc:postgresql://localhost:5432/java_backend_api_iot_data
-dbUser=postgres
-dbPassword=root

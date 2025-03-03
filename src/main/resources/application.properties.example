@@ -1,1 +1,7 @@
-spring.application.name=api-iot-data
+spring.application.name=java_backend_api_iot_data
+
+# Configuración para la base de datos 
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url=jdbc:postgresql://localhost:5433/java_backend_api_iot_data
+spring.datasource.username=postgres
+spring.datasource.password=1234
