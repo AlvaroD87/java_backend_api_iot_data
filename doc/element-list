@@ -1,0 +1,7 @@
+com.futuro.api_iot_data
+com.futuro.api_iot_data.controllers
+com.futuro.api_iot_data.dtos
+com.futuro.api_iot_data.models
+com.futuro.api_iot_data.repositories
+com.futuro.api_iot_data.services
+com.futuro.api_iot_data.utils

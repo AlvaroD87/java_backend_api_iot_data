@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.futuro.api_iot_data"},{"l":"com.futuro.api_iot_data.controllers"},{"l":"com.futuro.api_iot_data.dtos"},{"l":"com.futuro.api_iot_data.models"},{"l":"com.futuro.api_iot_data.repositories"},{"l":"com.futuro.api_iot_data.services"},{"l":"com.futuro.api_iot_data.utils"}];updateSearchResults();

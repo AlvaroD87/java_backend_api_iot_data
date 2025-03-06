@@ -17,17 +17,29 @@ import org.springframework.web.bind.annotation.RestController;
 import com.futuro.api_iot_data.dtos.LocationDTO;
 import com.futuro.api_iot_data.services.LocationService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/locations")
+@Tag(name="Location Controller", description="API para la gestión de locaciones")
 public class LocationController {
 	@Autowired
 	private LocationService locationService;
 	
 	@GetMapping
+	@Operation(summary="Obtener el listado de locaciones", description = "Retorna una lista con todas las locaciones registradas")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de locaciones encontradas",content = @Content(schema = @Schema(implementation = LocationDTO.class))),
+        @ApiResponse(responseCode = "204", description = "No hay locaciones registradas", content = @Content)
+    })
 	public ResponseEntity<List<LocationDTO>> findAll(){
 		List<LocationDTO> locationsDTO = locationService.findAll();
-		System.out.println("Tamaño");
-		System.out.print(locationsDTO.size());
 		if(locationsDTO.size() == 0) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT.value()).body(locationsDTO);
 		}
@@ -35,7 +47,14 @@ public class LocationController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<LocationDTO> findById(@PathVariable Long id){
+    @Operation(summary = "Obtener una locación a partir de su identificador", description = "Devuelve una locación específica basada en su identificador")
+    @ApiResponses(
+       value = {
+        @ApiResponse(responseCode = "200", description = "Locación encontrada", content = @Content(schema = @Schema(implementation = LocationDTO.class))),
+        @ApiResponse(responseCode = "404", description = "No se ha encontrado ninguna locación para el ID espécificado", content = @Content)
+       }
+    )
+	public ResponseEntity<LocationDTO> findById(@Parameter(description = "Id de la locación a buscar", required = true) @PathVariable Long id){
 		LocationDTO locationDTO = locationService.findById(id);
 		if(locationDTO.getLocationId() == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(locationDTO);
@@ -44,7 +63,12 @@ public class LocationController {
 	}
 	
 	@PostMapping
-    public ResponseEntity<LocationDTO> create(@RequestBody LocationDTO locationDTO){
+    @Operation(summary = "Crear una nueva locación", description = "Crea una nueva locación con la información proporcionada.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Locación creada exitosamente", content = @Content(schema = @Schema(implementation = LocationDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Datos de la locación inválidos", content = @Content)
+    })
+    public ResponseEntity<LocationDTO> create(@Parameter(description = "Datos de la locación a crear", required = true) @RequestBody LocationDTO locationDTO){
         LocationDTO newLocationDTO = locationService.create(locationDTO);
         if(newLocationDTO.getLocationId() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(newLocationDTO);
@@ -53,7 +77,15 @@ public class LocationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LocationDTO> update(@PathVariable Long id,@RequestBody LocationDTO locationDTO){
+    @Operation(summary = "Actualizar una locación existente", description = "Actualiza la información de una locación existente basada en su ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Locación actualizada exitosamente", content = @Content(schema = @Schema(implementation = LocationDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Datos de la locación inválidos", content = @Content(schema = @Schema(implementation = LocationDTO.class))),
+    })
+    public ResponseEntity<LocationDTO> update(
+                @Parameter(description = "ID de la locación a actualizar", required = true) @PathVariable Long id,
+                @Parameter(description = "Datos actualizados de la locación", required = true) @RequestBody LocationDTO locationDTO
+            ){
         LocationDTO updatedLocationDTO = locationService.update(id,locationDTO);
         if(updatedLocationDTO.getLocationId() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(updatedLocationDTO);
@@ -62,6 +94,11 @@ public class LocationController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar una locación por ID", description = "Elimina una locación específica basada en su ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Locación eliminada exitosamente", content = @Content(schema = @Schema(implementation = LocationDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Error al eliminar la locación", content = @Content(schema =@Schema(implementation = LocationDTO.class) ))
+    })
     public ResponseEntity<LocationDTO> deleteById(@PathVariable Long id){
         LocationDTO deletedLocationDTO = locationService.deleteById(id);
         if(deletedLocationDTO.getLocationId() == null){
