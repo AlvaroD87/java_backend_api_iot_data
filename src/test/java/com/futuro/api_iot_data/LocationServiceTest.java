@@ -14,7 +14,12 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.futuro.api_iot_data.dtos.CityMockDTO;
 import com.futuro.api_iot_data.dtos.CompanyMockDTO;
@@ -34,9 +39,23 @@ import com.futuro.api_iot_data.services.LocationServiceImp;
 import jakarta.transaction.Transactional;
 
 @SpringBootTest
-@ActiveProfiles("test")
-
+@Testcontainers
+//@ActiveProfiles("test")
 public class LocationServiceTest {
+	
+	@Container
+    public static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:13")
+            .withDatabaseName("testdb")
+            .withUsername("testuser")
+            .withPassword("testpass");
+
+    @DynamicPropertySource
+    static void postgresProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgresContainer::getUsername);
+        registry.add("spring.datasource.password", postgresContainer::getPassword);
+        registry.add("spring.jpa.hibernate.ddl-auto",() -> "create-drop");
+    }
 	@Autowired
 	AdminMockRepository adminRepository;
 	
