@@ -26,7 +26,11 @@ import org.hibernate.type.SqlTypes;
 
 
 
-
+/**
+ * Clase que representa el modelo para la entidad Location.
+ * Contiene información sobre una locación, incluyendo su ID, nombre, metadatos,
+ * compañía asociada, ciudad asociada, estado de actividad y fechas de creación y actualización.
+ */
 @Setter
 @Getter
 @NoArgsConstructor

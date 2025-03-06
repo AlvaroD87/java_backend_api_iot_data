@@ -25,6 +25,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+/**
+ * Controlador REST para gestionar las operaciones relacionadas con locaciones.
+ * Proporciona endpoints para crear, actualizar, eliminar y consultar locaciones.
+ */
 @RestController
 @RequestMapping("/locations")
 @Tag(name="Location Controller", description="API para la gestión de locaciones")
@@ -32,6 +36,10 @@ public class LocationController {
 	@Autowired
 	private LocationService locationService;
 	
+    /**
+     * Obtiene una lista con todas las locaciones registradas.
+     * @return ResponseEntity con la lista de locaciones
+     */
 	@GetMapping
 	@Operation(summary="Obtener el listado de locaciones", description = "Retorna una lista con todas las locaciones registradas")
     @ApiResponses(value = {
@@ -40,12 +48,16 @@ public class LocationController {
     })
 	public ResponseEntity<List<LocationDTO>> findAll(){
 		List<LocationDTO> locationsDTO = locationService.findAll();
-		if(locationsDTO.size() == 0) {
+		if(locationsDTO.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT.value()).body(locationsDTO);
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(locationsDTO);
 	}
-	
+	/**
+     * Obtener una locación a partir de su identificador
+     * @param id Id de la locación a buscar
+     * @return ResponseEntity con el DTO de la locación encontrada
+     */
 	@GetMapping("/{id}")
     @Operation(summary = "Obtener una locación a partir de su identificador", description = "Devuelve una locación específica basada en su identificador")
     @ApiResponses(
@@ -62,6 +74,11 @@ public class LocationController {
         return ResponseEntity.status(HttpStatus.OK.value()).body(locationDTO);
 	}
 	
+    /**
+     * Permite crear una nueva locación
+     * @param locationDTO DTO con la información de la locación a crear
+     * @return ResonseEntity con el DTO de la locación creada
+     */
 	@PostMapping
     @Operation(summary = "Crear una nueva locación", description = "Crea una nueva locación con la información proporcionada.")
     @ApiResponses(value = {
@@ -76,6 +93,12 @@ public class LocationController {
         return ResponseEntity.status(HttpStatus.OK.value()).body(newLocationDTO);
     }
 
+    /**
+     * Permite actualizar una locación existente
+     * @param id Identificador de la locación a actualizar
+     * @param locationDTO DTO con la información actualizada de la locación.
+     * @return ResponseEntity con los datos actualizados de la locación.
+     */
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar una locación existente", description = "Actualiza la información de una locación existente basada en su ID.")
     @ApiResponses(value = {
@@ -93,6 +116,11 @@ public class LocationController {
         return ResponseEntity.status(HttpStatus.OK.value()).body(updatedLocationDTO);
     }
 
+    /**
+     * Permite eliminar una locación por ID
+     * @param id Identificador de la locación a eliminar.
+     * @return ResponseEntity con los datos de la locación eliminada
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar una locación por ID", description = "Elimina una locación específica basada en su ID.")
     @ApiResponses(value = {

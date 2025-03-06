@@ -23,6 +23,9 @@ import com.futuro.api_iot_data.repositories.LocationRepository;
 import com.futuro.api_iot_data.utils.BadRequestInputException;
 import com.futuro.api_iot_data.utils.ResourceNotFoundException;
 
+/**
+ * Implementación de la interfaz {@link LocationService}
+ */
 @Service
 public class LocationServiceImp implements LocationService {
 	@Autowired

@@ -6,6 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Clase que representa una respuesta de error personalizada.
+ * Contiene información sobre el estado HTTP y un mensaje descriptivo del error.
+ * Se utiliza para enviar respuestas de error estructuradas en APIs REST.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
