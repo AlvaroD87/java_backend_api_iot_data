@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.futuro.api_iot_data.models.DAOs.AdminDAO;
+import com.futuro.api_iot_data.models.DTOs.AdminDTO;
 import com.futuro.api_iot_data.services.AdminServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
@@ -20,10 +20,12 @@ public class AdminController {
 	AdminServiceImp adminService;
 	
 	@PostMapping("/create")
-	public ResponseEntity<AdminDAO> createAdmin(@RequestBody AdminDAO newAdmin){
+	public ResponseEntity<AdminDTO> createAdmin(@RequestBody AdminDTO newAdmin){
 		
 		ResponseServices response = adminService.create(newAdmin);
 		
-		return ResponseEntity.status(response.getCode() == 200 ? HttpStatus.CREATED : HttpStatus.CONFLICT).body((AdminDAO)response.getModelDAO());
+		return ResponseEntity.status(response.getCode() == 200 ? HttpStatus.CREATED : HttpStatus.CONFLICT).body((AdminDTO)response.getModelDAO());
 	}
+	
+	
 }
