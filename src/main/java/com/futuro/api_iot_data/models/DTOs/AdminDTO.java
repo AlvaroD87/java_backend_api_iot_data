@@ -1,4 +1,4 @@
-package com.futuro.api_iot_data.models.DAOs;
+package com.futuro.api_iot_data.models.DTOs;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class AdminDAO implements ITemplateDAO{
+public class AdminDTO implements ITemplateDTO{
 	
 	private String username;
 	private String password;
