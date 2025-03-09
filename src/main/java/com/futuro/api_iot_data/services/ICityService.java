@@ -9,5 +9,5 @@ public interface ICityService {
 	
 	ResponseServices getByName(String cityName);
 	
-	ResponseServices list();
+	ResponseServices listAll();
 }

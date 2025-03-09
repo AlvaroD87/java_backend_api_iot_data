@@ -3,30 +3,33 @@ package com.futuro.api_iot_data.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.futuro.api_iot_data.models.DTOs.AdminDTO;
-import com.futuro.api_iot_data.services.AdminServiceImp;
+import com.futuro.api_iot_data.models.DTOs.CityDTO;
+import com.futuro.api_iot_data.services.CityServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
 @RestController
-@RequestMapping("/admin")
-public class AdminController {
+@RequestMapping("city")
+public class CityController {
 
 	@Autowired
-	AdminServiceImp adminService;
-	
+	CityServiceImp cityService;
+
 	@PostMapping("/create")
-	//public ResponseEntity<AdminDTO> createAdmin(@RequestBody AdminDTO newAdmin){
-	public ResponseEntity<ResponseServices> createAdmin(@RequestBody AdminDTO newAdmin){
+	public ResponseEntity<ResponseServices> create(@RequestBody CityDTO newCity){
 		
-		ResponseServices response = adminService.create(newAdmin);
+		ResponseServices response = cityService.create(newCity);
 		
 		return ResponseEntity.status(response.getCode() == 200 ? HttpStatus.CREATED : HttpStatus.CONFLICT).body(response);
 	}
 	
-	
+	@GetMapping("/get-all")
+	public ResponseEntity<ResponseServices> getAll(){
+		return ResponseEntity.ok(cityService.listAll());
+	}
 }

@@ -3,6 +3,7 @@ package com.futuro.api_iot_data.models;
 import java.sql.Date;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.futuro.api_iot_data.models.DTOs.CityDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,5 +50,7 @@ public class City {
 	
 	@Column(name = "update_date")
 	private Date updated_in;
+	
+	public CityDTO toCityDTO() { return new CityDTO(this); }
 
 }
