@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import java.sql.Timestamp;
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,23 +18,24 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.futuro.api_iot_data.dtos.CityMockDTO;
 import com.futuro.api_iot_data.dtos.CompanyMockDTO;
 import com.futuro.api_iot_data.dtos.LocationDTO;
-import com.futuro.api_iot_data.models.AdminMock;
-import com.futuro.api_iot_data.models.CityMock;
+import com.futuro.api_iot_data.models.Admin;
+import com.futuro.api_iot_data.models.City;
 import com.futuro.api_iot_data.models.CompanyMock;
-import com.futuro.api_iot_data.models.CountryMock;
+import com.futuro.api_iot_data.models.Country;
 import com.futuro.api_iot_data.models.Location;
-import com.futuro.api_iot_data.repositories.AdminMockRepository;
-import com.futuro.api_iot_data.repositories.CityMockRepository;
+import com.futuro.api_iot_data.models.DTOs.AdminDTO;
+import com.futuro.api_iot_data.repositories.AdminRepository;
+import com.futuro.api_iot_data.repositories.CityRepository;
 import com.futuro.api_iot_data.repositories.CompanyMockRepository;
-import com.futuro.api_iot_data.repositories.CountryMockRepository;
+import com.futuro.api_iot_data.repositories.CountryRepository;
 import com.futuro.api_iot_data.repositories.LocationRepository;
 import com.futuro.api_iot_data.services.LocationServiceImp;
+import com.futuro.api_iot_data.services.util.ResponseServices;
 
 @ExtendWith(MockitoExtension.class)
-public class LocationServiceTest {
+class LocationServiceTest {
 
     @Mock
     private LocationRepository locationRepository;
@@ -42,34 +44,30 @@ public class LocationServiceTest {
     private CompanyMockRepository companyRepository;
 
     @Mock
-    private CityMockRepository cityRepository;
+    private CityRepository cityRepository;
 
     @Mock
-    private CountryMockRepository countryRepository;
+    private CountryRepository countryRepository;
 
     @Mock
-    private AdminMockRepository adminRepository;
+    private AdminRepository adminRepository;
 
     @InjectMocks
     private LocationServiceImp locationService;
 
-    private AdminMock admin;
+    private Admin admin;
     private CompanyMock company;
-    private CountryMock country;
-    private CityMock city;
+    private Country country;
+    private City city;
     private LocationDTO locationDTO;
     private Location location;
 
     @BeforeEach
-    public void setUp() {
-        admin = AdminMock.builder()
-                .adminId(1L)
-                .username("admin")
-                .password("1234")
-                .isActive(true)
-                .createdDate(new Timestamp(System.currentTimeMillis()))
-                .updateDate(new Timestamp(System.currentTimeMillis()))
-                .build();
+    void setUp() {
+        admin = new Admin();
+        admin.setId(1);
+        admin.setUsername("admin");
+        admin.setPassword("1234");
 
         company = new CompanyMock();
         company.setCompanyId(1L);
@@ -77,66 +75,71 @@ public class LocationServiceTest {
         company.setCompanyApiKey("4324234234");
         company.setIsActive(true);
         company.setAdmin(admin);
-        company.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-        company.setUpdateDate(new Timestamp(System.currentTimeMillis()));
+        company.setCreatedDate(new Date(System.currentTimeMillis()));
+        company.setUpdateDate(new Date(System.currentTimeMillis()));
 
-        country = CountryMock.builder()
-                .countryId(1L)
+        country = Country.builder()
+                .id(1)
                 .name("Chile")
-                .isActive(true)
-                .createdDate(new Timestamp(System.currentTimeMillis()))
-                .updateDate(new Timestamp(System.currentTimeMillis()))
+                .is_active(true)
+                .created_in(new Date(System.currentTimeMillis()))
+                .updated_in(new Date(System.currentTimeMillis()))
                 .build();
 
-        city = CityMock.builder()
-                .cityId(1L)
+        city = City.builder()
+                .id(1)
                 .name("Ciudad de prueba")
-                .isActive(true)
-                .createdDate(new Timestamp(System.currentTimeMillis()))
-                .updateDate(new Timestamp(System.currentTimeMillis()))
+                .is_active(true)
+                .created_in(new Date(Calendar.getInstance().getTimeInMillis()))
+                .updated_in(new Date(Calendar.getInstance().getTimeInMillis()))
                 .country(country)
                 .build();
 
         locationDTO = LocationDTO.builder()
-                .locationId(1L)
+                .locationId(1)
                 .locationName("Locación inicial")
                 .locationMeta(Map.of("clave uno", "valor 1"))
                 .companyDTO(CompanyMockDTO.builder().companyId(company.getCompanyId()).build())
-                .cityDTO(CityMockDTO.builder().cityId(city.getCityId()).build())
+                .cityDTO(city.toCityDTO())
                 .isActive(true)
-                .createdDate(new Timestamp(System.currentTimeMillis()))
-                .updateDate(new Timestamp(System.currentTimeMillis()))
+                .createdDate(new Date(System.currentTimeMillis()))
+                .updateDate(new Date(System.currentTimeMillis()))
                 .build();
 
         location = Location.builder()
-                .locationId(1L)
+                .locationId(1)
                 .locationName("Locación inicial")
                 .locationMeta(Map.of("clave uno", "valor 1"))
                 .company(company)
                 .city(city)
                 .isActive(true)
-                .createdDate(new Timestamp(System.currentTimeMillis()))
-                .updateDate(new Timestamp(System.currentTimeMillis()))
+                .createdDate(new Date(System.currentTimeMillis()))
+                .updateDate(new Date(System.currentTimeMillis()))
                 .build();
     }
 
     @Test
-    public void testCreateLocationSuccess() {
+    void testCreateLocationSuccess() {
         when(companyRepository.findById(any(Long.class))).thenReturn(Optional.of(company));
-        when(cityRepository.findById(any(Long.class))).thenReturn(Optional.of(city));
+        // when(cityRepository.findById(any(Long.class))).thenReturn(Optional.of(city));
+        when(cityRepository.findByName(any(String.class))).thenReturn(Optional.of(city));
         when(locationRepository.save(any(Location.class))).thenReturn(location);
 
-        LocationDTO result = locationService.create(locationDTO);
+        ResponseServices response = locationService.create(locationDTO);
+        assertNotNull(response.getModelDTO());
+        LocationDTO modelDTO = (LocationDTO) response.getModelDTO();
 
-        assertNotNull(result.getLocationId());
-        assertEquals("Locación inicial", result.getLocationName());
+        assertNotNull(modelDTO.getLocationId());
+        assertEquals("Locación inicial", modelDTO.getLocationName());
     }
 
     @Test
-    public void testFindAllLocations() {
+    void testFindAllLocations() {
         when(locationRepository.findAll()).thenReturn(Collections.singletonList(location));
 
-        List<LocationDTO> result = locationService.findAll();
+        ResponseServices response  = locationService.findAll();
+        
+        List<LocationDTO> result = (List<LocationDTO>) response.getListModelDTO();
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
@@ -144,38 +147,44 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void testFindLocationByIdSuccess() {
-        when(locationRepository.findById(any(Long.class))).thenReturn(Optional.of(location));
+    void testFindLocationByIdSuccess() {
+        when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
 
-        LocationDTO foundLocation = locationService.findById(1L);
+        ResponseServices response = locationService.findById(1);
+        assertNotNull(response.getModelDTO());
+        LocationDTO foundLocation = (LocationDTO) response.getModelDTO();
 
         assertNotNull(foundLocation.getLocationId());
         assertEquals("Locación inicial", foundLocation.getLocationName());
     }
 
     @Test
-    public void testUpdateLocationSuccess() {
-        when(locationRepository.findById(any(Long.class))).thenReturn(Optional.of(location));
+    void testUpdateLocationSuccess() {
+        when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
         when(locationRepository.save(any(Location.class))).thenReturn(location);
         when(companyRepository.findById(any(Long.class))).thenReturn(Optional.of(company));
-        when(cityRepository.findById(any(Long.class))).thenReturn(Optional.of(city));
+        when(cityRepository.findByName(any(String.class))).thenReturn(Optional.of(city));
 
         String nombreActualizado = "Nombre de locación actualizado";
         locationDTO.setLocationName(nombreActualizado);
-        locationService.update(1L, locationDTO);
+        locationService.update(1, locationDTO);
 
-        LocationDTO updatedLocation = locationService.findById(1L);
+        ResponseServices response = locationService.findById(1);
+        assertNotNull(response.getModelDTO());
+        LocationDTO updatedLocation = (LocationDTO) response.getModelDTO();
         assertEquals(nombreActualizado, updatedLocation.getLocationName());
     }
 
     @Test
-    public void testDeleteLocationByIdSuccess() {
-        when(locationRepository.findById(any(Long.class))).thenReturn(Optional.of(location));
-        //doNothing().when(locationRepository).deleteById(any(Long.class));
-        when(locationRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+    void testDeleteLocationByIdSuccess() {
+        when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
+        when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
     
-        locationService.deleteById(1L);
+        locationService.deleteById(1);
+        ResponseServices response = locationService.findById(1);
+        assertNotNull(response.getModelDTO());
+        LocationDTO deletedLocation = (LocationDTO) response.getModelDTO();
     
-        assertNull(locationService.findById(1L).getLocationId());
+        assertNull(deletedLocation.getLocationId());
     }
 }

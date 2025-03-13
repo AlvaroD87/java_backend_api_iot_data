@@ -9,7 +9,7 @@ import com.futuro.api_iot_data.models.Location;
  * Proporciona métodos para acceder y gestionar datos relacionados con locaciones en la base de datos.
  */
 @Repository
-public interface LocationRepository extends JpaRepository<Location,Long>{
+public interface LocationRepository extends JpaRepository<Location,Integer>{
 	/**
      * Verifica si existe una locación con el nombre especificado.
      *
@@ -28,5 +28,5 @@ public interface LocationRepository extends JpaRepository<Location,Long>{
      * @return {@code true} si existe una locación con el nombre proporcionado (excluyendo la locación con el ID dado),
      *         {@code false} en caso contrario.
      */
-	boolean existsByLocationNameAndLocationIdNot(String LocationName, Long locationId);
+	boolean existsByLocationNameAndLocationIdNot(String LocationName, Integer locationId);
 }

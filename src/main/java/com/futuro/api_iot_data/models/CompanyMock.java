@@ -1,7 +1,6 @@
 package com.futuro.api_iot_data.models;
 
-import java.sql.Timestamp;
-import java.util.List;
+import java.sql.Date;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,7 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,12 +30,12 @@ public class CompanyMock {
     private String companyName;
     private String companyApiKey;
     private Boolean isActive;
-    private Timestamp createdDate;
-    private Timestamp updateDate;
+    private Date createdDate;
+    private Date updateDate;
     
     @ManyToOne
     @JoinColumn(name = "admin_id")
-    private AdminMock admin;
+    private Admin admin;
     
     
 

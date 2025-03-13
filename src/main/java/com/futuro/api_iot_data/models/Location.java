@@ -1,7 +1,7 @@
 package com.futuro.api_iot_data.models;
 
 
-import java.sql.Timestamp;
+import java.sql.Date;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -41,7 +41,7 @@ import org.hibernate.type.SqlTypes;
 public class Location {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long locationId;
+    private Integer locationId;
 
     private String locationName;
     
@@ -50,15 +50,15 @@ public class Location {
     @JsonDeserialize(using = com.fasterxml.jackson.databind.deser.std.MapDeserializer.class)
     private Map<String, Object> locationMeta;
     
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private CompanyMock company;
     //private Integer companyId;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
-    private CityMock city;
+    private City city;
     //private Integer cityId;
     private Boolean isActive;
-    private Timestamp createdDate;
-    private Timestamp updateDate;
+    private Date createdDate;
+    private Date updateDate;
 }

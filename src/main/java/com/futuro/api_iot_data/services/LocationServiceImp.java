@@ -1,218 +1,274 @@
 package com.futuro.api_iot_data.services;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.futuro.api_iot_data.dtos.CityMockDTO;
 import com.futuro.api_iot_data.dtos.CompanyMockDTO;
-import com.futuro.api_iot_data.dtos.CountryMockDTO;
 import com.futuro.api_iot_data.dtos.LocationDTO;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.futuro.api_iot_data.dtos.AdminMockDTO;
-import com.futuro.api_iot_data.models.CityMock;
+import com.futuro.api_iot_data.models.City;
 import com.futuro.api_iot_data.models.CompanyMock;
 import com.futuro.api_iot_data.models.Location;
-import com.futuro.api_iot_data.repositories.CityMockRepository;
+import com.futuro.api_iot_data.models.DTOs.AdminDTO;
+import com.futuro.api_iot_data.repositories.CityRepository;
 import com.futuro.api_iot_data.repositories.CompanyMockRepository;
 import com.futuro.api_iot_data.repositories.LocationRepository;
-import com.futuro.api_iot_data.utils.BadRequestInputException;
-import com.futuro.api_iot_data.utils.ResourceNotFoundException;
+import com.futuro.api_iot_data.services.util.ResponseServices;
+
 
 /**
- * Implementación de la interfaz {@link LocationService}
+ * Implementación de la interfaz {@link ILocationService}
  */
 @Service
-public class LocationServiceImp implements LocationService {
+public class LocationServiceImp implements ILocationService {
 	@Autowired
 	private LocationRepository locationRepository;
-	
+
 	@Autowired
 	private CompanyMockRepository companyMockRepository;
-	
-	@Autowired 
-	private CityMockRepository cityMockRepository;
-	
+
+	@Autowired
+	private CityRepository cityRepository;
 
 	@Override
-	public LocationDTO create(LocationDTO locationDTO) {
+	public ResponseServices create(LocationDTO locationDTO) {
 		String locationName = locationDTO.getLocationName();
-		var locationMeta  = locationDTO.getLocationMeta();
-		
+		var locationMeta = locationDTO.getLocationMeta();
+
 		// Se valida el nombre de la locación
-		if(locationName == null) {
-			throw new BadRequestInputException("El nombre de la locación es obligatorio");
+		if (locationName == null) {
+			return ResponseServices.builder()
+					.code(400)
+					.message("El nombre de la locación es obligatorio")
+					.modelDTO(locationDTO)
+					.build();
 		}
-		if(locationRepository.existsByLocationName(locationName)) {
-			throw new BadRequestInputException("Ya existe una locación con este nombre");
+		if (locationRepository.existsByLocationName(locationName)) {
+			return ResponseServices.builder()
+					.code(400)
+					.message("Ya existe una locación con este nombre")
+					.modelDTO(locationDTO)
+					.build();
 		}
-		
+
 		// Se validan los metadatos de la locación
-		if(locationMeta == null) {
-			throw new BadRequestInputException("Las metadatas de la locación son obligatorias");
+		if (locationMeta == null) {
+			return ResponseServices.builder()
+					.code(400)
+					.message("Las metadatas de la locación son obligatorias")
+					.modelDTO(locationDTO)
+					.build();
 		}
-		
+
 		// Se valida la compañia
-		if(locationDTO.getCompanyDTO() == null || locationDTO.getCompanyDTO().getCompanyId() == null) {
-			throw new BadRequestInputException("La compañía es obligatoria");
+		if (locationDTO.getCompanyDTO() == null || locationDTO.getCompanyDTO().getCompanyId() == null) {
+			return ResponseServices.builder()
+					.code(400)
+					.message("La compañía es obligatoria")
+					.modelDTO(locationDTO)
+					.build();
 		}
-		CompanyMock company = companyMockRepository.findById(locationDTO.getCompanyDTO().getCompanyId())
-	            .orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado la compañia"));
-		
-		// Se valida la ciudad
-		if(locationDTO.getCityDTO() == null || locationDTO.getCityDTO().getCityId() == null ) {
-			throw new BadRequestInputException("La ciudad es obligatoria");
+		CompanyMock company = companyMockRepository.findById(locationDTO.getCompanyDTO().getCompanyId()).orElse(null);
+		if (company == null) {
+			return ResponseServices.builder()
+					.code(400)
+					.message("No se ha encontrado la compañía")
+					.modelDTO(locationDTO)
+					.build();
 		}
-		CityMock city = cityMockRepository.findById(locationDTO.getCityDTO().getCityId())
-	            .orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado la ciudad"));
-		
 
-		
-	        
+		if (locationDTO.getCityDTO() == null || locationDTO.getCityDTO().getName() == null) {
+			return ResponseServices.builder()
+					.code(400)
+					.message("La ciudad es obligatoria")
+					.modelDTO(locationDTO)
+					.build();
+		}
+		City city = cityRepository.findByName(locationDTO.getCityDTO().getName()).orElse(null);
+		if (city == null) {
+			return ResponseServices.builder()
+					.code(400)
+					.message("No se ha encontrado la ciudad")
+					.modelDTO(locationDTO)
+					.build();
+		}
 
-	        Location objLocation = Location.builder()
-	            .locationName(locationName)
-	            .locationMeta(locationMeta)
-	            .company(company)
-	            .city(city)
-	            //.isActive(locationDTO.getIsActive())
-	            .isActive(true) // Al crear, las compañias siempre van a estar activas
-	            .createdDate(new Timestamp(System.currentTimeMillis()))
-	            .updateDate(new Timestamp(System.currentTimeMillis()))
-	            .build();
+		Location objLocation = Location.builder()
+				.locationName(locationName)
+				.locationMeta(locationMeta)
+				.company(company)
+				.city(city)
+				// .isActive(locationDTO.getIsActive())
+				.isActive(true) // Al crear, las compañias siempre van a estar activas
+				.createdDate(new Date(System.currentTimeMillis()))
+				.updateDate(new Date(System.currentTimeMillis()))
+				.build();
 
-	        objLocation = locationRepository.save(objLocation);
-	        return this.parseLocationDataToLocationDTO(objLocation);
+		objLocation = locationRepository.save(objLocation);
+		return ResponseServices.builder()
+				.code(201)
+				.message("La locación se ha creado con éxito")
+				.modelDTO(this.parseLocationDataToLocationDTO(objLocation))
+				.build();
 	}
 
 	@Override
-	public LocationDTO update(Long id, LocationDTO locationDTO) {
-		Location objLocation = locationRepository.findById(id)
-	            .orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado la locación"));
-		
-		
-		String locationName = locationDTO.getLocationName();
-		var locationMeta  = locationDTO.getLocationMeta();
-		
-		// Se valida el nombre de la locación
-		if(locationName != null && locationRepository.existsByLocationNameAndLocationIdNot(locationName, id)) {
-			throw new BadRequestInputException("Ya existe una locación con este nombre");
+	public ResponseServices update(Integer id, LocationDTO locationDTO) {
+		Location objLocation = locationRepository.findById(id).orElse(null);
+		if(objLocation == null){
+			return ResponseServices.builder()
+				.code(400)
+				.message("No se ha encontrado la locación específicada")
+				.modelDTO(locationDTO)
+				.build();
 		}
-		
-		
+
+		String locationName = locationDTO.getLocationName();
+		var locationMeta = locationDTO.getLocationMeta();
+
+		// Se valida el nombre de la locación
+		if (locationName != null && locationRepository.existsByLocationNameAndLocationIdNot(locationName, id)) {
+			return ResponseServices.builder()
+				.code(400)
+				.message("Ya existe una locación con este nombre")
+				.modelDTO(locationDTO)
+				.build();
+		}
+
 		// Se valida la compañía
 		CompanyMock company;
-		if(locationDTO.getCompanyDTO() == null || locationDTO.getCompanyDTO().getCompanyId() == null) {
+		if (locationDTO.getCompanyDTO() == null || locationDTO.getCompanyDTO().getCompanyId() == null) {
 			company = objLocation.getCompany();
-		}else {
-			company = companyMockRepository.findById(locationDTO.getCompanyDTO().getCompanyId())
-		            .orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado la compañia"));
+		} else {
+			company = companyMockRepository.findById(locationDTO.getCompanyDTO().getCompanyId()).orElse(null);
+			if(company == null){
+				return ResponseServices.builder()
+				.code(400)
+				.message("No se ha encontrado la compañía")
+				.modelDTO(locationDTO)
+				.build();
+			}
 		}
-		
-		
-		// Se valida la ciudad
-		CityMock city;
-		if(locationDTO.getCityDTO() == null || locationDTO.getCityDTO().getCityId() == null) {
-			city = objLocation.getCity();
-		}else {
-			city = cityMockRepository.findById(locationDTO.getCityDTO().getCityId())
-		            .orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado la ciudad"));
-			
-		}
-		
-		
-		Boolean isActive = locationDTO.getIsActive();
-	        
 
-		objLocation.setLocationName(locationName != null ? locationName: objLocation.getLocationName());
-		objLocation.setLocationMeta(locationMeta != null? locationMeta: objLocation.getLocationMeta());
+		// Se valida la ciudad
+		City city;
+
+		if (locationDTO.getCityDTO() == null || locationDTO.getCityDTO().getName() == null) {
+			city = objLocation.getCity();
+		} else {
+			city = cityRepository.findByName(locationDTO.getCityDTO().getName()).orElse(null);
+			if(city == null){
+				return ResponseServices.builder()
+				.code(400)
+				.message("No se ha encontrado la ciudad")
+				.modelDTO(locationDTO)
+				.build();
+			}
+
+		}
+
+		Boolean isActive = locationDTO.getIsActive();
+
+		objLocation.setLocationName(locationName != null ? locationName : objLocation.getLocationName());
+		objLocation.setLocationMeta(locationMeta != null ? locationMeta : objLocation.getLocationMeta());
 		objLocation.setCompany(company);
 		objLocation.setCity(city);
-		objLocation.setIsActive(isActive != null? isActive: objLocation.getIsActive());
-		objLocation.setUpdateDate(new Timestamp(System.currentTimeMillis()));
+		objLocation.setIsActive(isActive != null ? isActive : objLocation.getIsActive());
+		objLocation.setUpdateDate(new Date(System.currentTimeMillis()));
 		objLocation = locationRepository.save(objLocation);
-	    return this.parseLocationDataToLocationDTO(objLocation);
+		return ResponseServices.builder()
+				.code(200)
+				.message("La locación se ha actualizado con éxito")
+				.modelDTO(this.parseLocationDataToLocationDTO(objLocation))
+				.build();
 	}
 
 	@Override
-	public List<LocationDTO> findAll() {
+	public ResponseServices findAll() {
 		List<Location> locations = locationRepository.findAll();
-		if(locations == null) {
-			return new ArrayList<LocationDTO>();
+		if (locations.isEmpty()) {
+			return ResponseServices.builder()
+				.code(200)
+				.message("No se ha encontrado ninguna locación")
+				.listModelDTO(new ArrayList<>())
+				.build();
 		}
-		
-		return locations.stream()
-				.map((objLocation) -> {
-			        return this.parseLocationDataToLocationDTO(objLocation);
-			    }).toList();
+		return ResponseServices.builder()
+				.code(200)
+				.message("Listado de locaciones encontradas")
+				.listModelDTO(locations.stream()
+				.map(this::parseLocationDataToLocationDTO).toList())
+				.build();
 	}
 
 	@Override
-	public LocationDTO deleteById(Long id) {
+	public ResponseServices deleteById(Integer id) {
 		if (!locationRepository.existsById(id)) {
-            return new LocationDTO();
-        }
+			return ResponseServices.builder()
+				.code(400)
+				.message("No se ha encontrado la locación indicada")
+				.modelDTO(new LocationDTO())
+				.build();
+		}
 		Location objLocation = locationRepository.findById(id).get();
-        
-        locationRepository.deleteById(id);
-        if (locationRepository.existsById(id)) {
-            return new LocationDTO();
-        }
-        return this.parseLocationDataToLocationDTO(objLocation);
+
+		locationRepository.deleteById(id);
+		if (locationRepository.existsById(id)) {
+			return ResponseServices.builder()
+				.code(400)
+				.message("No se pudo eliminar la locación")
+				.modelDTO(new LocationDTO())
+				.build();
+		}
+		return ResponseServices.builder()
+				.code(200)
+				.message("La locación se ha eliminado con éxito")
+				.modelDTO(this.parseLocationDataToLocationDTO(objLocation))
+				.build();
 	}
 
 	@Override
-	public LocationDTO findById(Long id) {
+	public ResponseServices findById(Integer id) {
 		Location objLocation = locationRepository.findById(id).orElse(new Location());
-        if (objLocation == null || objLocation.getLocationId() == null) {
-            return new LocationDTO();
-        }
-        return this.parseLocationDataToLocationDTO(objLocation);
+		if (objLocation == null || objLocation.getLocationId() == null) {
+			return ResponseServices.builder()
+				.code(404)
+				.message("No se ha encontrado la locación especificada")
+				.modelDTO(new LocationDTO())
+				.build();
+		}
+
+		return ResponseServices.builder()
+				.code(200)
+				.message("Locación encontrada")
+				.modelDTO(this.parseLocationDataToLocationDTO(objLocation))
+				.build();
 	}
-	
+
 	private LocationDTO parseLocationDataToLocationDTO(Location objLocation) {
+		AdminDTO adminDTO = new AdminDTO();
+		adminDTO.setUsername(objLocation.getCompany().getAdmin().getUsername());
 		return LocationDTO.builder()
-		.locationId(objLocation.getLocationId())
-        .locationName(objLocation.getLocationName())
-        .locationMeta(objLocation.getLocationMeta())
-        .companyDTO(CompanyMockDTO.builder()
-            .companyId(objLocation.getCompany().getCompanyId())
-            .companyName(objLocation.getCompany().getCompanyName())
-            .companyApiKey(objLocation.getCompany().getCompanyApiKey())
-            .adminMockDTO(AdminMockDTO.builder()
-                .adminId(objLocation.getCompany().getAdmin().getAdminId())
-                .username(objLocation.getCompany().getAdmin().getUsername())
-                .password(objLocation.getCompany().getAdmin().getPassword())
-                .isActive(objLocation.getCompany().getAdmin().getIsActive())
-                .createdDate(objLocation.getCompany().getAdmin().getCreatedDate())
-                .updateDate(objLocation.getCompany().getAdmin().getUpdateDate())
-                .build())
-            .isActive(objLocation.getCompany().getIsActive())
-            .createdDate(objLocation.getCompany().getCreatedDate())
-            .updateDate(objLocation.getCompany().getUpdateDate())
-            .build())
-        .cityDTO(CityMockDTO.builder()
-        		.cityId(objLocation.getCity().getCityId())
-                .name(objLocation.getCity().getName())
-                .countryMock(CountryMockDTO.builder()
-                		.countryId(objLocation.getCity().getCountry().getCountryId())
-                		.name(objLocation.getCity().getCountry().getName())
-                		.isActive(objLocation.getCity().getCountry().getIsActive())
-                		.createdDate(objLocation.getCity().getCountry().getCreatedDate())
-                		.updateDate(objLocation.getCity().getCountry().getUpdateDate())
-                		.build())
-                .isActive(objLocation.getCity().getIsActive())
-                .createdDate(objLocation.getCity().getCreatedDate())
-                .updateDate(objLocation.getCity().getUpdateDate())
-        		.build())
-        .isActive(objLocation.getIsActive())
-        .createdDate(objLocation.getCreatedDate())
-        .updateDate(objLocation.getUpdateDate())
-        .build();
+				.locationId(objLocation.getLocationId())
+				.locationName(objLocation.getLocationName())
+				.locationMeta(objLocation.getLocationMeta())
+				.companyDTO(CompanyMockDTO.builder()
+						.companyId(objLocation.getCompany().getCompanyId())
+						.companyName(objLocation.getCompany().getCompanyName())
+						.companyApiKey(objLocation.getCompany().getCompanyApiKey())
+						.adminDTO(adminDTO)
+						.isActive(objLocation.getCompany().getIsActive())
+						.createdDate(objLocation.getCompany().getCreatedDate())
+						.updateDate(objLocation.getCompany().getUpdateDate())
+						.build())
+				.cityDTO(objLocation.getCity().toCityDTO())
+				.isActive(objLocation.getIsActive())
+				.createdDate(objLocation.getCreatedDate())
+				.updateDate(objLocation.getUpdateDate())
+				.build();
 	}
 
 }

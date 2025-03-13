@@ -1,7 +1,10 @@
 package com.futuro.api_iot_data.dtos;
 
 
-import java.sql.Timestamp;
+import java.sql.Date;
+
+import com.futuro.api_iot_data.models.DTOs.AdminDTO;
+import com.futuro.api_iot_data.models.DTOs.ITemplateDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,13 +17,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CompanyMockDTO {
+public class CompanyMockDTO implements ITemplateDTO {
 	private Long companyId;
     private String companyName;
     private String companyApiKey;
     private Boolean isActive;
-    private Timestamp createdDate;
-    private Timestamp updateDate;
-    private AdminMockDTO adminMockDTO;
-    //private CityMockDTO city;
+    private Date createdDate;
+    private Date updateDate;
+    private AdminDTO adminDTO;
 }
