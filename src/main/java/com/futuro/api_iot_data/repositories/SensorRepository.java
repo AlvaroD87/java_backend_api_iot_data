@@ -11,5 +11,7 @@ import com.futuro.api_iot_data.models.Sensor;
 public interface SensorRepository extends JpaRepository<Sensor, Integer> {
 	
 	Optional<Sensor> findBySensorApiKey(String sensorApiKey);
+	
+	Optional<Sensor> findBySensorNameAndLocationId(String sensorName, Integer locationId);
 
 }

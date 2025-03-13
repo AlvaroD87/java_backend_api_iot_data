@@ -1,4 +1,4 @@
-package com.futuro.api_iot_data.dtos;
+package com.futuro.api_iot_data.models.DTOs;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SensorDTO {
+public class SensorDTO implements ITemplateDTO{
 	
 	private Integer sensorId;
 	

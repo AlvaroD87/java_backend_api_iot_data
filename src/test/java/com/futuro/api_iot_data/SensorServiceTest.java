@@ -1,5 +1,6 @@
 package com.futuro.api_iot_data;
 
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
@@ -14,10 +15,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.futuro.api_iot_data.dtos.SensorDTO;
 import com.futuro.api_iot_data.models.Sensor;
+import com.futuro.api_iot_data.models.DTOs.SensorDTO;
 import com.futuro.api_iot_data.repositories.SensorRepository;
 import com.futuro.api_iot_data.services.SensorService;
+import com.futuro.api_iot_data.services.util.ResponseServices;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,11 +62,12 @@ public class SensorServiceTest {
 	void testGetAllSensors() {
 		when(sensorRepository.findAll()).thenReturn(List.of(sensor));
 		
-		List<SensorDTO> sensors = sensorService.getAllSensors();
+		ResponseServices response = sensorService.getAllSensors();
 		
-		assertFalse(sensors.isEmpty());
-		assertEquals(1, sensors.size());
-		assertEquals("Sensor de Test", sensors.get(0).getSensorName());
+		assertNotNull(response);
+		assertEquals(200, response.getCode());
+		assertFalse(response.getListModelDTO().isEmpty());
+		assertEquals("Sensor de Test", ((SensorDTO) response.getListModelDTO().get(0)).getSensorName());
 		
 	}
 	
@@ -72,20 +75,24 @@ public class SensorServiceTest {
 	void testGetSensorById_Exists() {
 		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
 		
-		SensorDTO result = sensorService.getSensorById(1);
+		ResponseServices response = sensorService.getSensorById(1);
 		
-		assertNotNull(result);
-		assertEquals("Sensor de Test", result.getSensorName());
+		assertNotNull(response);
+		assertEquals(200, response.getCode());
+		assertNotNull(response.getModelDTO());
+		assertEquals("Sensor de Test", ((SensorDTO) response.getModelDTO()).getSensorName());
 	}
 	
 	@Test
 	void testCreateSensor() {
 		when(sensorRepository.save(any(Sensor.class))).thenReturn(sensor);
 		
-		SensorDTO result = sensorService.createSensor(sensorDTO);
+		ResponseServices response = sensorService.createSensor(sensorDTO);
 		
-		assertNotNull(result);
-		assertEquals("Sensor de Test", result.getSensorName());
+		assertNotNull(response);
+		assertEquals(201, response.getCode());
+		assertNotNull(response.getModelDTO());
+		assertEquals("Sensor de Test", ((SensorDTO) response.getModelDTO()).getSensorName());
 	}
 	
 	@Test
@@ -100,15 +107,26 @@ public class SensorServiceTest {
 				Timestamp.valueOf("2025-03-03 13:00:00")
 				);
 		
-		SensorDTO result = sensorService.updateSensor(1, updateSensor);
+		ResponseServices response = sensorService.updateSensor(1, updateSensor);
 		
-		assertNotNull(result);
-		assertEquals("Sensor Modificado", result.getSensorName());
-		assertEquals("Modificado", result.getSensorCategory());
+		assertNotNull(response);
+		assertEquals(200, response.getCode());
+		assertNotNull(response.getModelDTO());
+		assertEquals("Sensor Modificado", ((SensorDTO) response.getModelDTO()).getSensorName());
+		assertEquals("modificación", ((SensorDTO) response.getModelDTO()).getSensorCategory());
 	}
 	
 	@Test
 	void testDeleteSensor() {
+		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
+		doNothing().when(sensorRepository).deleteById(1);
+		
+		ResponseServices response = sensorService.deleteSensor(1);
+		
+		assertNotNull(response);
+		assertEquals(200, response.getCode());
+		assertNotNull(response.getModelDTO());
+		assertEquals("Sensor de Test", ((SensorDTO) response.getModelDTO()).getSensorName());
 		
 	}
 

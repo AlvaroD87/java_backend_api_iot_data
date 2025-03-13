@@ -1,7 +1,6 @@
 package com.futuro.api_iot_data.controllers;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.futuro.api_iot_data.dtos.SensorDTO;
+import com.futuro.api_iot_data.models.DTOs.SensorDTO;
 import com.futuro.api_iot_data.services.SensorService;
+import com.futuro.api_iot_data.services.util.ResponseServices;
 
 import jakarta.validation.Valid;
 
@@ -32,33 +32,50 @@ public class SensorController {
 	private SensorService sensorService;
 	
 	@GetMapping
-	public ResponseEntity<List<SensorDTO>> getAllSensors() {
-		List<SensorDTO> sensors = sensorService.getAllSensors();
-		return ResponseEntity.status(HttpStatus.OK).body(sensors);
+	public ResponseEntity<ResponseServices> getAllSensors() {
+		ResponseServices response = sensorService.getAllSensors();
+		if(response.getCode() == 200) {
+			return ResponseEntity.ok(response);
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<SensorDTO> getSensorById(@PathVariable Integer id) {
-		SensorDTO sensorDTO = sensorService.getSensorById(id);
-		return ResponseEntity.status(HttpStatus.OK.value()).body(sensorDTO);
+	public ResponseEntity<ResponseServices> getSensorById(@PathVariable Integer id) {
+		ResponseServices response = sensorService.getSensorById(id);
+		if(response.getCode() == 200) {
+			return ResponseEntity.ok(response);
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
 	@PostMapping
-	public ResponseEntity<SensorDTO> createSensor(@Valid @RequestBody SensorDTO sensorDTO) {
-		SensorDTO savedSensor = sensorService.createSensor(sensorDTO);
-		return ResponseEntity.status(HttpStatus.OK.value()).body(savedSensor);
+	public ResponseEntity<ResponseServices> createSensor(@Valid @RequestBody SensorDTO sensorDTO) {
+		ResponseServices response = sensorService.createSensor(sensorDTO);
+		if(response.getCode() == 201) {
+			return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		}
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<SensorDTO> updateSensor(@PathVariable Integer id, @Valid @RequestBody SensorDTO sensorDTO) {
-		SensorDTO updatedSensor = sensorService.updateSensor(id, sensorDTO);
-		return ResponseEntity.status(HttpStatus.OK.value()).body(updatedSensor);
+	public ResponseEntity<ResponseServices> updateSensor(@PathVariable Integer id, @Valid @RequestBody SensorDTO sensorDTO) {
+		ResponseServices response = sensorService.updateSensor(id, sensorDTO);
+		if(response.getCode() == 200) {
+			return ResponseEntity.ok(response);
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteSensor(@PathVariable Integer id) {
-		sensorService.deleteSensor(id);
-		return ResponseEntity.status(HttpStatus.OK.value()).body("Sensor con ID " + id + " eliminado correctamente.");
+	public ResponseEntity<ResponseServices> deleteSensor(@PathVariable Integer id) {
+		ResponseServices response = sensorService.deleteSensor(id);
+		
+		if(response.getCode() == 200) {
+			return ResponseEntity.ok(response);
+		}
+		
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)

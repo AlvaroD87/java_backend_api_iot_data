@@ -6,6 +6,8 @@ import java.util.Map;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.futuro.api_iot_data.models.DTOs.SensorDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +28,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "sensors")
 public class Sensor {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer sensorId;
@@ -47,5 +50,18 @@ public class Sensor {
 	private Timestamp createdDate;
 	
 	private Timestamp updateDate;
+	
+	public SensorDTO toSensorDTO() { return new SensorDTO(          
+			this.sensorId,
+            this.sensorName,
+            this.sensorCategory,
+            this.sensorApiKey,
+            this.sensorMeta,
+            this.locationId,
+            this.isActive,
+            this.createdDate,
+            this.updateDate
+            );
+	}
 
 }
