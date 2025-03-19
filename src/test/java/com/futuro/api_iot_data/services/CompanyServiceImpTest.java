@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,11 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Clase de pruebas unitarias para {@link CompanyServiceImp}.
- * Verifica que la lógica de negocio relacionada con la entidad {@link Company} funcione correctamente.
- * Se utilizan mocks para simular las dependencias, como {@link CompanyRepository}.
- */
 class CompanyServiceImpTest {
 
     @Mock
@@ -32,26 +26,21 @@ class CompanyServiceImpTest {
     @InjectMocks
     private CompanyServiceImp companyService;
 
-    /**
-     * Configuración inicial para cada prueba.
-     * Inicializa los mocks y la instancia de {@link CompanyServiceImp}.
-     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     /**
-     * Prueba el caso de éxito para crear una compañía.
-     * Verifica que se cree una compañía correctamente cuando se proporciona un nombre único.
+     * Prueba para crear una compañía exitosamente.
      */
     @Test
-    void createCompany_Success() {
+    void testCreateCompany_Success() {
         // Arrange
         CompanyDTO companyDTO = new CompanyDTO();
         companyDTO.setCompanyName("Example Company");
 
-        when(companyRepository.existsByCompanyName("Example Company")).thenReturn(false);
+        when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(false);
         when(companyRepository.save(any(Company.class))).thenAnswer(invocation -> {
             Company company = invocation.getArgument(0);
             company.setId(1);
@@ -64,82 +53,87 @@ class CompanyServiceImpTest {
 
         // Assert
         assertEquals(200, response.getCode());
-        assertEquals("Company created successfully", response.getMessage());
+        assertEquals("Compañía creada exitosamente", response.getMessage());
         assertNotNull(response.getModelDTO());
+        verify(companyRepository, times(1)).save(any(Company.class));
     }
 
     /**
-     * Prueba el caso de error al crear una compañía con un nombre duplicado.
-     * Verifica que se devuelva un mensaje de error cuando el nombre de la compañía ya existe.
+     * Prueba para crear una compañía con un nombre que ya existe.
      */
     @Test
-    void createCompany_Error_DuplicateName() {
+    void testCreateCompany_NameAlreadyExists() {
         // Arrange
         CompanyDTO companyDTO = new CompanyDTO();
         companyDTO.setCompanyName("Example Company");
 
-        when(companyRepository.existsByCompanyName("Example Company")).thenReturn(true);
+        when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(true);
 
         // Act
         ResponseServices response = companyService.createCompany(companyDTO);
 
         // Assert
         assertEquals(400, response.getCode());
-        assertEquals("A company with the same name already exists", response.getMessage());
+        assertEquals("Ya existe una compañía con el mismo nombre", response.getMessage());
+        verify(companyRepository, never()).save(any(Company.class));
     }
 
     /**
-     * Prueba el caso de éxito para obtener una compañía por su API Key.
-     * Verifica que se devuelva la compañía correcta cuando se proporciona un API Key válido.
+     * Prueba para obtener una compañía por ID y API Key exitosamente.
      */
     @Test
-    void getCompanyByApiKey_Success() {
+    void testGetCompanyById_Success() {
         // Arrange
-        String companyApiKey = UUID.randomUUID().toString();
+        Integer id = 1;
+        String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
+
         Company company = new Company();
+        company.setId(id);
         company.setCompanyName("Example Company");
         company.setCompanyApiKey(companyApiKey);
 
-        when(companyRepository.findByCompanyApiKey(companyApiKey)).thenReturn(Optional.of(company));
+        when(companyRepository.findById(id)).thenReturn(Optional.of(company));
 
         // Act
-        ResponseServices response = companyService.getCompanyByApiKey(companyApiKey);
+        ResponseServices response = companyService.getCompanyById(id, companyApiKey);
 
         // Assert
         assertEquals(200, response.getCode());
-        assertEquals("Company found", response.getMessage());
+        assertEquals("Compañía encontrada", response.getMessage());
         assertNotNull(response.getModelDTO());
+        verify(companyRepository, times(1)).findById(id);
     }
 
     /**
-     * Prueba el caso de error al obtener una compañía con un API Key incorrecto.
-     * Verifica que se devuelva un mensaje de error cuando no se encuentra la compañía.
+     * Prueba para obtener una compañía por ID y API Key incorrectos.
      */
     @Test
-    void getCompanyByApiKey_Error_NotFound() {
+    void testGetCompanyById_NotFoundOrApiKeyMismatch() {
         // Arrange
-        String companyApiKey = UUID.randomUUID().toString();
+        Integer id = 1;
+        String companyApiKey = "incorrect-api-key";
 
-        when(companyRepository.findByCompanyApiKey(companyApiKey)).thenReturn(Optional.empty());
+        when(companyRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        ResponseServices response = companyService.getCompanyByApiKey(companyApiKey);
+        ResponseServices response = companyService.getCompanyById(id, companyApiKey);
 
         // Assert
         assertEquals(404, response.getCode());
-        assertEquals("Company not found with the provided API Key", response.getMessage());
+        assertEquals("Compañía no encontrada o API Key incorrecta", response.getMessage());
+        verify(companyRepository, times(1)).findById(id);
     }
 
     /**
-     * Prueba el caso de éxito para obtener todas las compañías.
-     * Verifica que se devuelva la lista de compañías cuando hay al menos una registrada.
+     * Prueba para obtener todas las compañías exitosamente.
      */
     @Test
-    void getAllCompanies_Success() {
+    void testGetAllCompanies_Success() {
         // Arrange
         Company company = new Company();
+        company.setId(1);
         company.setCompanyName("Example Company");
-        company.setCompanyApiKey(UUID.randomUUID().toString());
+        company.setCompanyApiKey("550e8400-e29b-41d4-a716-446655440000");
 
         when(companyRepository.findAll()).thenReturn(List.of(company));
 
@@ -148,119 +142,131 @@ class CompanyServiceImpTest {
 
         // Assert
         assertEquals(200, response.getCode());
-        assertEquals("Companies found", response.getMessage());
+        assertEquals("Compañías encontradas", response.getMessage());
         assertNotNull(response.getListModelDTO());
+        assertEquals(1, ((List<?>) response.getListModelDTO()).size());
+        verify(companyRepository, times(1)).findAll();
     }
 
     /**
-     * Prueba el caso de error al obtener todas las compañías cuando no hay ninguna registrada.
-     * Verifica que se devuelva un mensaje de error cuando no hay compañías.
+     * Prueba para obtener todas las compañías cuando no hay ninguna.
      */
     @Test
-    void getAllCompanies_Error_NoCompanies() {
+    void testGetAllCompanies_NoCompaniesFound() {
         // Arrange
-        when(companyRepository.findAll()).thenReturn(Collections.emptyList());
+        when(companyRepository.findAll()).thenReturn(List.of());
 
         // Act
         ResponseServices response = companyService.getAllCompanies();
 
         // Assert
         assertEquals(404, response.getCode());
-        assertEquals("No companies found", response.getMessage());
+        assertEquals("No se encontraron compañías", response.getMessage());
+        verify(companyRepository, times(1)).findAll();
     }
 
     /**
-     * Prueba el caso de éxito para actualizar una compañía.
-     * Verifica que se actualice el nombre de la compañía correctamente.
+     * Prueba para actualizar una compañía exitosamente.
      */
     @Test
-    void updateCompany_Success() {
+    void testUpdateCompany_Success() {
         // Arrange
-        String companyApiKey = UUID.randomUUID().toString();
+        Integer id = 1;
+        String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
+
         CompanyDTO companyDTO = new CompanyDTO();
         companyDTO.setCompanyName("Updated Company Name");
 
         Company company = new Company();
+        company.setId(id);
         company.setCompanyName("Example Company");
         company.setCompanyApiKey(companyApiKey);
 
-        when(companyRepository.findByCompanyApiKey(companyApiKey)).thenReturn(Optional.of(company));
-        when(companyRepository.existsByCompanyName("Updated Company Name")).thenReturn(false);
+        when(companyRepository.findById(id)).thenReturn(Optional.of(company));
+        when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(false);
         when(companyRepository.save(any(Company.class))).thenReturn(company);
 
         // Act
-        ResponseServices response = companyService.updateCompany(companyApiKey, companyDTO);
+        ResponseServices response = companyService.updateCompany(id, companyDTO, companyApiKey);
 
         // Assert
         assertEquals(200, response.getCode());
-        assertEquals("Company updated successfully", response.getMessage());
+        assertEquals("Compañía actualizada exitosamente", response.getMessage());
+        verify(companyRepository, times(1)).findById(id);
+        verify(companyRepository, times(1)).save(any(Company.class));
     }
 
     /**
-     * Prueba el caso de error al actualizar una compañía con un nombre duplicado.
-     * Verifica que se devuelva un mensaje de error cuando el nombre de la compañía ya existe.
+     * Prueba para actualizar una compañía con un nombre que ya existe.
      */
     @Test
-    void updateCompany_Error_DuplicateName() {
+    void testUpdateCompany_NameAlreadyExists() {
         // Arrange
-        String companyApiKey = UUID.randomUUID().toString();
+        Integer id = 1;
+        String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
+
         CompanyDTO companyDTO = new CompanyDTO();
-        companyDTO.setCompanyName("Updated Company Name");
+        companyDTO.setCompanyName("Existing Company Name");
 
         Company company = new Company();
+        company.setId(id);
         company.setCompanyName("Example Company");
         company.setCompanyApiKey(companyApiKey);
 
-        when(companyRepository.findByCompanyApiKey(companyApiKey)).thenReturn(Optional.of(company));
-        when(companyRepository.existsByCompanyName("Updated Company Name")).thenReturn(true);
+        when(companyRepository.findById(id)).thenReturn(Optional.of(company));
+        when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(true);
 
         // Act
-        ResponseServices response = companyService.updateCompany(companyApiKey, companyDTO);
+        ResponseServices response = companyService.updateCompany(id, companyDTO, companyApiKey);
 
         // Assert
         assertEquals(400, response.getCode());
-        assertEquals("A company with the same name already exists", response.getMessage());
+        assertEquals("Ya existe una compañía con el mismo nombre", response.getMessage());
+        verify(companyRepository, never()).save(any(Company.class));
     }
 
     /**
-     * Prueba el caso de éxito para eliminar una compañía.
-     * Verifica que se elimine la compañía correctamente.
+     * Prueba para eliminar una compañía exitosamente.
      */
     @Test
-    void deleteCompany_Success() {
+    void testDeleteCompany_Success() {
         // Arrange
-        String companyApiKey = UUID.randomUUID().toString();
+        Integer id = 1;
+        String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
+
         Company company = new Company();
+        company.setId(id);
         company.setCompanyName("Example Company");
         company.setCompanyApiKey(companyApiKey);
 
-        when(companyRepository.findByCompanyApiKey(companyApiKey)).thenReturn(Optional.of(company));
+        when(companyRepository.findById(id)).thenReturn(Optional.of(company));
 
         // Act
-        ResponseServices response = companyService.deleteCompany(companyApiKey);
+        ResponseServices response = companyService.deleteCompany(id, companyApiKey);
 
         // Assert
         assertEquals(200, response.getCode());
-        assertEquals("Company deleted successfully", response.getMessage());
-        verify(companyRepository, times(1)).delete(company);
+        assertEquals("Compañía eliminada exitosamente", response.getMessage());
+        verify(companyRepository, times(1)).delete(any(Company.class));
     }
 
     /**
-     * Prueba el caso de error al eliminar una compañía con un API Key incorrecto.
-     * Verifica que se devuelva un mensaje de error cuando no se encuentra la compañía.
+     * Prueba para eliminar una compañía que no existe o con API Key incorrecta.
      */
     @Test
-    void deleteCompany_Error_NotFound() {
+    void testDeleteCompany_NotFoundOrApiKeyMismatch() {
         // Arrange
-        String companyApiKey = UUID.randomUUID().toString();
+        Integer id = 1;
+        String companyApiKey = "incorrect-api-key";
 
-        when(companyRepository.findByCompanyApiKey(companyApiKey)).thenReturn(Optional.empty());
+        when(companyRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        ResponseServices response = companyService.deleteCompany(companyApiKey);
+        ResponseServices response = companyService.deleteCompany(id, companyApiKey);
 
         // Assert
         assertEquals(404, response.getCode());
-        assertEquals("Company not found with the provided API Key", response.getMessage());
+        assertEquals("Compañía no encontrada o API Key incorrecta", response.getMessage());
+        verify(companyRepository, never()).delete(any(Company.class));
     }
 }
