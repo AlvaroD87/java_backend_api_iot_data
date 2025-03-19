@@ -40,17 +40,18 @@ public class CompanyController {
     }
 
     /**
-     * Obtiene una compañía por su API Key.
+     * Obtiene una compañía por su ID y API Key.
      *
+     * @param id          ID de la compañía a buscar.
      * @param companyApiKey API Key de la compañía.
      * @return Respuesta con la compañía encontrada.
      */
-    @GetMapping("/{companyApiKey}")
-    @Operation(summary = "Obtener una compañía por API Key", description = "Obtiene la información de una compañía por su API Key.")
+    @GetMapping("/{id}")
+    @Operation(summary = "Obtener una compañía por ID", description = "Obtiene la información de una compañía por su ID y API Key.")
     @ApiResponse(responseCode = "200", description = "Company found")
-    @ApiResponse(responseCode = "404", description = "Company not found with the provided API Key")
-    public ResponseEntity<ResponseServices> getCompanyByApiKey(@PathVariable String companyApiKey) {
-        ResponseServices response = companyService.getCompanyByApiKey(companyApiKey);
+    @ApiResponse(responseCode = "404", description = "Company not found or API Key mismatch")
+    public ResponseEntity<ResponseServices> getCompanyById(@PathVariable Integer id, @RequestHeader("Company-Api-Key") String companyApiKey) {
+        ResponseServices response = companyService.getCompanyById(id, companyApiKey);
         return ResponseEntity.status(response.getCode() == 200 ? HttpStatus.OK : HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -71,32 +72,34 @@ public class CompanyController {
     /**
      * Actualiza el nombre de una compañía existente.
      *
-     * @param companyApiKey API Key de la compañía a actualizar.
-     * @param companyDTO    DTO con la nueva información de la compañía.
+     * @param id          ID de la compañía a actualizar.
+     * @param companyDTO  DTO con la nueva información de la compañía.
+     * @param companyApiKey API Key de la compañía.
      * @return Respuesta con el resultado de la operación.
      */
-    @PutMapping("/update/{companyApiKey}")
+    @PutMapping("/update/{id}")
     @Operation(summary = "Actualizar una compañía", description = "Actualiza el nombre de una compañía existente.")
     @ApiResponse(responseCode = "200", description = "Company updated successfully")
     @ApiResponse(responseCode = "400", description = "A company with the same name already exists")
-    @ApiResponse(responseCode = "404", description = "Company not found with the provided API Key")
-    public ResponseEntity<ResponseServices> updateCompany(@PathVariable String companyApiKey, @RequestBody CompanyDTO companyDTO) {
-        ResponseServices response = companyService.updateCompany(companyApiKey, companyDTO);
+    @ApiResponse(responseCode = "404", description = "Company not found or API Key mismatch")
+    public ResponseEntity<ResponseServices> updateCompany(@PathVariable Integer id, @RequestBody CompanyDTO companyDTO, @RequestHeader("Company-Api-Key") String companyApiKey) {
+        ResponseServices response = companyService.updateCompany(id, companyDTO, companyApiKey);
         return ResponseEntity.status(response.getCode() == 200 ? HttpStatus.OK : HttpStatus.BAD_REQUEST).body(response);
     }
 
     /**
-     * Elimina una compañía por su API Key.
+     * Elimina una compañía por su ID y API Key.
      *
-     * @param companyApiKey API Key de la compañía a eliminar.
+     * @param id          ID de la compañía a eliminar.
+     * @param companyApiKey API Key de la compañía.
      * @return Respuesta con el resultado de la operación.
      */
-    @DeleteMapping("/delete/{companyApiKey}")
-    @Operation(summary = "Eliminar una compañía", description = "Elimina una compañía por su API Key.")
+    @DeleteMapping("/delete/{id}")
+    @Operation(summary = "Eliminar una compañía", description = "Elimina una compañía por su ID y API Key.")
     @ApiResponse(responseCode = "200", description = "Company deleted successfully")
-    @ApiResponse(responseCode = "404", description = "Company not found with the provided API Key")
-    public ResponseEntity<ResponseServices> deleteCompany(@PathVariable String companyApiKey) {
-        ResponseServices response = companyService.deleteCompany(companyApiKey);
+    @ApiResponse(responseCode = "404", description = "Company not found or API Key mismatch")
+    public ResponseEntity<ResponseServices> deleteCompany(@PathVariable Integer id, @RequestHeader("Company-Api-Key") String companyApiKey) {
+        ResponseServices response = companyService.deleteCompany(id, companyApiKey);
         return ResponseEntity.status(response.getCode() == 200 ? HttpStatus.OK : HttpStatus.NOT_FOUND).body(response);
     }
 }
