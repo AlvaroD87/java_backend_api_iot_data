@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * DTO (Data Transfer Object) para la entidad Company.
- * Contiene la información necesaria para crear una compañía.
+ * Contiene la información necesaria para crear o actualizar una compañía.
  */
 @Data
 public class CompanyDTO implements ITemplateDTO {
