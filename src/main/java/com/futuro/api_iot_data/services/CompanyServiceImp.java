@@ -38,7 +38,7 @@ public class CompanyServiceImp implements ICompanyService {
     public ResponseServices createCompany(CompanyDTO companyDTO) {
         if (companyRepository.existsByCompanyName(companyDTO.getCompanyName())) {
             return ResponseServices.builder()
-                    .message("A company with the same name already exists")
+                    .message("Ya existe una compañía con el mismo nombre")
                     .code(400)
                     .build();
         }
@@ -60,26 +60,27 @@ public class CompanyServiceImp implements ICompanyService {
         response.setCompanyApiKey(company.getCompanyApiKey());
 
         return ResponseServices.builder()
-                .message("Company created successfully")
+                .message("Compañía creada exitosamente")
                 .code(200)
                 .modelDTO(response)
                 .build();
     }
 
     /**
-     * Obtiene una compañía por su API Key.
+     * Obtiene una compañía por su ID y API Key.
      *
+     * @param id          ID de la compañía a buscar.
      * @param companyApiKey API Key de la compañía.
      * @return Respuesta con el resultado de la operación.
-     *         - Si la compañía no existe, devuelve un mensaje de error.
+     *         - Si la compañía no existe o el API Key no coincide, devuelve un mensaje de error.
      *         - Si la compañía existe, devuelve la compañía encontrada.
      */
     @Override
-    public ResponseServices getCompanyByApiKey(String companyApiKey) {
-        Optional<Company> companyOptional = companyRepository.findByCompanyApiKey(companyApiKey);
-        if (companyOptional.isEmpty()) {
+    public ResponseServices getCompanyById(Integer id, String companyApiKey) {
+        Optional<Company> companyOptional = companyRepository.findById(id);
+        if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
             return ResponseServices.builder()
-                    .message("Company not found with the provided API Key")
+                    .message("Compañía no encontrada o API Key incorrecta")
                     .code(404)
                     .build();
         }
@@ -90,7 +91,7 @@ public class CompanyServiceImp implements ICompanyService {
         response.setCompanyApiKey(company.getCompanyApiKey());
 
         return ResponseServices.builder()
-                .message("Company found")
+                .message("Compañía encontrada")
                 .code(200)
                 .modelDTO(response)
                 .build();
@@ -107,50 +108,47 @@ public class CompanyServiceImp implements ICompanyService {
         List<Company> companies = companyRepository.findAll();
         if (companies.isEmpty()) {
             return ResponseServices.builder()
-                    .message("No companies found")
+                    .message("No se encontraron compañías")
                     .code(404)
                     .build();
         }
 
-        List<CompanyResponse> companyResponses = companies.stream()
-                .map(company -> {
-                    CompanyResponse response = new CompanyResponse();
-                    response.setCompanyName(company.getCompanyName());
-                    response.setCompanyApiKey(company.getCompanyApiKey());
-                    return response;
-                })
+        // Crear una lista de CompanyNameResponse (solo nombres)
+        List<CompanyNameResponse> companyNames = companies.stream()
+                .map(company -> new CompanyNameResponse(company.getCompanyName()))
                 .collect(Collectors.toList());
 
         return ResponseServices.builder()
-                .message("Companies found")
+                .message("Compañías encontradas")
                 .code(200)
-                .listModelDTO(companyResponses)
+                .listModelDTO(companyNames)
                 .build();
     }
 
     /**
      * Actualiza el nombre de una compañía existente.
      *
-     * @param companyApiKey API Key de la compañía a actualizar.
-     * @param companyDTO    DTO con la nueva información de la compañía.
+     * @param id          ID de la compañía a actualizar.
+     * @param companyDTO  DTO con la nueva información de la compañía.
+     * @param companyApiKey API Key de la compañía.
      * @return Respuesta con el resultado de la operación.
-     *         - Si la compañía no existe, devuelve un mensaje de error.
+     *         - Si la compañía no existe o el API Key no coincide, devuelve un mensaje de error.
      *         - Si el nombre de la compañía ya existe, devuelve un mensaje de error.
      *         - Si la compañía se actualiza correctamente, devuelve un mensaje de éxito.
      */
     @Override
-    public ResponseServices updateCompany(String companyApiKey, CompanyDTO companyDTO) {
-        Optional<Company> companyOptional = companyRepository.findByCompanyApiKey(companyApiKey);
-        if (companyOptional.isEmpty()) {
+    public ResponseServices updateCompany(Integer id, CompanyDTO companyDTO, String companyApiKey) {
+        Optional<Company> companyOptional = companyRepository.findById(id);
+        if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
             return ResponseServices.builder()
-                    .message("Company not found with the provided API Key")
+                    .message("Compañía no encontrada o API Key incorrecta")
                     .code(404)
                     .build();
         }
 
         if (companyRepository.existsByCompanyName(companyDTO.getCompanyName())) {
             return ResponseServices.builder()
-                    .message("A company with the same name already exists")
+                    .message("Ya existe una compañía con el mismo nombre")
                     .code(400)
                     .build();
         }
@@ -162,25 +160,26 @@ public class CompanyServiceImp implements ICompanyService {
         companyRepository.save(company);
 
         return ResponseServices.builder()
-                .message("Company updated successfully")
+                .message("Compañía actualizada exitosamente")
                 .code(200)
                 .build();
     }
 
     /**
-     * Elimina una compañía por su API Key.
+     * Elimina una compañía por su ID y API Key.
      *
-     * @param companyApiKey API Key de la compañía a eliminar.
+     * @param id          ID de la compañía a eliminar.
+     * @param companyApiKey API Key de la compañía.
      * @return Respuesta con el resultado de la operación.
-     *         - Si la compañía no existe, devuelve un mensaje de error.
+     *         - Si la compañía no existe o el API Key no coincide, devuelve un mensaje de error.
      *         - Si la compañía se elimina correctamente, devuelve un mensaje de éxito.
      */
     @Override
-    public ResponseServices deleteCompany(String companyApiKey) {
-        Optional<Company> companyOptional = companyRepository.findByCompanyApiKey(companyApiKey);
-        if (companyOptional.isEmpty()) {
+    public ResponseServices deleteCompany(Integer id, String companyApiKey) {
+        Optional<Company> companyOptional = companyRepository.findById(id);
+        if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
             return ResponseServices.builder()
-                    .message("Company not found with the provided API Key")
+                    .message("Compañía no encontrada o API Key incorrecta")
                     .code(404)
                     .build();
         }
@@ -188,7 +187,7 @@ public class CompanyServiceImp implements ICompanyService {
         companyRepository.delete(companyOptional.get());
 
         return ResponseServices.builder()
-                .message("Company deleted successfully")
+                .message("Compañía eliminada exitosamente")
                 .code(200)
                 .build();
     }
@@ -216,6 +215,23 @@ public class CompanyServiceImp implements ICompanyService {
 
         public void setCompanyApiKey(String companyApiKey) {
             this.companyApiKey = companyApiKey;
+        }
+    }
+
+    /**
+     * Clase interna para representar solo el nombre de una compañía.
+     * Implementa ITemplateDTO para ser compatible con ResponseServices.
+     */
+    public static class CompanyNameResponse implements ITemplateDTO {
+        private String companyName;
+
+        public CompanyNameResponse(String companyName) {
+            this.companyName = companyName;
+        }
+
+        // Getter
+        public String getCompanyName() {
+            return companyName;
         }
     }
 }
