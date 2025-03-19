@@ -10,8 +10,8 @@ import com.futuro.api_iot_data.services.util.ResponseServices;
  */
 public interface ICompanyService {
     ResponseServices createCompany(CompanyDTO companyDTO);
-    ResponseServices getCompanyByApiKey(String companyApiKey);
+    ResponseServices getCompanyById(Integer id, String companyApiKey);
     ResponseServices getAllCompanies();
-    ResponseServices updateCompany(String companyApiKey, CompanyDTO companyDTO);
-    ResponseServices deleteCompany(String companyApiKey);
+    ResponseServices updateCompany(Integer id, CompanyDTO companyDTO, String companyApiKey);
+    ResponseServices deleteCompany(Integer id, String companyApiKey);
 }
