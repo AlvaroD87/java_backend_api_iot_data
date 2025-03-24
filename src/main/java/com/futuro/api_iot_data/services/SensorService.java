@@ -55,7 +55,7 @@ public class SensorService {
 		
 	}
 	
-	public ResponseServices getSensorById(Integer sensorId) {
+	public ResponseServices getSensorById(Integer sensorId, String apiKey) {
 		Optional<Sensor> sensorOptional = sensorRepository.findById(sensorId);
 		
 		if(sensorOptional.isPresent()) {
@@ -64,6 +64,22 @@ public class SensorService {
 					.message("Sensor encontrado")
 					.code(200)
 					.modelDTO(sensor.toSensorDTO())
+					.build();
+		}
+		
+		Sensor sensor = sensorOptional.get();
+		
+		if(!sensor.getSensorApiKey().equals(apiKey)) {
+			return ResponseServices.builder()
+					.message("API key inválida")
+					.code(403)
+					.build();
+		}
+		
+		if(apiKey == null || apiKey.isBlank()) {
+			return ResponseServices.builder()
+					.message("Debe ingresar el api_key en el header")
+					.code(400)
 					.build();
 		}
 		

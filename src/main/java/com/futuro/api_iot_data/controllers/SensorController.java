@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,10 +42,19 @@ public class SensorController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<ResponseServices> getSensorById(@PathVariable Integer id) {
-		ResponseServices response = sensorService.getSensorById(id);
+	public ResponseEntity<ResponseServices> getSensorById(
+			@PathVariable Integer id,
+			@RequestHeader(value = "api_key") String apiKey) {
+		
+		ResponseServices response = sensorService.getSensorById(id, apiKey);
 		if(response.getCode() == 200) {
 			return ResponseEntity.ok(response);
+		}
+		if(response.getCode() == 400) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+		}
+		if(response.getCode() == 403) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
 		}
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
