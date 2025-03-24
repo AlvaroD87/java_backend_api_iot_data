@@ -27,7 +27,7 @@ public class SecurityConfig {
 				.httpBasic(Customizer.withDefaults())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(http -> {
-					http.anyRequest().permitAll(); // Cambiar regla en producción
+					http.anyRequest().permitAll(); // TO-DO Cambiar regla en producción
 				})
 				.build();
 	}
