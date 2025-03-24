@@ -224,4 +224,8 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/maven,java,eclipse,linux,windows,macos
 
 # ignore propios
+
 application.properties
+database.properties
+application-test.properties
+
