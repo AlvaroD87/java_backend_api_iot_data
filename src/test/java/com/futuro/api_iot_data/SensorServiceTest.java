@@ -40,18 +40,18 @@ public class SensorServiceTest {
 	void setUp() {
 		sensor = new Sensor();
 		sensor.setSensorId(1);
-		sensor.setSensorName("Sensor de Test");
-		sensor.setSensorCategory("Test");
+		sensor.setSensorName("Sensor de Prueba");
+		sensor.setSensorCategory("Prueba");
 		sensor.setSensorApiKey("abc123");
-		sensor.setSensorMeta(Map.of("Test", 30));
+		sensor.setSensorMeta(Map.of("Prueba", 30));
 		sensor.setLocationId(3);
 		sensor.setIsActive(true);
 		sensor.setCreatedDate(Timestamp.valueOf("2025-03-02 12:00:00"));
 		sensor.setUpdateDate(Timestamp.valueOf("2025-03-02 13:00:00"));
 		
 		sensorDTO = new SensorDTO(
-				1,"Sensor de Test","Test","abc123",
-				Map.of("Test", 30), 3, true,
+				1,"Sensor de Prueba","Prueba","abc123",
+				Map.of("Prueba", 30), 3, true,
 				Timestamp.valueOf("2025-03-02 12:00:00"),
 				Timestamp.valueOf("2025-03-02 13:00:00")
 				);
@@ -66,8 +66,9 @@ public class SensorServiceTest {
 		
 		assertNotNull(response);
 		assertEquals(200, response.getCode());
+		assertEquals("Lista de sensores obtenida exitosamente", response.getMessage());		
 		assertFalse(response.getListModelDTO().isEmpty());
-		assertEquals("Sensor de Test", ((SensorDTO) response.getListModelDTO().get(0)).getSensorName());
+		assertEquals("Sensor de Prueba", ((SensorDTO) response.getListModelDTO().get(0)).getSensorName());
 		
 	}
 	
@@ -79,8 +80,9 @@ public class SensorServiceTest {
 		
 		assertNotNull(response);
 		assertEquals(200, response.getCode());
+		assertEquals("Sensor encontrado", response.getMessage());
 		assertNotNull(response.getModelDTO());
-		assertEquals("Sensor de Test", ((SensorDTO) response.getModelDTO()).getSensorName());
+		assertEquals("Sensor de Prueba", ((SensorDTO) response.getModelDTO()).getSensorName());
 	}
 	
 	@Test
@@ -91,8 +93,9 @@ public class SensorServiceTest {
 		
 		assertNotNull(response);
 		assertEquals(201, response.getCode());
+		assertEquals("Sensor creado exitosamente", response.getMessage());
 		assertNotNull(response.getModelDTO());
-		assertEquals("Sensor de Test", ((SensorDTO) response.getModelDTO()).getSensorName());
+		assertEquals("Sensor de Prueba", ((SensorDTO) response.getModelDTO()).getSensorName());
 	}
 	
 	@Test
@@ -111,6 +114,7 @@ public class SensorServiceTest {
 		
 		assertNotNull(response);
 		assertEquals(200, response.getCode());
+		assertEquals("Sensor actualizado exitosamente", response.getMessage());
 		assertNotNull(response.getModelDTO());
 		assertEquals("Sensor Modificado", ((SensorDTO) response.getModelDTO()).getSensorName());
 		assertEquals("modificación", ((SensorDTO) response.getModelDTO()).getSensorCategory());
@@ -125,8 +129,9 @@ public class SensorServiceTest {
 		
 		assertNotNull(response);
 		assertEquals(200, response.getCode());
+		assertEquals("Sensor eliminado exitosamente", response.getMessage());
 		assertNotNull(response.getModelDTO());
-		assertEquals("Sensor de Test", ((SensorDTO) response.getModelDTO()).getSensorName());
+		assertEquals("Sensor de Prueba", ((SensorDTO) response.getModelDTO()).getSensorName());
 		
 	}
 

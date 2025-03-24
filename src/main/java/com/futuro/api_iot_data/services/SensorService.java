@@ -41,14 +41,14 @@ public class SensorService {
 		
 		if(sensorList.isEmpty()) {	
 			return ResponseServices.builder()
-					.message("No sensors found")
+					.message("No se encontraron sensores")
 					.code(404)
 					.listModelDTO(new ArrayList<>())
 					.build();
 		}
 		
 		return ResponseServices.builder()
-				.message("All sensors success")
+				.message("Lista de sensores obtenida exitosamente")
 				.code(200)
 				.listModelDTO(sensorList)
 				.build();
@@ -61,14 +61,14 @@ public class SensorService {
 		if(sensorOptional.isPresent()) {
 			Sensor sensor = sensorOptional.get();
 			return ResponseServices.builder()
-					.message("Sensor find")
+					.message("Sensor encontrado")
 					.code(200)
 					.modelDTO(sensor.toSensorDTO())
 					.build();
 		}
 		
 		return ResponseServices.builder()
-				.message("Sensor with ID " + sensorId + " no found")
+				.message("Sensor con ID " + sensorId + " no encontrado")
 				.code(300)
 				.modelDTO(new SensorDTO())
 				.build();
@@ -81,7 +81,7 @@ public class SensorService {
 		
 		if(existSensor.isPresent()) {
 			return ResponseServices.builder()
-					.message("Sensor alredy exists")
+					.message("El sensro ya existe")
 					.code(300)
 					.modelDTO(existSensor.map(Sensor::toSensorDTO).orElse(new SensorDTO()))
 					.build();
@@ -100,7 +100,7 @@ public class SensorService {
 		Sensor savedSensor = sensorRepository.save(sensor);
 		
 		return ResponseServices.builder()
-				.message("Sensor created successfully")
+				.message("Sensor creado exitosamente")
 				.code(201)
 				.modelDTO(savedSensor.toSensorDTO())
 				.build();
@@ -112,7 +112,7 @@ public class SensorService {
 		
 		if(optionalSensor.isEmpty()) {
 			return ResponseServices.builder()
-					.message("Sensor with ID " + sensorId + " not found.")
+					.message("Sensor con ID " + sensorId + " not encontrado")
 					.code(404)
 					.modelDTO(new SensorDTO())
 					.build();
@@ -132,7 +132,7 @@ public class SensorService {
 		Sensor savedSensor = sensorRepository.save(sensor);
 		
 		return ResponseServices.builder()
-				.message("Sensor updated successfully")
+				.message("Sensor actualizado exitosamente")
 				.code(200)
 				.modelDTO(savedSensor.toSensorDTO())
 				.build();
@@ -143,7 +143,7 @@ public class SensorService {
 		
 		if(optionalSendor.isEmpty()) {			
 			return ResponseServices.builder()
-					.message("Sensor with ID " + id + " not found.")
+					.message("Sensor con ID " + id + " no encontrado")
 					.code(404)
 					.build();
 		}
@@ -154,7 +154,7 @@ public class SensorService {
 		sensorRepository.deleteById(id);
 		
 		return ResponseServices.builder()
-				.message("Sensor deleted success")
+				.message("Sensor eliminado exitosamente")
 				.code(200)
 				.modelDTO(selectSensor)
 				.build();

@@ -25,7 +25,7 @@ import com.futuro.api_iot_data.services.util.ResponseServices;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/sensors")
+@RequestMapping("/sensors")
 public class SensorController {
 	
 	@Autowired
