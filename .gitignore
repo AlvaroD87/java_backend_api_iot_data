@@ -225,3 +225,4 @@ $RECYCLE.BIN/
 
 # ignore propios
 application.properties
+src/main/resources/application.properties
