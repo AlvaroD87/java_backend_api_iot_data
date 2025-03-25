@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.futuro.api_iot_data.dtos.LocationDTO;
+import com.futuro.api_iot_data.models.DTOs.LocationDTO;
 import com.futuro.api_iot_data.services.ILocationService;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 

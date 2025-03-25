@@ -1,11 +1,7 @@
-package com.futuro.api_iot_data.dtos;
+package com.futuro.api_iot_data.models.DTOs;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.Map;
-
-import com.futuro.api_iot_data.models.DTOs.CityDTO;
-import com.futuro.api_iot_data.models.DTOs.ITemplateDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,8 +23,10 @@ public class LocationDTO implements ITemplateDTO{
 	private Integer locationId;
     private String locationName;
     private Map<String, Object> locationMeta;
-    private CompanyMockDTO companyDTO;
-    private CityDTO cityDTO;
+    // private CompanyDTO companyDTO;
+    private Integer companyId;
+    // private CityDTO cityDTO;
+    private Integer cityId;
     private Boolean isActive;
     private Date createdDate;
     private Date updateDate;

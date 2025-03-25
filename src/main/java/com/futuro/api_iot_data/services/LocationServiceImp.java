@@ -7,14 +7,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.futuro.api_iot_data.dtos.CompanyMockDTO;
-import com.futuro.api_iot_data.dtos.LocationDTO;
 import com.futuro.api_iot_data.models.City;
-import com.futuro.api_iot_data.models.CompanyMock;
+import com.futuro.api_iot_data.models.Company;
 import com.futuro.api_iot_data.models.Location;
-import com.futuro.api_iot_data.models.DTOs.AdminDTO;
+import com.futuro.api_iot_data.models.DTOs.LocationDTO;
 import com.futuro.api_iot_data.repositories.CityRepository;
-import com.futuro.api_iot_data.repositories.CompanyMockRepository;
+import com.futuro.api_iot_data.repositories.CompanyRepository;
 import com.futuro.api_iot_data.repositories.LocationRepository;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
@@ -28,7 +26,7 @@ public class LocationServiceImp implements ILocationService {
 	private LocationRepository locationRepository;
 
 	@Autowired
-	private CompanyMockRepository companyMockRepository;
+	private CompanyRepository companyRepository;
 
 	@Autowired
 	private CityRepository cityRepository;
@@ -64,14 +62,14 @@ public class LocationServiceImp implements ILocationService {
 		}
 
 		// Se valida la compañia
-		if (locationDTO.getCompanyDTO() == null || locationDTO.getCompanyDTO().getCompanyId() == null) {
+		if (locationDTO.getCompanyId() == null) {
 			return ResponseServices.builder()
 					.code(400)
 					.message("La compañía es obligatoria")
 					.modelDTO(locationDTO)
 					.build();
 		}
-		CompanyMock company = companyMockRepository.findById(locationDTO.getCompanyDTO().getCompanyId()).orElse(null);
+		Company company = companyRepository.findById(locationDTO.getCompanyId()).orElse(null);
 		if (company == null) {
 			return ResponseServices.builder()
 					.code(400)
@@ -80,14 +78,14 @@ public class LocationServiceImp implements ILocationService {
 					.build();
 		}
 
-		if (locationDTO.getCityDTO() == null || locationDTO.getCityDTO().getName() == null) {
+		if (locationDTO.getCityId() == null) {
 			return ResponseServices.builder()
 					.code(400)
 					.message("La ciudad es obligatoria")
 					.modelDTO(locationDTO)
 					.build();
 		}
-		City city = cityRepository.findByName(locationDTO.getCityDTO().getName()).orElse(null);
+		City city = cityRepository.findById(locationDTO.getCityId()).orElse(null);
 		if (city == null) {
 			return ResponseServices.builder()
 					.code(400)
@@ -139,11 +137,11 @@ public class LocationServiceImp implements ILocationService {
 		}
 
 		// Se valida la compañía
-		CompanyMock company;
-		if (locationDTO.getCompanyDTO() == null || locationDTO.getCompanyDTO().getCompanyId() == null) {
+		Company company;
+		if (locationDTO.getCompanyId() == null) {
 			company = objLocation.getCompany();
 		} else {
-			company = companyMockRepository.findById(locationDTO.getCompanyDTO().getCompanyId()).orElse(null);
+			company = companyRepository.findById(locationDTO.getCompanyId()).orElse(null);
 			if(company == null){
 				return ResponseServices.builder()
 				.code(400)
@@ -156,10 +154,10 @@ public class LocationServiceImp implements ILocationService {
 		// Se valida la ciudad
 		City city;
 
-		if (locationDTO.getCityDTO() == null || locationDTO.getCityDTO().getName() == null) {
+		if (locationDTO.getCityId() == null) {
 			city = objLocation.getCity();
 		} else {
-			city = cityRepository.findByName(locationDTO.getCityDTO().getName()).orElse(null);
+			city = cityRepository.findById(locationDTO.getCityId()).orElse(null);
 			if(city == null){
 				return ResponseServices.builder()
 				.code(400)
@@ -249,22 +247,14 @@ public class LocationServiceImp implements ILocationService {
 	}
 
 	private LocationDTO parseLocationDataToLocationDTO(Location objLocation) {
-		AdminDTO adminDTO = new AdminDTO();
-		adminDTO.setUsername(objLocation.getCompany().getAdmin().getUsername());
+		//AdminDTO adminDTO = new AdminDTO();
+		//adminDTO.setUsername(objLocation.getCompany().getAdmin().getUsername());
 		return LocationDTO.builder()
 				.locationId(objLocation.getLocationId())
 				.locationName(objLocation.getLocationName())
 				.locationMeta(objLocation.getLocationMeta())
-				.companyDTO(CompanyMockDTO.builder()
-						.companyId(objLocation.getCompany().getCompanyId())
-						.companyName(objLocation.getCompany().getCompanyName())
-						.companyApiKey(objLocation.getCompany().getCompanyApiKey())
-						.adminDTO(adminDTO)
-						.isActive(objLocation.getCompany().getIsActive())
-						.createdDate(objLocation.getCompany().getCreatedDate())
-						.updateDate(objLocation.getCompany().getUpdateDate())
-						.build())
-				.cityDTO(objLocation.getCity().toCityDTO())
+				.companyId(objLocation.getCompany().getId())
+				.cityId(objLocation.getCity().getId())
 				.isActive(objLocation.getIsActive())
 				.createdDate(objLocation.getCreatedDate())
 				.updateDate(objLocation.getUpdateDate())
