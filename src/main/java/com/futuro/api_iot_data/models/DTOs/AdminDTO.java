@@ -1,4 +1,6 @@
-package com.futuro.api_iot_data.models.DAOs;
+package com.futuro.api_iot_data.models.DTOs;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,9 +13,10 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class AdminDAO implements ITemplateDAO{
+public class AdminDTO implements ITemplateDTO{
 	
 	private String username;
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 
 }

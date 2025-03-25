@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futuro.api_iot_data.models.Admin;
-import com.futuro.api_iot_data.models.DAOs.AdminDAO;
+import com.futuro.api_iot_data.models.DTOs.AdminDTO;
 import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.securities.services.PasswordEncoderImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
@@ -22,11 +22,11 @@ public class AdminServiceImp implements IAdminService{
 	PasswordEncoderImp passwordService;
 	
 	@Override
-	public ResponseServices create(AdminDAO newAdminDAO) {
+	public ResponseServices create(AdminDTO newAdminDAO) {
 		
 		if(adminRepo.findByUsername(newAdminDAO.getUsername()).isPresent()) {
 			return ResponseServices.builder()
-					.modelDAO(newAdminDAO)
+					.modelDTO(newAdminDAO)
 					.message("Duplicate username")
 					.code(300)
 					.build();
@@ -42,7 +42,7 @@ public class AdminServiceImp implements IAdminService{
 		);
 		
 		return ResponseServices.builder()
-				.modelDAO(newAdminDAO)
+				.modelDTO(newAdminDAO)
 				.message("Admin created")
 				.code(200)
 				.build();

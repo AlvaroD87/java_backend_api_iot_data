@@ -226,3 +226,6 @@ $RECYCLE.BIN/
 # ignore propios
 application.properties
 database.properties
+application-test.properties
+database.properties
+
