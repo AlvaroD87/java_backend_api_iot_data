@@ -13,7 +13,7 @@ import com.futuro.api_iot_data.services.AdminServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/v1/admin")
 public class AdminController {
 
 	@Autowired

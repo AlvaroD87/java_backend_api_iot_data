@@ -1,4 +1,4 @@
-package com.futuro.api_iot_data.util;
+package com.futuro.api_iot_data.cache;
 
 import java.util.Map;
 //import java.util.Set;

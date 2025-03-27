@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Proporciona endpoints para crear, actualizar, eliminar y consultar locaciones.
  */
 @RestController
-@RequestMapping("/locations")
+@RequestMapping("/api/v1/location")
 @Tag(name="Location Controller", description="API para la gestión de locaciones")
 public class LocationController {
 	@Autowired

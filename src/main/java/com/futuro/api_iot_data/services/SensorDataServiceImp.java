@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.futuro.api_iot_data.cache.SensorCacheData;
 import com.futuro.api_iot_data.models.SensorData;
 import com.futuro.api_iot_data.repositories.SensorDataRepository;
 import com.futuro.api_iot_data.services.util.ResponseServices;
-import com.futuro.api_iot_data.util.SensorCacheData;
 
 import jakarta.transaction.Transactional;
 
