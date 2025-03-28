@@ -52,7 +52,7 @@ public class Location {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
-    private CompanyMock company;
+    private Company company;
     //private Integer companyId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")

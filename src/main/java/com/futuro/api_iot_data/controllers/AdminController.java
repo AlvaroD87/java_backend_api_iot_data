@@ -13,14 +13,13 @@ import com.futuro.api_iot_data.services.AdminServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/v1/admin")
 public class AdminController {
 
 	@Autowired
 	AdminServiceImp adminService;
 	
 	@PostMapping("/create")
-	//public ResponseEntity<AdminDTO> createAdmin(@RequestBody AdminDTO newAdmin){
 	public ResponseEntity<ResponseServices> createAdmin(@RequestBody AdminDTO newAdmin){
 		
 		ResponseServices response = adminService.create(newAdmin);
