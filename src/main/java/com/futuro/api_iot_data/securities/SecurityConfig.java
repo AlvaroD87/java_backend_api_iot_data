@@ -17,26 +17,29 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import com.futuro.api_iot_data.cache.CompanyCacheData;
 import com.futuro.api_iot_data.cache.SensorCacheData;
 import com.futuro.api_iot_data.securities.util.ServerIPValidator;
+import com.futuro.api_iot_data.securities.util.CompanyApiKeyValidator;
 import com.futuro.api_iot_data.securities.util.SensorApiKeyValidator;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
+	
 	@Autowired
-	SensorCacheData sensorCacheData;
+	CompanyCacheData companyCacheData;
 	
 	private final List<String> pathsToValidateByServerIPValidator = List.of("/api/v1/admin/",
 																			"/api/v1/city/",
 																			"/api/v1/country/"
 																			);
-	private final List<String> pathsToValidateBySensorApiKeyValidator = List.of("/api/v1/sensor-data/");
+	private final List<String> pathsToValidateByCompanyApiKeyValidator = List.of("/api/v1/location/",
+																				 "/api/v1/sensor/"
+																				);
 	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -55,8 +58,8 @@ public class SecurityConfig {
 					*/
 					http.anyRequest().authenticated();
 				})
-				.addFilterBefore(new ServerIPValidator(pathsToValidateByServerIPValidator), BasicAuthenticationFilter.class) //UsernamePasswordAuthenticationFilter.class)
-				.addFilterBefore(new SensorApiKeyValidator(sensorCacheData,pathsToValidateBySensorApiKeyValidator), BasicAuthenticationFilter.class) //UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(new ServerIPValidator(pathsToValidateByServerIPValidator), BasicAuthenticationFilter.class)
+				.addFilterBefore(new CompanyApiKeyValidator(companyCacheData, pathsToValidateByCompanyApiKeyValidator), BasicAuthenticationFilter.class)
 				.build();
 	}
 	

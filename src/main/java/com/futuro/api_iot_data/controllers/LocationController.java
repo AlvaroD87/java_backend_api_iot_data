@@ -41,7 +41,7 @@ public class LocationController {
      * Obtiene una lista con todas las locaciones registradas.
      * @return ResponseEntity con la lista de locaciones
      */
-	@GetMapping
+	@GetMapping("/all")
 	@Operation(summary="Obtener el listado de locaciones", description = "Retorna una lista con todas las locaciones registradas")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de locaciones encontradas",content = @Content(schema = @Schema(implementation = ResponseServices.class))),
@@ -73,7 +73,7 @@ public class LocationController {
      * @param locationDTO DTO con la información de la locación a crear
      * @return ResonseEntity con el DTO de la locación creada
      */
-	@PostMapping
+	@PostMapping("/create")
     @Operation(summary = "Crear una nueva locación", description = "Crea una nueva locación con la información proporcionada.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Locación creada exitosamente", content = @Content(schema = @Schema(implementation = ResponseServices.class))),

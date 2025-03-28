@@ -31,7 +31,7 @@ public class SensorController {
 	@Autowired
 	private SensorService sensorService;
 	
-	@GetMapping
+	@GetMapping("/all")
 	public ResponseEntity<ResponseServices> getAllSensors() {
 		ResponseServices response = sensorService.getAllSensors();
 		if(response.getCode() == 200) {
@@ -49,7 +49,7 @@ public class SensorController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
-	@PostMapping
+	@PostMapping("/create")
 	public ResponseEntity<ResponseServices> createSensor(@Valid @RequestBody SensorDTO sensorDTO) {
 		ResponseServices response = sensorService.createSensor(sensorDTO);
 		if(response.getCode() == 201) {
