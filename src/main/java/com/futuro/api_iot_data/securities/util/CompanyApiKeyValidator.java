@@ -35,7 +35,6 @@ public class CompanyApiKeyValidator extends OncePerRequestFilter{
 		
 		if(headerCompanyApiKey == null || !companyCacheData.isValidCompanyApiKey(headerCompanyApiKey)) {
 			response.sendError(HttpStatus.BAD_REQUEST.value(), "api_key invalida o inexistente");
-			return;
 		}
 		
 		Authentication authentication = new UsernamePasswordAuthenticationToken(headerCompanyApiKey, null, null);
@@ -51,5 +50,4 @@ public class CompanyApiKeyValidator extends OncePerRequestFilter{
 		String requestPath = request.getRequestURI();
 		return !pathsToApplyFilter.stream().anyMatch(p -> requestPath.startsWith(p));
 	}
-
 }

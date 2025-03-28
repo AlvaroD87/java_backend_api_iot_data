@@ -42,8 +42,6 @@ public class ServerIPValidator extends OncePerRequestFilter{
 					serverIp == null ? HttpStatus.INTERNAL_SERVER_ERROR.value() : HttpStatus.BAD_REQUEST.value(), 
 					serverIp == null ? "Error de Servidor" : "Bad Request"
 			);
-			
-			return;
 		}
 		
 		Authentication authentication = new UsernamePasswordAuthenticationToken(clientIp, null, null);
