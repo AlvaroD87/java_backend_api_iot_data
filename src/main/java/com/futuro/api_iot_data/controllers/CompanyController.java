@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * incluyendo la creación, consulta, actualización y eliminación.
  */
 @RestController
-@RequestMapping("/company")
+@RequestMapping("/api/v1/company")
 @RequiredArgsConstructor
 @Tag(name = "Company", description = "Controlador para la gestión de compañías")
 public class CompanyController {

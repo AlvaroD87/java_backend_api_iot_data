@@ -18,12 +18,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.futuro.api_iot_data.models.Admin;
 import com.futuro.api_iot_data.models.City;
 import com.futuro.api_iot_data.models.Company;
 import com.futuro.api_iot_data.models.Country;
 import com.futuro.api_iot_data.models.Location;
+import com.futuro.api_iot_data.models.DTOs.AdminDTO;
 import com.futuro.api_iot_data.models.DTOs.LocationDTO;
 import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.repositories.CityRepository;

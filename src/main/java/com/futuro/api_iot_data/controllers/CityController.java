@@ -14,7 +14,7 @@ import com.futuro.api_iot_data.services.CityServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
 @RestController
-@RequestMapping("city")
+@RequestMapping("/api/v1/city")
 public class CityController {
 
 	@Autowired

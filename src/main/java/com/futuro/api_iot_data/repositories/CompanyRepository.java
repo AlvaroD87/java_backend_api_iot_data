@@ -2,8 +2,10 @@ package com.futuro.api_iot_data.repositories;
 
 import com.futuro.api_iot_data.models.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,4 +29,19 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
      * @return La compañía encontrada, si existe.
      */
     Optional<Company> findByCompanyApiKey(String companyApiKey);
+    
+    @Query(value="""
+    				select
+    					c.company_api_key,
+    					s.sensor_api_key,
+    					s.sensor_id
+    				from
+    					companies c
+    					join locations l on c.company_id=l.company_id
+    					join sensors s on l.location_id=s.location_id
+    				;
+    			""",
+    		nativeQuery = true
+    		)
+    List<Object[]> joinedCompanyKeySensorKey();
 }

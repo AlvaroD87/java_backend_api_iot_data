@@ -13,7 +13,7 @@ import com.futuro.api_iot_data.services.CountryServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
 @RestController
-@RequestMapping("/country")
+@RequestMapping("/api/v1/country")
 public class CountryController {
 
 	@Autowired

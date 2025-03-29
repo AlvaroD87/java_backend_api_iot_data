@@ -2,7 +2,6 @@ package com.futuro.api_iot_data.models.DTOs;
 
 import java.sql.Date;
 import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
