@@ -2,9 +2,9 @@ spring.application.name=java_backend_api_iot_data
 
 # Base de datos 
 spring.datasource.driver-class-name=org.postgresql.Driver
-spring.datasource.url=jdbc:postgresql://localhost:5433/java_backend_api_iot_data
-spring.datasource.username=postgres
-spring.datasource.password=1234
+spring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:java_backend_api_iot_data}
+spring.datasource.username=${DB_USER:postgres}
+spring.datasource.password=${DB_PASSWORD:1234}
 
 # Swagger
 springdoc.api-docs.enabled=true

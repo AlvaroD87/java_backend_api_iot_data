@@ -53,11 +53,9 @@ public class Location {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
-    //private Integer companyId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
     private City city;
-    //private Integer cityId;
     private Boolean isActive;
     private Date createdDate;
     private Date updateDate;

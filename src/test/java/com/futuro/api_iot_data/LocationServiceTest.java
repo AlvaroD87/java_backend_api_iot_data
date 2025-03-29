@@ -18,8 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.futuro.api_iot_data.dtos.CompanyMockDTO;
 import com.futuro.api_iot_data.models.Admin;
 import com.futuro.api_iot_data.models.City;
 import com.futuro.api_iot_data.models.Company;
@@ -123,7 +121,7 @@ class LocationServiceTest {
     void testCreateLocationSuccess() {
         when(companyRepository.findById(any(Integer.class))).thenReturn(Optional.of(company));
         // when(cityRepository.findById(any(Long.class))).thenReturn(Optional.of(city));
-        when(cityRepository.findByName(any(String.class))).thenReturn(Optional.of(city));
+        when(cityRepository.findById(any(Integer.class))).thenReturn(Optional.of(city));
         when(locationRepository.save(any(Location.class))).thenReturn(location);
 
         ResponseServices response = locationService.create(locationDTO);
@@ -164,7 +162,7 @@ class LocationServiceTest {
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
         when(locationRepository.save(any(Location.class))).thenReturn(location);
         when(companyRepository.findById(any(Integer.class))).thenReturn(Optional.of(company));
-        when(cityRepository.findByName(any(String.class))).thenReturn(Optional.of(city));
+        when(cityRepository.findById(any(Integer.class))).thenReturn(Optional.of(city));
 
         String nombreActualizado = "Nombre de locación actualizado";
         locationDTO.setLocationName(nombreActualizado);

@@ -1,11 +1,7 @@
 package com.futuro.api_iot_data.models.DTOs;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.Map;
-
-import com.futuro.api_iot_data.dtos.CompanyMockDTO;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
