@@ -1,5 +1,7 @@
 package com.futuro.api_iot_data.securities.services;
 
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +23,7 @@ public class UserDetailsServiceImp implements UserDetailsService{
 		
 		Admin admin = adminRepo.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("Doesn't exist username %s", username)));
 		
-		return new User(admin.getUsername(), admin.getPassword(), admin.getIs_active(), true, true, true, null);
+		return new User(admin.getUsername(), admin.getPassword(), admin.getIs_active(), true, true, true, Collections.emptyList());
 	}
 
 }

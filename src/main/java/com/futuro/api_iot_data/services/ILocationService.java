@@ -1,6 +1,6 @@
 package com.futuro.api_iot_data.services;
 
-import com.futuro.api_iot_data.dtos.LocationDTO;
+import com.futuro.api_iot_data.models.DTOs.LocationDTO;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
 /**

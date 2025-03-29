@@ -4,7 +4,7 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.futuro.api_iot_data.models.SensorMock;
+import com.futuro.api_iot_data.models.Sensor;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +24,7 @@ public class SensorDataDTO implements ITemplateDTO {
 	
 	private JsonNode data;
 	private Integer sensorId;
-	private SensorMock sensor;
+	private Sensor sensor;
 	private Instant createdEpoch;
 	
 }

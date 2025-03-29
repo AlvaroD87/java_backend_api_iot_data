@@ -1,5 +1,8 @@
 package com.futuro.api_iot_data.securities;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,12 +17,30 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import com.futuro.api_iot_data.cache.CompanyCacheData;
+import com.futuro.api_iot_data.cache.SensorCacheData;
+import com.futuro.api_iot_data.securities.util.ServerIPValidator;
+import com.futuro.api_iot_data.securities.util.CompanyApiKeyValidator;
+import com.futuro.api_iot_data.securities.util.SensorApiKeyValidator;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
+	
+	@Autowired
+	CompanyCacheData companyCacheData;
+	
+	private final List<String> pathsToValidateByServerIPValidator = List.of("/api/v1/admin/",
+																			"/api/v1/city/",
+																			"/api/v1/country/"
+																			);
+	private final List<String> pathsToValidateByCompanyApiKeyValidator = List.of("/api/v1/location/",
+																				 "/api/v1/sensor/"
+																				);
+	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity
@@ -27,8 +48,18 @@ public class SecurityConfig {
 				.httpBasic(Customizer.withDefaults())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(http -> {
-					http.anyRequest().permitAll(); // TO-DO Cambiar regla en producción
+					/*
+					http.requestMatchers("/api/v1/admin/**").authenticated();
+					http.requestMatchers("/api/v1/company/**").authenticated();
+					http.requestMatchers("/api/v1/location/**").authenticated();
+					http.requestMatchers("/api/v1/sensor/**").authenticated();
+					http.requestMatchers("/api/v1/sensor-data/**").authenticated();
+					http.requestMatchers("/api/v1/city/**").permitAll();
+					*/
+					http.anyRequest().authenticated();
 				})
+				.addFilterBefore(new ServerIPValidator(pathsToValidateByServerIPValidator), BasicAuthenticationFilter.class)
+				.addFilterBefore(new CompanyApiKeyValidator(companyCacheData, pathsToValidateByCompanyApiKeyValidator), BasicAuthenticationFilter.class)
 				.build();
 	}
 	
