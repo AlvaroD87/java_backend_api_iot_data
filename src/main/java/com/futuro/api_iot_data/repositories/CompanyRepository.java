@@ -37,8 +37,8 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     					s.sensor_id
     				from
     					companies c
-    					join locations l on c.company_id=l.company_id
-    					join sensors s on l.location_id=s.location_id
+    					left join locations l on c.company_id=l.company_id
+    					left join sensors s on l.location_id=s.location_id
     				;
     			""",
     		nativeQuery = true

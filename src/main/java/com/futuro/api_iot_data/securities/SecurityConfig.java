@@ -19,11 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.futuro.api_iot_data.cache.CompanyCacheData;
-import com.futuro.api_iot_data.cache.SensorCacheData;
+import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.securities.util.ServerIPValidator;
 import com.futuro.api_iot_data.securities.util.CompanyApiKeyValidator;
-import com.futuro.api_iot_data.securities.util.SensorApiKeyValidator;
 
 @Configuration
 @EnableWebSecurity
@@ -31,7 +29,7 @@ import com.futuro.api_iot_data.securities.util.SensorApiKeyValidator;
 public class SecurityConfig {
 	
 	@Autowired
-	CompanyCacheData companyCacheData;
+	ApiKeysCacheData apiKeysCacheData;
 	
 	private final List<String> pathsToValidateByServerIPValidator = List.of("/api/v1/admin/",
 																			"/api/v1/city/",
@@ -48,18 +46,11 @@ public class SecurityConfig {
 				.httpBasic(Customizer.withDefaults())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(http -> {
-					/*
-					http.requestMatchers("/api/v1/admin/**").authenticated();
-					http.requestMatchers("/api/v1/company/**").authenticated();
-					http.requestMatchers("/api/v1/location/**").authenticated();
-					http.requestMatchers("/api/v1/sensor/**").authenticated();
-					http.requestMatchers("/api/v1/sensor-data/**").authenticated();
-					http.requestMatchers("/api/v1/city/**").permitAll();
-					*/
+					http.requestMatchers("/api/v1/sensor-data/**").permitAll();
 					http.anyRequest().authenticated();
 				})
 				.addFilterBefore(new ServerIPValidator(pathsToValidateByServerIPValidator), BasicAuthenticationFilter.class)
-				.addFilterBefore(new CompanyApiKeyValidator(companyCacheData, pathsToValidateByCompanyApiKeyValidator), BasicAuthenticationFilter.class)
+				.addFilterBefore(new CompanyApiKeyValidator(apiKeysCacheData, pathsToValidateByCompanyApiKeyValidator), BasicAuthenticationFilter.class)
 				.build();
 	}
 	

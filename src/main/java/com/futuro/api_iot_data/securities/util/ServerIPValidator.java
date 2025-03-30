@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -37,11 +39,22 @@ public class ServerIPValidator extends OncePerRequestFilter{
             throw new RuntimeException("Failed to get server IP", e);
         }
 		
-		if(serverIp == null || (!serverIp.equals(clientIp) && !clientIp.equals("127.0.0.1") && !clientIp.equals("0:0:0:0:0:0:0:1"))) {
-			response.sendError(
-					serverIp == null ? HttpStatus.INTERNAL_SERVER_ERROR.value() : HttpStatus.BAD_REQUEST.value(), 
-					serverIp == null ? "Error de Servidor" : "Bad Request"
-			);
+		if(Objects.isNull(serverIp) || !(serverIp.equals(clientIp) || clientIp.equals("127.0.0.1") || clientIp.equals("0:0:0:0:0:0:0:1"))) {
+						
+			SecurityContextHolder.clearContext();
+			
+			int errorCode = Objects.isNull(serverIp) ? HttpStatus.INTERNAL_SERVER_ERROR.value() : HttpStatus.BAD_REQUEST.value();
+			String errorReason = Objects.isNull(serverIp) ? HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase() : HttpStatus.BAD_REQUEST.getReasonPhrase();
+			String errorMessage = Objects.isNull(serverIp) ? "error interno de servidor" : "cliente no autorizado";
+			
+			response.setStatus(errorCode);
+	        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+	        
+	        response.getWriter().write(String.format("{\"status\": %d, \"error\": \"%s\", \"message\": \"%s\"}", errorCode, errorReason, errorMessage));
+	        
+	        response.getWriter().flush();
+	        
+	        return;
 		}
 		
 		Authentication authentication = new UsernamePasswordAuthenticationToken(clientIp, null, null);
