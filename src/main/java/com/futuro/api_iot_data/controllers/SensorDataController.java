@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,21 +26,28 @@ public class SensorDataController {
 	SensorDataServiceImp sensorDataService;
 		
 	@PostMapping("/insert-data")
-	public ResponseEntity<ResponseServices> insertData(@RequestHeader("api-key") String sensorApiKey, @RequestBody JsonNode jsonBody) {
+	public ResponseEntity<ResponseServices> insertData(@RequestBody JsonNode jsonBody) {
 		
+		JsonNode jsonApiKey = jsonBody.get("api_key");
 		JsonNode jsonData = jsonBody.get("json_data");
 		
-		if(jsonData == null ) {
+		if(jsonData == null || jsonApiKey == null ) {
 			return ResponseEntity
 					.status(HttpStatus.OK) // TO-DO Modificar por mejor código de status
-					.body(ResponseServices.builder().code(300).message(String.format("Recepción de data vacía para api_key %s", sensorApiKey)).build());
+					.body(ResponseServices.builder()
+							.code(300)
+							.message("El body de la solicitud inválido")
+					.build());
 		}
 		
 		List<JsonNode> dataList = jsonData.isArray() ? StreamSupport.stream(jsonData.spliterator(), false).collect(Collectors.toList()) : List.of(jsonData);
+		String sensorApiKey = jsonApiKey.asText();
+		
+		ResponseServices response = sensorDataService.insertData(sensorApiKey, dataList);
 		
 		return ResponseEntity
-				.status(HttpStatus.OK)
-				.body(sensorDataService.insertData(sensorApiKey, dataList));
+				.status(response.getCode() == 400 ? HttpStatus.BAD_REQUEST : HttpStatus.OK)
+				.body(response);
 	}
 	
 	@GetMapping("/get-data")

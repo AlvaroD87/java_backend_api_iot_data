@@ -2,15 +2,17 @@ package com.futuro.api_iot_data.securities.util;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.futuro.api_iot_data.cache.CompanyCacheData;
+import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,11 +21,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class CompanyApiKeyValidator extends OncePerRequestFilter{
 
-	private CompanyCacheData companyCacheData;
+	private ApiKeysCacheData apiKeysCacheData;
 	private List<String> pathsToApplyFilter;
 	
-	public CompanyApiKeyValidator(CompanyCacheData companyCacheData, List<String> pathsToApplyFilter) {
-		this.companyCacheData = companyCacheData;
+	public CompanyApiKeyValidator(ApiKeysCacheData apiKeysCacheData, List<String> pathsToApplyFilter) {
+		this.apiKeysCacheData = apiKeysCacheData;
 		this.pathsToApplyFilter = pathsToApplyFilter;
 	}
 	
@@ -33,8 +35,22 @@ public class CompanyApiKeyValidator extends OncePerRequestFilter{
 		
 		String headerCompanyApiKey = request.getHeader("api-key");
 		
-		if(headerCompanyApiKey == null || !companyCacheData.isValidCompanyApiKey(headerCompanyApiKey)) {
-			response.sendError(HttpStatus.BAD_REQUEST.value(), "api_key invalida o inexistente");
+		if(Objects.isNull(headerCompanyApiKey) || !apiKeysCacheData.isValidCompanyApiKey(headerCompanyApiKey)) {
+			
+			SecurityContextHolder.clearContext();
+			
+			response.setStatus(HttpStatus.BAD_REQUEST.value());
+	        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+	        
+	        response.getWriter().write(String.format("{\"status\": %d, \"error\": \"%s\", \"message\": \"%s\"}", 
+	        											HttpStatus.BAD_REQUEST.value(), 
+	        											HttpStatus.BAD_REQUEST.getReasonPhrase(), 
+	        											"api_key invalida o inexistente")
+	        							);
+	        
+	        response.getWriter().flush();
+	        
+	        return;
 		}
 		
 		Authentication authentication = new UsernamePasswordAuthenticationToken(headerCompanyApiKey, null, null);

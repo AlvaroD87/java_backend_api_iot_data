@@ -1,11 +1,14 @@
 package com.futuro.api_iot_data.services;
 
+import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.models.Company;
 import com.futuro.api_iot_data.models.DTOs.CompanyDTO;
 import com.futuro.api_iot_data.models.DTOs.ITemplateDTO;
 import com.futuro.api_iot_data.repositories.CompanyRepository;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -25,6 +28,9 @@ import java.util.stream.Collectors;
 public class CompanyServiceImp implements ICompanyService {
 
     private final CompanyRepository companyRepository;
+    
+    @Autowired
+    private ApiKeysCacheData apiKeysCacheData;
 
     /**
      * Crea una nueva compañía en el sistema.
@@ -53,7 +59,9 @@ public class CompanyServiceImp implements ICompanyService {
         company.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 
         companyRepository.save(company);
-
+        
+        apiKeysCacheData.setNewApiKey(companyApiKey);
+        
         // Crear un DTO para la respuesta
         CompanyResponse response = new CompanyResponse();
         response.setCompanyName(company.getCompanyName());
