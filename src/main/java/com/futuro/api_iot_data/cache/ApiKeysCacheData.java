@@ -1,7 +1,9 @@
 package com.futuro.api_iot_data.cache;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Component;
@@ -39,8 +41,8 @@ public class ApiKeysCacheData {
 		return apiKeyList.searchValues(1, s -> s.containsKey(sensorApiKey) ? true : null);
 	}
 	
-	public List<Integer> getCompanySensorIds(String companyApiKey) {
-		return new ArrayList<Integer>(apiKeyList.getOrDefault(companyApiKey, new ConcurrentHashMap<String, Integer>()).values());
+	public Set<Integer> getCompanySensorIds(String companyApiKey) {
+		return new HashSet<Integer>(apiKeyList.getOrDefault(companyApiKey, new ConcurrentHashMap<String, Integer>()).values());
 	}
 	
 	public Integer getSensorId(String sensorApiKey) {

@@ -10,11 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.futuro.api_iot_data.services.SensorDataServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
@@ -24,7 +28,9 @@ public class SensorDataController {
 
 	@Autowired
 	SensorDataServiceImp sensorDataService;
-		
+	
+	private final ObjectMapper objectMapper = new ObjectMapper();
+	
 	@PostMapping("/insert-data")
 	public ResponseEntity<ResponseServices> insertData(@RequestBody JsonNode jsonBody) {
 		
@@ -52,9 +58,23 @@ public class SensorDataController {
 	
 	@GetMapping("/get-data")
 	public ResponseEntity<ResponseServices> getData(
-			@RequestParam(value = "company_api_key", required = true) String companyApiKey
+			@RequestHeader(name = "api-key", required = true) String companyApiKey,
+			@RequestParam(name = "from") Integer fromEpoch,
+			@RequestParam(name = "to") Integer toEpoch,
+			@RequestParam(name = "sensor_id") List<Integer> sensorId
 			)
 	{
-		return null;
+		ObjectNode parameters = objectMapper.createObjectNode();
+		
+		parameters.put("companyApiKey", companyApiKey);
+		parameters.put("fromEpoch", fromEpoch);
+		parameters.put("toEpoch", toEpoch);
+		
+		ArrayNode arraySensorId = objectMapper.createArrayNode();
+		sensorId.forEach(s -> arraySensorId.add(s));
+		
+		parameters.set("sensorId", arraySensorId);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(sensorDataService.getData(parameters));
 	}
 }
