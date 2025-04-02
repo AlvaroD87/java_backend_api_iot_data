@@ -9,3 +9,10 @@ spring.datasource.password=${DB_PASSWORD:1234}
 # Swagger
 springdoc.api-docs.enabled=true
 springdoc.swagger-ui.path=/doc/swagger-ui.html
+
+# Active MQ
+spring.activemq.broker-url=tcp://186.64.120.248:61617
+spring.activemq.user=admin
+spring.activemq.password=admin
+spring.activemq.in-memory=false
+spring.jms.pub-sub-domain=false
