@@ -14,16 +14,23 @@ import com.futuro.api_iot_data.models.SensorData;
 public interface SensorDataRepository extends JpaRepository<SensorData, Integer>{
 
 	@Query(value = """
-				SELECT * 
-				FROM sensors_data s 
-			    WHERE s.sensor_id in (:sensorId)
-			    AND (:fromEpoch IS NULL OR (s.data->>'datetime')::int >= :fromEpoch) 
-			    AND (:toEpoch IS NULL OR (s.data->>'datetime')::int <= :toEpoch) 
+				SELECT
+					sd.sensor_data_id,
+					sd.data,
+					sd.sensor_id,
+					sd.is_active,
+					sd.created_date
+				FROM sensors_data sd JOIN sensors s ON sd.sensor_id = s.sensor_id
+			    WHERE (:sensorId IS NULL OR s.sensor_id in (:sensorId))
+				AND (:sensorCategory IS NULL OR s.sensor_category in (:sensorCategory)) 
+			    AND (:fromEpoch IS NULL OR (sd.data->>'datetime')::int >= :fromEpoch) 
+			    AND (:toEpoch IS NULL OR (sd.data->>'datetime')::int <= :toEpoch)
 			""",
 			nativeQuery = true)
 	List<SensorData> findAllByParameters(
 				@Param("sensorId") Set<Integer> sensorId,
 				@Param("fromEpoch") Integer fromEpoch,
-				@Param("toEpoch") Integer toEpoch
+				@Param("toEpoch") Integer toEpoch,
+				@Param("sensorCategory") Set<String> sensorCategory
 			);
 }

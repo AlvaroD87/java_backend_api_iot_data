@@ -59,9 +59,10 @@ public class SensorDataController {
 	@GetMapping("/get-data")
 	public ResponseEntity<ResponseServices> getData(
 			@RequestHeader(name = "api-key", required = true) String companyApiKey,
-			@RequestParam(name = "from") Integer fromEpoch,
-			@RequestParam(name = "to") Integer toEpoch,
-			@RequestParam(name = "sensor_id") List<Integer> sensorId
+			@RequestParam(name = "from", required = false) Integer fromEpoch,
+			@RequestParam(name = "to", required = false) Integer toEpoch,
+			@RequestParam(name = "sensor_id", required = false, defaultValue = "") List<Integer> sensorId,
+			@RequestParam(name = "sensor_category", required = false, defaultValue = "") List<String> sensorCategory
 			)
 	{
 		ObjectNode parameters = objectMapper.createObjectNode();
@@ -71,9 +72,12 @@ public class SensorDataController {
 		parameters.put("toEpoch", toEpoch);
 		
 		ArrayNode arraySensorId = objectMapper.createArrayNode();
-		sensorId.forEach(s -> arraySensorId.add(s));
-		
+		sensorId.stream().filter(i -> i != null).forEach(s -> arraySensorId.add(s));
 		parameters.set("sensorId", arraySensorId);
+		
+		ArrayNode arraySensorCategory = objectMapper.createArrayNode();
+		sensorCategory.stream().filter(s -> !s.isBlank()).forEach(c -> arraySensorCategory.add(c));
+		parameters.set("sensorCategory", arraySensorCategory);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(sensorDataService.getData(parameters));
 	}
