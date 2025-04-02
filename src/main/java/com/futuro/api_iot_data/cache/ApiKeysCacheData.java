@@ -1,8 +1,6 @@
 package com.futuro.api_iot_data.cache;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -49,7 +47,15 @@ public class ApiKeysCacheData {
 		return apiKeyList.searchValues(1, s -> s.get(sensorApiKey));
 	}
 	
-	public void setNewApiKey(String newApiKey) {
+	public void setNewCompanyApiKey(String newApiKey) {
 		apiKeyList.putIfAbsent(newApiKey, new ConcurrentHashMap<String, Integer>());
+	}
+	
+	public void setNewSensorApiKey(String companyApiKey, String newSensorApiKey, Integer newSensorId) {
+		apiKeyList.get(companyApiKey).put(newSensorApiKey, newSensorId);
+	}
+	
+	public void deleteSensorApiKey(String companyApiKey, String sensorApiKey) {
+		apiKeyList.get(companyApiKey).remove(sensorApiKey);
 	}
 }

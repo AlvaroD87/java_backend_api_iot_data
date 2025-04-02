@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,8 +51,10 @@ public class SensorController {
 	}
 	
 	@PostMapping("/create")
-	public ResponseEntity<ResponseServices> createSensor(@Valid @RequestBody SensorDTO sensorDTO) {
-		ResponseServices response = sensorService.createSensor(sensorDTO);
+	public ResponseEntity<ResponseServices> createSensor(@RequestHeader(name = "api-key", required = true) String companyApiKey, 
+														 @Valid @RequestBody SensorDTO sensorDTO) 
+	{
+		ResponseServices response = sensorService.createSensor(companyApiKey, sensorDTO);
 		if(response.getCode() == 201) {
 			return ResponseEntity.status(HttpStatus.CREATED).body(response);
 		}
@@ -68,8 +71,8 @@ public class SensorController {
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<ResponseServices> deleteSensor(@PathVariable Integer id) {
-		ResponseServices response = sensorService.deleteSensor(id);
+	public ResponseEntity<ResponseServices> deleteSensor(@RequestHeader(name = "api-key", required = true) String companyApiKey, @PathVariable Integer id) {
+		ResponseServices response = sensorService.deleteSensor(companyApiKey,id);
 		
 		if(response.getCode() == 200) {
 			return ResponseEntity.ok(response);

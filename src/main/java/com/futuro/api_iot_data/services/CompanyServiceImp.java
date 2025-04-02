@@ -60,7 +60,7 @@ public class CompanyServiceImp implements ICompanyService {
 
         companyRepository.save(company);
         
-        apiKeysCacheData.setNewApiKey(companyApiKey);
+        apiKeysCacheData.setNewCompanyApiKey(companyApiKey);
         
         // Crear un DTO para la respuesta
         CompanyResponse response = new CompanyResponse();

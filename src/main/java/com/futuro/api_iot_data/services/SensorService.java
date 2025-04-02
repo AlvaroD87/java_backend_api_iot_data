@@ -1,12 +1,16 @@
 package com.futuro.api_iot_data.services;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.models.Sensor;
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
 import com.futuro.api_iot_data.repositories.SensorRepository;
@@ -17,6 +21,9 @@ public class SensorService {
 
 	@Autowired
 	private SensorRepository sensorRepository;
+	
+	@Autowired
+	private ApiKeysCacheData apiKeyCacheData;
 	
 	public ResponseServices getAllSensors() {
 		
@@ -75,7 +82,7 @@ public class SensorService {
 		
 	}
 	
-	public ResponseServices createSensor(SensorDTO sensorDTO) {
+	public ResponseServices createSensor(String companyApiKey, SensorDTO sensorDTO) {
 		
 		Optional<Sensor> existSensor = sensorRepository.findBySensorNameAndLocationId(sensorDTO.getSensorName(), sensorDTO.getLocationId());
 		
@@ -90,14 +97,17 @@ public class SensorService {
 		Sensor sensor = new Sensor();
 		sensor.setSensorName(sensorDTO.getSensorName());
 		sensor.setSensorCategory(sensorDTO.getSensorCategory());
-		sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
+		//sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
+		sensor.setSensorApiKey(UUID.randomUUID().toString());
 		sensor.setSensorMeta(sensorDTO.getSensorMeta());
 		sensor.setLocationId(sensorDTO.getLocationId());
-		sensor.setIsActive(sensorDTO.getIsActive());
-		sensor.setCreatedDate(sensorDTO.getCreatedDate());
-		sensor.setUpdateDate(sensorDTO.getUpdateDate());
+		sensor.setIsActive(true);
+		sensor.setCreatedDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		sensor.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		
 		Sensor savedSensor = sensorRepository.save(sensor);
+		
+		apiKeyCacheData.setNewSensorApiKey(companyApiKey, savedSensor.getSensorApiKey(), savedSensor.getSensorId());
 		
 		return ResponseServices.builder()
 				.message("Sensor creado exitosamente")
@@ -122,12 +132,12 @@ public class SensorService {
 		
 		sensor.setSensorName(sensorDTO.getSensorName());
 		sensor.setSensorCategory(sensorDTO.getSensorCategory());
-		sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
+		//sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
 		sensor.setSensorMeta(sensorDTO.getSensorMeta());
 		sensor.setLocationId(sensorDTO.getLocationId());
-		sensor.setIsActive(sensorDTO.getIsActive());
-		sensor.setCreatedDate(sensorDTO.getCreatedDate());
-		sensor.setUpdateDate(sensorDTO.getUpdateDate());
+		//sensor.setIsActive(sensorDTO.getIsActive());
+		//sensor.setCreatedDate(sensorDTO.getCreatedDate());
+		sensor.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		
 		Sensor savedSensor = sensorRepository.save(sensor);
 		
@@ -138,7 +148,7 @@ public class SensorService {
 				.build();
 	}
 	
-	public ResponseServices deleteSensor(Integer id) {
+	public ResponseServices deleteSensor(String companyApiKey, Integer id) {
 		Optional<Sensor> optionalSendor = sensorRepository.findById(id);
 		
 		if(optionalSendor.isEmpty()) {			
@@ -152,6 +162,8 @@ public class SensorService {
 		SensorDTO selectSensor = sensorInfo.toSensorDTO();
 		
 		sensorRepository.deleteById(id);
+		
+		apiKeyCacheData.deleteSensorApiKey(companyApiKey, sensorInfo.getSensorApiKey());
 		
 		return ResponseServices.builder()
 				.message("Sensor eliminado exitosamente")
