@@ -69,6 +69,7 @@ public class LocationServiceImp implements ILocationService {
 					.modelDTO(locationDTO)
 					.build();
 		}
+		
 		Company company = companyRepository.findById(locationDTO.getCompanyId()).orElse(null);
 		if (company == null) {
 			return ResponseServices.builder()
