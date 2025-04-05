@@ -23,7 +23,7 @@ import com.futuro.api_iot_data.services.SensorDataServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
 @RestController
-@RequestMapping("/api/v1/sensor-data")
+@RequestMapping("/api/v1/sensor_data")
 public class SensorDataController {
 
 	@Autowired
@@ -31,7 +31,7 @@ public class SensorDataController {
 	
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	
-	@PostMapping("/insert-data")
+	@PostMapping//("/insert-data")
 	public ResponseEntity<ResponseServices> insertData(@RequestBody JsonNode jsonBody) {
 		
 		JsonNode jsonApiKey = jsonBody.get("api_key");
@@ -56,7 +56,7 @@ public class SensorDataController {
 				.body(response);
 	}
 	
-	@GetMapping("/get-data")
+	@GetMapping//("/get-data")
 	public ResponseEntity<ResponseServices> getData(
 			@RequestHeader(name = "api-key", required = true) String companyApiKey,
 			@RequestParam(name = "from", required = false) Integer fromEpoch,

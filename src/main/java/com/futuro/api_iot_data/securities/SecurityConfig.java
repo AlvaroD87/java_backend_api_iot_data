@@ -1,10 +1,12 @@
 package com.futuro.api_iot_data.securities;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -31,14 +33,17 @@ public class SecurityConfig {
 	@Autowired
 	ApiKeysCacheData apiKeysCacheData;
 	
-	private final List<String> pathsToValidateByServerIPValidator = List.of("/api/v1/admin/",
-																			"/api/v1/city/",
-																			"/api/v1/country/"
-																			);
-	private final List<String> pathsToValidateByCompanyApiKeyValidator = List.of("/api/v1/location/",
-																				 "/api/v1/sensor/"
-																				);
+	private final Map<String, List<String>> pathsToValidateByServerIp = Map.of("/api/v1/admin", List.of("POST","PUT","DELETE"), 
+																			   "/api/v1/city", List.of("POST","PUT","DELETE"), 
+																			   "/api/v1/country", List.of("POST","PUT","DELETE")
+																			  );
 	
+	private final Map<String, List<String>> pathsToValidateByApiKey = Map.of("/api/v1/city", List.of("GET"),
+																			 "/api/v1/country", List.of("GET"),
+																			 "/api/v1/location", List.of("GET","POST","PUT","DELETE"),
+																			 "/api/v1/sensor", List.of("GET","POST","PUT","DELETE"),
+																			 "/api/v1/sensor_data", List.of("GET")
+																			);
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity
@@ -46,11 +51,11 @@ public class SecurityConfig {
 				.httpBasic(Customizer.withDefaults())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(http -> {
-					http.requestMatchers("/api/v1/sensor-data/**").permitAll();
+					http.requestMatchers(HttpMethod.POST,"/api/v1/sensor_data").permitAll();
 					http.anyRequest().authenticated();
 				})
-				.addFilterBefore(new ServerIPValidator(pathsToValidateByServerIPValidator), BasicAuthenticationFilter.class)
-				.addFilterBefore(new CompanyApiKeyValidator(apiKeysCacheData, pathsToValidateByCompanyApiKeyValidator), BasicAuthenticationFilter.class)
+				.addFilterBefore(new ServerIPValidator(pathsToValidateByServerIp), BasicAuthenticationFilter.class)
+				.addFilterBefore(new CompanyApiKeyValidator(apiKeysCacheData, pathsToValidateByApiKey), BasicAuthenticationFilter.class)
 				.build();
 	}
 	

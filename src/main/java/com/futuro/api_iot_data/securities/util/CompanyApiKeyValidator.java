@@ -2,6 +2,7 @@ package com.futuro.api_iot_data.securities.util;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
@@ -22,9 +23,9 @@ import jakarta.servlet.http.HttpServletResponse;
 public class CompanyApiKeyValidator extends OncePerRequestFilter{
 
 	private ApiKeysCacheData apiKeysCacheData;
-	private List<String> pathsToApplyFilter;
+	private Map<String,List<String>> pathsToApplyFilter;
 	
-	public CompanyApiKeyValidator(ApiKeysCacheData apiKeysCacheData, List<String> pathsToApplyFilter) {
+	public CompanyApiKeyValidator(ApiKeysCacheData apiKeysCacheData, Map<String,List<String>> pathsToApplyFilter) {
 		this.apiKeysCacheData = apiKeysCacheData;
 		this.pathsToApplyFilter = pathsToApplyFilter;
 	}
@@ -34,7 +35,7 @@ public class CompanyApiKeyValidator extends OncePerRequestFilter{
 			throws ServletException, IOException {
 		
 		String headerCompanyApiKey = request.getHeader("api-key");
-		
+		System.out.println(apiKeysCacheData.isValidCompanyApiKey(headerCompanyApiKey));
 		if(Objects.isNull(headerCompanyApiKey) || !apiKeysCacheData.isValidCompanyApiKey(headerCompanyApiKey)) {
 			
 			SecurityContextHolder.clearContext();
@@ -45,7 +46,8 @@ public class CompanyApiKeyValidator extends OncePerRequestFilter{
 	        response.getWriter().write(String.format("{\"status\": %d, \"error\": \"%s\", \"message\": \"%s\"}", 
 	        											HttpStatus.BAD_REQUEST.value(), 
 	        											HttpStatus.BAD_REQUEST.getReasonPhrase(), 
-	        											"api_key invalida o inexistente")
+	        											"api_key invalida o inexistente"
+	        										)
 	        							);
 	        
 	        response.getWriter().flush();
@@ -63,7 +65,8 @@ public class CompanyApiKeyValidator extends OncePerRequestFilter{
 	
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		String requestPath = request.getRequestURI();
-		return !pathsToApplyFilter.stream().anyMatch(p -> requestPath.startsWith(p));
+		return pathsToApplyFilter.containsKey(request.getRequestURI()) 
+				? !pathsToApplyFilter.get(request.getRequestURI()).contains(request.getMethod()) 
+				: true;
 	}
 }

@@ -21,7 +21,7 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Integer>
 					sd.is_active,
 					sd.created_date
 				FROM sensors_data sd JOIN sensors s ON sd.sensor_id = s.sensor_id
-			    WHERE (:sensorId IS NULL OR s.sensor_id in (:sensorId))
+			    WHERE s.sensor_id in (:sensorId)
 				AND (:sensorCategory IS NULL OR s.sensor_category in (:sensorCategory)) 
 			    AND (:fromEpoch IS NULL OR (sd.data->>'datetime')::int >= :fromEpoch) 
 			    AND (:toEpoch IS NULL OR (sd.data->>'datetime')::int <= :toEpoch)
