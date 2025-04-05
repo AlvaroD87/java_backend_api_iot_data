@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
@@ -23,11 +22,13 @@ import jakarta.servlet.http.HttpServletResponse;
 public class CompanyApiKeyValidator extends OncePerRequestFilter{
 
 	private ApiKeysCacheData apiKeysCacheData;
-	private Map<String,List<String>> pathsToApplyFilter;
+	private Map<String,List<String>> pathsToApplyFilter;	
+	private AuthenticationEntryPoint failureHandler;
 	
-	public CompanyApiKeyValidator(ApiKeysCacheData apiKeysCacheData, Map<String,List<String>> pathsToApplyFilter) {
+	public CompanyApiKeyValidator(ApiKeysCacheData apiKeysCacheData, Map<String,List<String>> pathsToApplyFilter, AuthenticationEntryPoint failureHandler) {	
 		this.apiKeysCacheData = apiKeysCacheData;
 		this.pathsToApplyFilter = pathsToApplyFilter;
+		this.failureHandler = failureHandler;
 	}
 	
 	@Override
@@ -40,18 +41,11 @@ public class CompanyApiKeyValidator extends OncePerRequestFilter{
 			
 			SecurityContextHolder.clearContext();
 			
-			response.setStatus(HttpStatus.BAD_REQUEST.value());
-	        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-	        
-	        response.getWriter().write(String.format("{\"status\": %d, \"error\": \"%s\", \"message\": \"%s\"}", 
-	        											HttpStatus.BAD_REQUEST.value(), 
-	        											HttpStatus.BAD_REQUEST.getReasonPhrase(), 
-	        											"api_key invalida o inexistente"
-	        										)
-	        							);
-	        
-	        response.getWriter().flush();
-	        
+			failureHandler.commence(request,
+									response, 
+									new AuthenticationFailException("api_key invalida o inexistente")
+								   );
+						
 	        return;
 		}
 		

@@ -7,12 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -23,9 +22,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class ServerIPValidator extends OncePerRequestFilter{
 
 	private Map<String,List<String>> pathsToApplyFilter;
+	private AuthenticationEntryPoint failureHandler;
 	
-	public ServerIPValidator(Map<String,List<String>> pathsToApplyFilter) {
+	public ServerIPValidator(Map<String,List<String>> pathsToApplyFilter, AuthenticationEntryPoint failureHandler) {
 		this.pathsToApplyFilter = pathsToApplyFilter;
+		this.failureHandler = failureHandler;
 	}
 	
 	@Override
@@ -43,18 +44,12 @@ public class ServerIPValidator extends OncePerRequestFilter{
 		if(Objects.isNull(serverIp) || !(serverIp.equals(clientIp) || clientIp.equals("127.0.0.1") || clientIp.equals("0:0:0:0:0:0:0:1"))) {
 						
 			SecurityContextHolder.clearContext();
-			
-			int errorCode = Objects.isNull(serverIp) ? HttpStatus.INTERNAL_SERVER_ERROR.value() : HttpStatus.BAD_REQUEST.value();
-			String errorReason = Objects.isNull(serverIp) ? HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase() : HttpStatus.BAD_REQUEST.getReasonPhrase();
-			String errorMessage = Objects.isNull(serverIp) ? "error interno de servidor" : "cliente no autorizado";
-			
-			response.setStatus(errorCode);
-	        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-	        
-	        response.getWriter().write(String.format("{\"status\": %d, \"error\": \"%s\", \"message\": \"%s\"}", errorCode, errorReason, errorMessage));
-	        
-	        response.getWriter().flush();
-	        
+						
+			failureHandler.commence(request,
+									response, 
+									new AuthenticationFailException("api_key invalida o inexistente")
+								   );
+
 	        return;
 		}
 		

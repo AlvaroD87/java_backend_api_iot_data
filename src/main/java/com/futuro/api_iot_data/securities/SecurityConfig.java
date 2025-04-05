@@ -24,6 +24,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.securities.util.ServerIPValidator;
 import com.futuro.api_iot_data.securities.util.CompanyApiKeyValidator;
+import com.futuro.api_iot_data.securities.util.CustomAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
@@ -44,6 +45,9 @@ public class SecurityConfig {
 																			 "/api/v1/sensor", List.of("GET","POST","PUT","DELETE"),
 																			 "/api/v1/sensor_data", List.of("GET")
 																			);
+	@Autowired
+	private CustomAuthenticationEntryPoint authenticationEntryPoint;
+	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity
@@ -54,8 +58,9 @@ public class SecurityConfig {
 					http.requestMatchers(HttpMethod.POST,"/api/v1/sensor_data").permitAll();
 					http.anyRequest().authenticated();
 				})
-				.addFilterBefore(new ServerIPValidator(pathsToValidateByServerIp), BasicAuthenticationFilter.class)
-				.addFilterBefore(new CompanyApiKeyValidator(apiKeysCacheData, pathsToValidateByApiKey), BasicAuthenticationFilter.class)
+				.addFilterBefore(new ServerIPValidator(pathsToValidateByServerIp, authenticationEntryPoint), BasicAuthenticationFilter.class)
+				.addFilterBefore(new CompanyApiKeyValidator(apiKeysCacheData, pathsToValidateByApiKey, authenticationEntryPoint), BasicAuthenticationFilter.class)
+				.exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
 				.build();
 	}
 	
