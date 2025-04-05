@@ -30,7 +30,7 @@ public class CompanyController {
      * @param companyDTO DTO con el nombre de la compañía a crear.
      * @return Respuesta con el resultado de la operación.
      */
-    @PostMapping("/create")
+    @PostMapping//("/create")
     @Operation(summary = "Crear una compañía", description = "Crea una nueva compañía en el sistema.")
     @ApiResponse(responseCode = "201", description = "Company created successfully")
     @ApiResponse(responseCode = "400", description = "A company with the same name already exists")

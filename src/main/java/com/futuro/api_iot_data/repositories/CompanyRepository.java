@@ -2,6 +2,7 @@ package com.futuro.api_iot_data.repositories;
 
 import com.futuro.api_iot_data.models.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -29,6 +30,9 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
      * @return La compañía encontrada, si existe.
      */
     Optional<Company> findByCompanyApiKey(String companyApiKey);
+    
+    @Query(value = "select * from companies where admin_id = ?1", nativeQuery = true)
+    List<Company> findAllByAdminId(Integer adminId);
     
     @Query(value="""
     				select

@@ -4,11 +4,15 @@ import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.models.Company;
 import com.futuro.api_iot_data.models.DTOs.CompanyDTO;
 import com.futuro.api_iot_data.models.DTOs.ITemplateDTO;
+import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.repositories.CompanyRepository;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -32,6 +36,9 @@ public class CompanyServiceImp implements ICompanyService {
     @Autowired
     private ApiKeysCacheData apiKeysCacheData;
 
+    @Autowired
+    private AdminRepository adminRepository;
+    
     /**
      * Crea una nueva compañía en el sistema.
      *
@@ -49,11 +56,14 @@ public class CompanyServiceImp implements ICompanyService {
                     .build();
         }
 
+        // Obtenemos el Usuario authenticado
+        String username = ((UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         String companyApiKey = UUID.randomUUID().toString();
 
         Company company = new Company();
         company.setCompanyName(companyDTO.getCompanyName());
         company.setCompanyApiKey(companyApiKey);
+        company.setAdminId(adminRepository.findByUsername(username).get().getId());
         company.setIsActive(true);
         company.setCreatedDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
         company.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
@@ -113,7 +123,8 @@ public class CompanyServiceImp implements ICompanyService {
      */
     @Override
     public ResponseServices getAllCompanies() {
-        List<Company> companies = companyRepository.findAll();
+    	String username = ((UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        List<Company> companies = companyRepository.findAllByAdminId(adminRepository.findByUsername(username).get().getId());
         if (companies.isEmpty()) {
             return ResponseServices.builder()
                     .message("No se encontraron compañías")
@@ -121,9 +132,12 @@ public class CompanyServiceImp implements ICompanyService {
                     .build();
         }
 
+        System.out.println(companies);
+        
         // Crear una lista de CompanyNameResponse (solo nombres)
-        List<CompanyNameResponse> companyNames = companies.stream()
-                .map(company -> new CompanyNameResponse(company.getCompanyName()))
+        //List<CompanyNameResponse> companyNames = companies.stream()
+        List<CompanyResponse> companyNames = companies.stream()
+                .map(company -> new CompanyResponse(company.getCompanyName(), company.getCompanyApiKey()))
                 .collect(Collectors.toList());
 
         return ResponseServices.builder()
@@ -207,7 +221,14 @@ public class CompanyServiceImp implements ICompanyService {
     public static class CompanyResponse implements ITemplateDTO {
         private String companyName;
         private String companyApiKey;
-
+        
+        public CompanyResponse () {}
+        
+        public CompanyResponse(String companyName, String companyApiKey) {
+        	this.companyName = companyName;
+        	this.companyApiKey = companyApiKey;
+        }
+        
         // Getters y Setters
         public String getCompanyName() {
             return companyName;
