@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 /**
  * Controlador REST para gestionar las operaciones relacionadas con locaciones.
@@ -73,14 +75,17 @@ public class LocationController {
      * @param locationDTO DTO con la información de la locación a crear
      * @return ResonseEntity con el DTO de la locación creada
      */
-	@PostMapping("/create")
+	@PostMapping//("/create")
     @Operation(summary = "Crear una nueva locación", description = "Crea una nueva locación con la información proporcionada.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Locación creada exitosamente", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
         @ApiResponse(responseCode = "400", description = "Datos de la locación inválidos", content = @Content(schema =@Schema(implementation = ResponseServices.class)))
     })
-    public ResponseEntity<ResponseServices> create(@Parameter(description = "Datos de la locación a crear", required = true) @RequestBody LocationDTO locationDTO){
-        ResponseServices response = locationService.create(locationDTO);
+    public ResponseEntity<ResponseServices> create(
+    		@RequestHeader(name = "api-key", required = true) String companyApiKey,
+    		@Parameter(description = "Datos de la locación a crear", required = true) @Valid @RequestBody LocationDTO locationDTO)
+	{
+        ResponseServices response = locationService.create(locationDTO, companyApiKey);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 

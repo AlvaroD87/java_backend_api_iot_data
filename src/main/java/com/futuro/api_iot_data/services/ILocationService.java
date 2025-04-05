@@ -15,7 +15,7 @@ public interface ILocationService {
 	 * @param locationDTO {@link LocationDTO} con la información de la locación
 	 * @return {@link ResponseServices} incluyendo la {@link LocationDTO} creada
 	 */
-	public ResponseServices create(LocationDTO locationDTO);
+	public ResponseServices create(LocationDTO locationDTO, String companyApiKey);
 
 
 	/**

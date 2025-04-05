@@ -32,7 +32,7 @@ public class LocationServiceImp implements ILocationService {
 	private CityRepository cityRepository;
 
 	@Override
-	public ResponseServices create(LocationDTO locationDTO) {
+	public ResponseServices create(LocationDTO locationDTO, String companyApiKey) {
 		String locationName = locationDTO.getLocationName();
 		var locationMeta = locationDTO.getLocationMeta();
 
@@ -44,6 +44,7 @@ public class LocationServiceImp implements ILocationService {
 					.modelDTO(locationDTO)
 					.build();
 		}
+		
 		if (locationRepository.existsByLocationName(locationName)) {
 			return ResponseServices.builder()
 					.code(400)
@@ -60,7 +61,7 @@ public class LocationServiceImp implements ILocationService {
 					.modelDTO(locationDTO)
 					.build();
 		}
-
+		
 		// Se valida la compañia
 		if (locationDTO.getCompanyId() == null) {
 			return ResponseServices.builder()
@@ -86,6 +87,7 @@ public class LocationServiceImp implements ILocationService {
 					.modelDTO(locationDTO)
 					.build();
 		}
+		
 		City city = cityRepository.findById(locationDTO.getCityId()).orElse(null);
 		if (city == null) {
 			return ResponseServices.builder()
