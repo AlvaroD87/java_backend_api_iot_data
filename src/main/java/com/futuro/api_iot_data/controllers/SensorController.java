@@ -1,6 +1,7 @@
 package com.futuro.api_iot_data.controllers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
@@ -69,8 +71,8 @@ public class SensorController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
-	@DeleteMapping("/{id}")
-	public ResponseEntity<ResponseServices> deleteSensor(@PathVariable Integer id) {
+	@DeleteMapping//("/{id}")
+	public ResponseEntity<ResponseServices> deleteSensor(@RequestParam(name = "sensor_id", required = true) Integer id) {
 		ResponseServices response = sensorService.deleteSensor(id);
 		
 		if(response.getCode() == 200) {

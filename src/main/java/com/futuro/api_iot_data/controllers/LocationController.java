@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.futuro.api_iot_data.models.DTOs.LocationDTO;
@@ -112,13 +113,13 @@ public class LocationController {
      * @param id Identificador de la locación a eliminar.
      * @return ResponseEntity con los datos de la locación eliminada
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping//("/{id}")
     @Operation(summary = "Eliminar una locación por ID", description = "Elimina una locación específica basada en su ID.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Locación eliminada exitosamente", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
         @ApiResponse(responseCode = "400", description = "Error al eliminar la locación", content = @Content(schema =@Schema(implementation = ResponseServices.class) ))
     })
-    public ResponseEntity<ResponseServices> deleteById(@PathVariable Integer id){
+    public ResponseEntity<ResponseServices> deleteById(@RequestParam(name = "location_id", required = true) Integer id){
         ResponseServices response = locationService.deleteById(id);
         return ResponseEntity.status(response.getCode()).body(response);
     }

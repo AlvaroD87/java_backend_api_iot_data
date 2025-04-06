@@ -2,6 +2,7 @@ package com.futuro.api_iot_data.repositories;
 
 import com.futuro.api_iot_data.models.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -48,4 +49,8 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     		nativeQuery = true
     		)
     List<Object[]> joinedCompanyKeySensorKey();
+    
+    @Modifying
+    @Query(value = "update companies set is_active = ?2 where company_id = ?1", nativeQuery = true)
+    void updateIsActiveStatus(Integer companyId, boolean newIsActive);
 }

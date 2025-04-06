@@ -2,6 +2,7 @@ package com.futuro.api_iot_data.repositories;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -35,4 +36,12 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
 	
 	@Query(value="select s.sensor_api_key from locations l join sensors s on l.location_id = s.location_id where s.location_id = ?1", nativeQuery = true)
 	List<String> findAllSensorIdByLocationId(Integer locationId);
+	
+	@Modifying
+	@Query(value = "update locations set is_active = ?2 where location_id = ?1", nativeQuery = true)
+	void updateStatusByLocationId(Integer locationId, boolean statusIsActive);
+	
+	@Modifying
+	@Query(value = "update locations set is_active = ?2 where company_id = ?1", nativeQuery = true)
+	void updateStatusByCompanyId(Integer companyId, boolean statusIsActive);
 }

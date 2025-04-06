@@ -6,10 +6,15 @@ import com.futuro.api_iot_data.models.DTOs.CompanyDTO;
 import com.futuro.api_iot_data.models.DTOs.ITemplateDTO;
 import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.repositories.CompanyRepository;
+import com.futuro.api_iot_data.services.util.EntityChangeStatusEvent;
+import com.futuro.api_iot_data.services.util.EntityModel;
 import com.futuro.api_iot_data.services.util.ResponseServices;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,6 +43,9 @@ public class CompanyServiceImp implements ICompanyService {
 
     @Autowired
     private AdminRepository adminRepository;
+    
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
     
     /**
      * Crea una nueva compañía en el sistema.
@@ -197,6 +205,7 @@ public class CompanyServiceImp implements ICompanyService {
      *         - Si la compañía se elimina correctamente, devuelve un mensaje de éxito.
      */
     @Override
+    @Transactional
     public ResponseServices deleteCompany(Integer id, String companyApiKey) {
         Optional<Company> companyOptional = companyRepository.findById(id);
         if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
@@ -206,7 +215,17 @@ public class CompanyServiceImp implements ICompanyService {
                     .build();
         }
 
-        companyRepository.delete(companyOptional.get());
+        //companyRepository.delete(companyOptional.get());
+        
+        companyRepository.updateIsActiveStatus(id, false);
+        
+        eventPublisher.publishEvent(
+        		EntityChangeStatusEvent.builder()
+        		.entity(EntityModel.COMPANY)
+        		.entityId(id)
+        		.status(false)
+        		.build()
+        		);
         
         apiKeysCacheData.deleteCompanyApiKey(companyApiKey);
 

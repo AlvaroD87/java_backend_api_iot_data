@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,11 @@ import com.futuro.api_iot_data.models.DTOs.LocationDTO;
 import com.futuro.api_iot_data.repositories.CityRepository;
 import com.futuro.api_iot_data.repositories.CompanyRepository;
 import com.futuro.api_iot_data.repositories.LocationRepository;
+import com.futuro.api_iot_data.services.util.EntityChangeStatusEvent;
+import com.futuro.api_iot_data.services.util.EntityModel;
 import com.futuro.api_iot_data.services.util.ResponseServices;
+
+import jakarta.transaction.Transactional;
 
 
 /**
@@ -35,6 +41,9 @@ public class LocationServiceImp implements ILocationService {
 	
 	@Autowired
 	private ApiKeysCacheData apiKeyCacheData;
+	
+	@Autowired
+    private ApplicationEventPublisher eventPublisher;
 
 	@Override
 	public ResponseServices create(LocationDTO locationDTO) {
@@ -211,6 +220,7 @@ public class LocationServiceImp implements ILocationService {
 	}
 
 	@Override
+	@Transactional
 	public ResponseServices deleteById(Integer id) {
 		if (!locationRepository.existsById(id)) {
 			return ResponseServices.builder()
@@ -221,14 +231,24 @@ public class LocationServiceImp implements ILocationService {
 		}
 		Location objLocation = locationRepository.findById(id).get();
 
-		locationRepository.deleteById(id);
+		/*locationRepository.deleteById(id);
 		if (locationRepository.existsById(id)) {
 			return ResponseServices.builder()
 				.code(400)
 				.message("No se pudo eliminar la locación")
 				.modelDTO(new LocationDTO())
 				.build();
-		}
+		}*/
+		
+		locationRepository.updateStatusByLocationId(id, false);
+		
+		eventPublisher.publishEvent(
+        		EntityChangeStatusEvent.builder()
+        		.entity(EntityModel.LOCATION)
+        		.entityId(id)
+        		.status(false)
+        		.build()
+        		);
 		
 		locationRepository.findAllSensorIdByLocationId(id)
 			.forEach(s -> apiKeyCacheData.deleteSensorApiKey(getCompanyApiKeyFromSecurityContext(), s));
@@ -275,6 +295,12 @@ public class LocationServiceImp implements ILocationService {
 	
 	private String getCompanyApiKeyFromSecurityContext() {
 		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+	}
+	
+	@EventListener
+	@Transactional
+	public void handlerEventEntityChangeStatus(EntityChangeStatusEvent event) {
+		locationRepository.updateStatusByCompanyId(event.getEntityId(), event.isStatus());
 	}
 
 }

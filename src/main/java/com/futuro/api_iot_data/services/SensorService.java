@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,11 @@ import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.models.Sensor;
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
 import com.futuro.api_iot_data.repositories.SensorRepository;
+import com.futuro.api_iot_data.services.util.EntityChangeStatusEvent;
+import com.futuro.api_iot_data.services.util.EntityModel;
 import com.futuro.api_iot_data.services.util.ResponseServices;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class SensorService {
@@ -149,6 +154,7 @@ public class SensorService {
 				.build();
 	}
 	
+	@Transactional
 	public ResponseServices deleteSensor(Integer id) {
 		Optional<Sensor> optionalSendor = sensorRepository.findById(id);
 		
@@ -162,7 +168,9 @@ public class SensorService {
 		Sensor sensorInfo = optionalSendor.get();
 		SensorDTO selectSensor = sensorInfo.toSensorDTO();
 		
-		sensorRepository.deleteById(id);
+		//sensorRepository.deleteById(id);
+		
+		sensorRepository.updateIsActiveBySensorId(id, false);
 		
 		apiKeyCacheData.deleteSensorApiKey(getCompanyApiKeyFromSecurityContext(), sensorInfo.getSensorApiKey());
 		
@@ -175,5 +183,19 @@ public class SensorService {
 	
 	private String getCompanyApiKeyFromSecurityContext() {
 		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+	}
+	
+	@EventListener
+	@Transactional
+	void handlerEventEntityChangeStatus(EntityChangeStatusEvent event) {
+		switch (event.getEntity()) {
+		case EntityModel.COMPANY: {
+			sensorRepository.updateIsActiveByCompanyId(event.getEntityId(), event.isStatus());
+			break;
+		}
+		case EntityModel.LOCATION: {
+			sensorRepository.updateIsActiveByLocationId(event.getEntityId(), event.isStatus());
+			break;
+		}}
 	}
 }
