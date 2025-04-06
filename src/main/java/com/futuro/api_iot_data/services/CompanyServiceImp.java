@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -102,10 +101,14 @@ public class CompanyServiceImp implements ICompanyService {
      *         - Si la compañía existe, devuelve la compañía encontrada.
      */
     @Override
-    public ResponseServices getCompanyById(Integer id, String companyApiKey) {
-        Optional<Company> companyOptional = companyRepository.findById(id);
-        if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
-            return ResponseServices.builder()
+    public ResponseServices getCompanyById(Integer id, String username) {
+        //Optional<Company> companyOptional = companyRepository.findById(id);
+    	//String username = ((UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+    	Optional<Company> companyOptional = companyRepository.findActiveByIdAndUsername(id, username);
+        
+    	//if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
+    	if (companyOptional.isEmpty()) {
+    		return ResponseServices.builder()
                     .message("Compañía no encontrada o API Key incorrecta")
                     .code(404)
                     .build();
@@ -130,17 +133,16 @@ public class CompanyServiceImp implements ICompanyService {
      *         - Si no hay compañías registradas, devuelve un mensaje indicando que no hay compañías.
      */
     @Override
-    public ResponseServices getAllCompanies() {
-    	String username = ((UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        List<Company> companies = companyRepository.findAllByAdminId(adminRepository.findByUsername(username).get().getId());
+    public ResponseServices getAllCompanies(String username) {
+    	//String username = ((UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        //List<Company> companies = companyRepository.findAllByAdminId(adminRepository.findByUsername(username).get().getId());
+        List<Company> companies = companyRepository.findAllActiveByUsername(username);
         if (companies.isEmpty()) {
             return ResponseServices.builder()
                     .message("No se encontraron compañías")
                     .code(404)
                     .build();
         }
-
-        System.out.println(companies);
         
         // Crear una lista de CompanyNameResponse (solo nombres)
         //List<CompanyNameResponse> companyNames = companies.stream()
@@ -167,9 +169,11 @@ public class CompanyServiceImp implements ICompanyService {
      *         - Si la compañía se actualiza correctamente, devuelve un mensaje de éxito.
      */
     @Override
-    public ResponseServices updateCompany(Integer id, CompanyDTO companyDTO, String companyApiKey) {
-        Optional<Company> companyOptional = companyRepository.findById(id);
-        if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
+    public ResponseServices updateCompany(Integer id, CompanyDTO companyDTO, String username) {
+        //Optional<Company> companyOptional = companyRepository.findById(id);
+        Optional<Company> companyOptional = companyRepository.findActiveByIdAndUsername(id, username);
+        //if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
+        if (companyOptional.isEmpty()) {
             return ResponseServices.builder()
                     .message("Compañía no encontrada o API Key incorrecta")
                     .code(404)
@@ -206,9 +210,11 @@ public class CompanyServiceImp implements ICompanyService {
      */
     @Override
     @Transactional
-    public ResponseServices deleteCompany(Integer id, String companyApiKey) {
-        Optional<Company> companyOptional = companyRepository.findById(id);
-        if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
+    public ResponseServices deleteCompany(Integer id, String username) {
+    	//Optional<Company> companyOptional = companyRepository.findById(id);
+        Optional<Company> companyOptional = companyRepository.findActiveByIdAndUsername(id, username);
+        //if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
+        if (companyOptional.isEmpty()) {
             return ResponseServices.builder()
                     .message("Compañía no encontrada o API Key incorrecta")
                     .code(404)
@@ -227,7 +233,7 @@ public class CompanyServiceImp implements ICompanyService {
         		.build()
         		);
         
-        apiKeysCacheData.deleteCompanyApiKey(companyApiKey);
+        apiKeysCacheData.deleteCompanyApiKey(companyOptional.get().getCompanyApiKey());
 
         return ResponseServices.builder()
                 .message("Compañía eliminada exitosamente")

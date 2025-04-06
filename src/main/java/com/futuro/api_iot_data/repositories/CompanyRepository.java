@@ -53,4 +53,11 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     @Modifying
     @Query(value = "update companies set is_active = ?2 where company_id = ?1", nativeQuery = true)
     void updateIsActiveStatus(Integer companyId, boolean newIsActive);
+    
+    
+    @Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.company_id = ?1 and c.is_active = True and a.username = ?2", nativeQuery = true)
+    Optional<Company> findActiveByIdAndUsername(Integer comapanyId, String username);
+    
+    @Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.is_active = True and a.username = ?1", nativeQuery = true)
+    List<Company> findAllActiveByUsername(String username);
 }

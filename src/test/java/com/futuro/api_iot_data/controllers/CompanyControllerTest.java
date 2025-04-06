@@ -88,11 +88,12 @@ class CompanyControllerTest {
                 .code(200)
                 .message("Companies found")
                 .build();
+        String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
 
         when(companyService.getAllCompanies()).thenReturn(responseServices);
 
         // Act
-        ResponseEntity<ResponseServices> response = companyController.getAllCompanies();
+        ResponseEntity<ResponseServices> response = companyController.getCompanyById(null, companyApiKey);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
