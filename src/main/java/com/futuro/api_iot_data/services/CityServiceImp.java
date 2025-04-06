@@ -22,6 +22,13 @@ public class CityServiceImp implements ICityService{
 	CountryRepository countryRepo;
 	
 	@Override
+	public ResponseServices listAll() {
+		return ResponseServices.builder()
+				.listModelDTO(cityRepo.findAll().stream().map(city -> city.toCityDTO()).toList())
+				.build();
+	}
+	
+	/*@Override
 	public ResponseServices create(CityDTO newCity) {
 				
 		City city = cityRepo.findByCityAndCountry(newCity.getName(), newCity.getCountry().getName()).orElse(null);
@@ -49,19 +56,12 @@ public class CityServiceImp implements ICityService{
 				.code(300)
 				.modelDTO(newCity)
 				.build();
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public ResponseServices getByName(String cityName) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public ResponseServices listAll() {
-		return ResponseServices.builder()
-				.listModelDTO(cityRepo.findAll().stream().map(city -> city.toCityDTO()).toList())
-				.build();
-	}
+	}*/
 
 }

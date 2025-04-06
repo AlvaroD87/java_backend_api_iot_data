@@ -19,7 +19,7 @@ public class CountryController {
 	@Autowired
 	CountryServiceImp countryService;
 	
-	@PostMapping("/create")
+	/*@PostMapping("/create")
 	public ResponseEntity<ResponseServices> create(@RequestBody CountryDTO country){
 		
 		ResponseServices response = countryService.create(country);
@@ -27,9 +27,9 @@ public class CountryController {
 		return ResponseEntity
 				.status(response.getCode() == 200 ? 201 : 400)
 				.body(response);
-	}
+	}*/
 	
-	@GetMapping("/get-all")
+	@GetMapping//("")
 	public ResponseEntity<ResponseServices> listAll(){
 		return ResponseEntity.status(200).body(countryService.listAll());
 	}
