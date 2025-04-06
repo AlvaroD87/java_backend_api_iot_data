@@ -51,10 +51,9 @@ public class SensorController {
 	}
 	
 	@PostMapping("/create")
-	public ResponseEntity<ResponseServices> createSensor(@RequestHeader(name = "api-key", required = true) String companyApiKey, 
-														 @Valid @RequestBody SensorDTO sensorDTO) 
+	public ResponseEntity<ResponseServices> createSensor(@Valid @RequestBody SensorDTO sensorDTO) 
 	{
-		ResponseServices response = sensorService.createSensor(companyApiKey, sensorDTO);
+		ResponseServices response = sensorService.createSensor(sensorDTO);
 		if(response.getCode() == 201) {
 			return ResponseEntity.status(HttpStatus.CREATED).body(response);
 		}
@@ -71,8 +70,8 @@ public class SensorController {
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<ResponseServices> deleteSensor(@RequestHeader(name = "api-key", required = true) String companyApiKey, @PathVariable Integer id) {
-		ResponseServices response = sensorService.deleteSensor(companyApiKey,id);
+	public ResponseEntity<ResponseServices> deleteSensor(@PathVariable Integer id) {
+		ResponseServices response = sensorService.deleteSensor(id);
 		
 		if(response.getCode() == 200) {
 			return ResponseEntity.ok(response);

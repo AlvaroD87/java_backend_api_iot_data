@@ -14,7 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.models.Sensor;
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
 import com.futuro.api_iot_data.repositories.SensorRepository;
@@ -29,6 +34,9 @@ public class SensorServiceTest {
 	
 	@Mock
 	private SensorRepository sensorRepository;
+	@Mock
+	private ApiKeysCacheData apiKeyCacheDataMock;
+	
 	
 	@InjectMocks
 	private SensorService sensorService;
@@ -55,6 +63,11 @@ public class SensorServiceTest {
 				Timestamp.valueOf("2025-03-02 12:00:00"),
 				Timestamp.valueOf("2025-03-02 13:00:00")
 				);
+		
+		Authentication authentication = new UsernamePasswordAuthenticationToken("companyApiKey", null, null);
+		SecurityContext context = SecurityContextHolder.getContext();
+		context.setAuthentication(authentication);
+		SecurityContextHolder.setContext(context);
 				
 	}
 	

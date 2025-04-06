@@ -98,7 +98,7 @@ public class CompanyController {
     @Operation(summary = "Eliminar una compañía", description = "Elimina una compañía por su ID y API Key.")
     @ApiResponse(responseCode = "200", description = "Company deleted successfully")
     @ApiResponse(responseCode = "404", description = "Company not found or API Key mismatch")
-    public ResponseEntity<ResponseServices> deleteCompany(@PathVariable Integer id, @RequestHeader("Company-Api-Key") String companyApiKey) {
+    public ResponseEntity<ResponseServices> deleteCompany(@PathVariable Integer id, @RequestHeader(name = "api-key", required = true) String companyApiKey) {
         ResponseServices response = companyService.deleteCompany(id, companyApiKey);
         return ResponseEntity.status(response.getCode() == 200 ? HttpStatus.OK : HttpStatus.NOT_FOUND).body(response);
     }

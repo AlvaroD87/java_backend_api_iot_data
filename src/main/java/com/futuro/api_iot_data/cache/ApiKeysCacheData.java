@@ -58,4 +58,8 @@ public class ApiKeysCacheData {
 	public void deleteSensorApiKey(String companyApiKey, String sensorApiKey) {
 		apiKeyList.get(companyApiKey).remove(sensorApiKey);
 	}
+	
+	public void deleteCompanyApiKey(String companyApiKey) {
+		apiKeyList.remove(companyApiKey);
+	}
 }

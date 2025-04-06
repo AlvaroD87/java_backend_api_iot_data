@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.models.City;
 import com.futuro.api_iot_data.models.Company;
 import com.futuro.api_iot_data.models.Location;
@@ -30,12 +32,15 @@ public class LocationServiceImp implements ILocationService {
 
 	@Autowired
 	private CityRepository cityRepository;
+	
+	@Autowired
+	private ApiKeysCacheData apiKeyCacheData;
 
 	@Override
-	public ResponseServices create(LocationDTO locationDTO, String companyApiKey) {
+	public ResponseServices create(LocationDTO locationDTO) {
 		String locationName = locationDTO.getLocationName();
 		var locationMeta = locationDTO.getLocationMeta();
-
+		
 		// Se valida el nombre de la locación
 		if (locationName == null) {
 			return ResponseServices.builder()
@@ -224,6 +229,10 @@ public class LocationServiceImp implements ILocationService {
 				.modelDTO(new LocationDTO())
 				.build();
 		}
+		
+		locationRepository.findAllSensorIdByLocationId(id)
+			.forEach(s -> apiKeyCacheData.deleteSensorApiKey(getCompanyApiKeyFromSecurityContext(), s));
+		
 		return ResponseServices.builder()
 				.code(200)
 				.message("La locación se ha eliminado con éxito")
@@ -262,6 +271,10 @@ public class LocationServiceImp implements ILocationService {
 				.createdDate(objLocation.getCreatedDate())
 				.updateDate(objLocation.getUpdateDate())
 				.build();
+	}
+	
+	private String getCompanyApiKeyFromSecurityContext() {
+		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
 	}
 
 }

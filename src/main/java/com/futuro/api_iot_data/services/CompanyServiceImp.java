@@ -207,6 +207,8 @@ public class CompanyServiceImp implements ICompanyService {
         }
 
         companyRepository.delete(companyOptional.get());
+        
+        apiKeysCacheData.deleteCompanyApiKey(companyApiKey);
 
         return ResponseServices.builder()
                 .message("Compañía eliminada exitosamente")

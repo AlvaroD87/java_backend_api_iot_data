@@ -81,11 +81,9 @@ public class LocationController {
         @ApiResponse(responseCode = "201", description = "Locación creada exitosamente", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
         @ApiResponse(responseCode = "400", description = "Datos de la locación inválidos", content = @Content(schema =@Schema(implementation = ResponseServices.class)))
     })
-    public ResponseEntity<ResponseServices> create(
-    		@RequestHeader(name = "api-key", required = true) String companyApiKey,
-    		@Parameter(description = "Datos de la locación a crear", required = true) @Valid @RequestBody LocationDTO locationDTO)
+    public ResponseEntity<ResponseServices> create(@Parameter(description = "Datos de la locación a crear", required = true) @Valid @RequestBody LocationDTO locationDTO)
 	{
-        ResponseServices response = locationService.create(locationDTO, companyApiKey);
+        ResponseServices response = locationService.create(locationDTO);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 

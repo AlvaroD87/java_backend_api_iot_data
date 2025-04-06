@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
@@ -82,7 +83,7 @@ public class SensorService {
 		
 	}
 	
-	public ResponseServices createSensor(String companyApiKey, SensorDTO sensorDTO) {
+	public ResponseServices createSensor(SensorDTO sensorDTO) {
 		
 		Optional<Sensor> existSensor = sensorRepository.findBySensorNameAndLocationId(sensorDTO.getSensorName(), sensorDTO.getLocationId());
 		
@@ -107,7 +108,7 @@ public class SensorService {
 		
 		Sensor savedSensor = sensorRepository.save(sensor);
 		
-		apiKeyCacheData.setNewSensorApiKey(companyApiKey, savedSensor.getSensorApiKey(), savedSensor.getSensorId());
+		apiKeyCacheData.setNewSensorApiKey(getCompanyApiKeyFromSecurityContext(), savedSensor.getSensorApiKey(), savedSensor.getSensorId());
 		
 		return ResponseServices.builder()
 				.message("Sensor creado exitosamente")
@@ -148,7 +149,7 @@ public class SensorService {
 				.build();
 	}
 	
-	public ResponseServices deleteSensor(String companyApiKey, Integer id) {
+	public ResponseServices deleteSensor(Integer id) {
 		Optional<Sensor> optionalSendor = sensorRepository.findById(id);
 		
 		if(optionalSendor.isEmpty()) {			
@@ -163,12 +164,16 @@ public class SensorService {
 		
 		sensorRepository.deleteById(id);
 		
-		apiKeyCacheData.deleteSensorApiKey(companyApiKey, sensorInfo.getSensorApiKey());
+		apiKeyCacheData.deleteSensorApiKey(getCompanyApiKeyFromSecurityContext(), sensorInfo.getSensorApiKey());
 		
 		return ResponseServices.builder()
 				.message("Sensor eliminado exitosamente")
 				.code(200)
 				.modelDTO(selectSensor)
 				.build();
+	}
+	
+	private String getCompanyApiKeyFromSecurityContext() {
+		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
 	}
 }

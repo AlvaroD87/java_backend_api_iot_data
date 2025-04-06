@@ -1,5 +1,8 @@
 package com.futuro.api_iot_data.repositories;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.futuro.api_iot_data.models.Location;
@@ -29,4 +32,7 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
      *         {@code false} en caso contrario.
      */
 	boolean existsByLocationNameAndLocationIdNot(String LocationName, Integer locationId);
+	
+	@Query(value="select s.sensor_api_key from locations l join sensors s on l.location_id = s.location_id where s.location_id = ?1", nativeQuery = true)
+	List<String> findAllSensorIdByLocationId(Integer locationId);
 }
