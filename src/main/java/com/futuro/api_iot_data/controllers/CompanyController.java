@@ -36,8 +36,8 @@ public class CompanyController {
     @Operation(summary = "Crear una compañía", description = "Crea una nueva compañía en el sistema.")
     @ApiResponse(responseCode = "201", description = "Company created successfully")
     @ApiResponse(responseCode = "400", description = "A company with the same name already exists")
-    public ResponseEntity<ResponseServices> createCompany(@RequestBody CompanyDTO companyDTO) {
-        ResponseServices response = companyService.createCompany(companyDTO);
+    public ResponseEntity<ResponseServices> createCompany(@RequestBody CompanyDTO companyDTO, @AuthenticationPrincipal UserDetails userAuthenticated) {
+        ResponseServices response = companyService.createCompany(companyDTO, userAuthenticated.getUsername());
         return ResponseEntity.status(response.getCode() == 200 ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST).body(response);
     }
 

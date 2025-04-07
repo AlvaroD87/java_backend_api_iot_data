@@ -40,7 +40,7 @@ public class CompanyServiceImp implements ICompanyService {
     @Autowired
     private ApiKeysCacheData apiKeysCacheData;
 
-    @Autowired
+    //@Autowired
     private AdminRepository adminRepository;
     
     @Autowired
@@ -55,7 +55,7 @@ public class CompanyServiceImp implements ICompanyService {
      *         - Si la compañía se crea correctamente, devuelve la compañía creada y su API Key.
      */
     @Override
-    public ResponseServices createCompany(CompanyDTO companyDTO) {
+    public ResponseServices createCompany(CompanyDTO companyDTO, String username) {
         if (companyRepository.existsByCompanyName(companyDTO.getCompanyName())) {
             return ResponseServices.builder()
                     .message("Ya existe una compañía con el mismo nombre")
@@ -64,7 +64,6 @@ public class CompanyServiceImp implements ICompanyService {
         }
 
         // Obtenemos el Usuario authenticado
-        String username = ((UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         String companyApiKey = UUID.randomUUID().toString();
 
         Company company = new Company();

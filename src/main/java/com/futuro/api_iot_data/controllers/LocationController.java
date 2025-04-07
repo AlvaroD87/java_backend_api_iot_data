@@ -44,21 +44,21 @@ public class LocationController {
      * Obtiene una lista con todas las locaciones registradas.
      * @return ResponseEntity con la lista de locaciones
      */
-	@GetMapping("/all")
+	/*@GetMapping//("/all")
 	@Operation(summary="Obtener el listado de locaciones", description = "Retorna una lista con todas las locaciones registradas")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de locaciones encontradas",content = @Content(schema = @Schema(implementation = ResponseServices.class))),
     })
-	public ResponseEntity<ResponseServices> findAll(){
-		ResponseServices response = locationService.findAll();
+	public ResponseEntity<ResponseServices> findAll(@RequestHeader(name = "api-key", required = true) String companyApiKey){
+		ResponseServices response = locationService.findAll(companyApiKey);
 		return ResponseEntity.status(response.getCode()).body(response);
-	}
+	}*/
 	/**
      * Obtener una locación a partir de su identificador
      * @param id Id de la locación a buscar
      * @return ResponseEntity con el DTO de la locación encontrada
      */
-	@GetMapping("/{id}")
+	@GetMapping//("/{id}")
     @Operation(summary = "Obtener una locación a partir de su identificador", description = "Devuelve una locación específica basada en su identificador")
     @ApiResponses(
        value = {
@@ -66,8 +66,15 @@ public class LocationController {
         @ApiResponse(responseCode = "404", description = "No se ha encontrado ninguna locación para el ID espécificado", content = @Content(schema =@Schema(implementation = ResponseServices.class)))
        }
     )
-	public ResponseEntity<ResponseServices> findById(@Parameter(description = "Id de la locación a buscar", required = true) @PathVariable Integer id){
-		ResponseServices response = locationService.findById(id);
+	public ResponseEntity<ResponseServices> findById(
+			@RequestHeader(name = "api-key", required = true) 
+				String companyApiKey,
+			@Parameter(description = "Id de la locación a buscar", required = true) 
+			@RequestParam(name = "location_id", required = false) 
+				Integer id
+		)
+	{
+		ResponseServices response = id == null ? locationService.findAll(companyApiKey) : locationService.findById(id, companyApiKey);
 		return ResponseEntity.status(response.getCode()).body(response);
 	}
 	
@@ -82,9 +89,12 @@ public class LocationController {
         @ApiResponse(responseCode = "201", description = "Locación creada exitosamente", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
         @ApiResponse(responseCode = "400", description = "Datos de la locación inválidos", content = @Content(schema =@Schema(implementation = ResponseServices.class)))
     })
-    public ResponseEntity<ResponseServices> create(@Parameter(description = "Datos de la locación a crear", required = true) @Valid @RequestBody LocationDTO locationDTO)
+    public ResponseEntity<ResponseServices> create(
+    		@Parameter(description = "Datos de la locación a crear", required = true) @Valid @RequestBody LocationDTO locationDTO,
+    		@RequestHeader(name = "api-key", required = true) String companyApiKey
+    	)
 	{
-        ResponseServices response = locationService.create(locationDTO);
+        ResponseServices response = locationService.create(locationDTO, companyApiKey);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
@@ -94,17 +104,22 @@ public class LocationController {
      * @param locationDTO DTO con la información actualizada de la locación.
      * @return ResponseEntity con los datos actualizados de la locación.
      */
-    @PutMapping("/{id}")
+    @PutMapping//("/{id}")
     @Operation(summary = "Actualizar una locación existente", description = "Actualiza la información de una locación existente basada en su ID.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Locación actualizada exitosamente", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
         @ApiResponse(responseCode = "400", description = "Datos de la locación inválidos", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
     })
     public ResponseEntity<ResponseServices> update(
-                @Parameter(description = "ID de la locación a actualizar", required = true) @PathVariable Integer id,
-                @Parameter(description = "Datos actualizados de la locación", required = true) @RequestBody LocationDTO locationDTO
+    			@RequestHeader(name = "api-key", required = true) 
+    				String companyApiKey,
+                @Parameter(description = "ID de la locación a actualizar", required = true) 
+    			@RequestParam(name = "location_id", required = false) 
+    				Integer id,
+                @Parameter(description = "Datos actualizados de la locación", required = true) 
+    				@RequestBody LocationDTO locationDTO
             ){
-        ResponseServices response = locationService.update(id,locationDTO);
+        ResponseServices response = locationService.update(companyApiKey,id,locationDTO);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
