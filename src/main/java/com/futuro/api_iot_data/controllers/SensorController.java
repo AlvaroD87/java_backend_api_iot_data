@@ -34,37 +34,50 @@ public class SensorController {
 	@Autowired
 	private SensorService sensorService;
 	
-	@GetMapping("/all")
+	/*
+	 *	@RequestHeader(name = "api-key", required = true) String companyApiKey,
+	 *	@RequestParam(name = "from", required = false) Integer fromEpoch,
+	 */
+	
+	/*@GetMapping("/all")
 	public ResponseEntity<ResponseServices> getAllSensors() {
 		ResponseServices response = sensorService.getAllSensors();
 		if(response.getCode() == 200) {
 			return ResponseEntity.ok(response);
 		}
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-	}
+	}*/
 	
-	@GetMapping("/{id}")
-	public ResponseEntity<ResponseServices> getSensorById(@PathVariable Integer id) {
-		ResponseServices response = sensorService.getSensorById(id);
+	@GetMapping//("/{id}")
+	public ResponseEntity<ResponseServices> getSensorById(
+			@RequestHeader(name = "api-key", required = true) String companyApiKey,
+			@RequestParam(name = "id", required = false) Integer id) 
+	{
+		ResponseServices response = id == null ? sensorService.getAllSensors(companyApiKey) : sensorService.getSensorById(companyApiKey,id);
 		if(response.getCode() == 200) {
 			return ResponseEntity.ok(response);
 		}
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
-	@PostMapping("/create")
-	public ResponseEntity<ResponseServices> createSensor(@Valid @RequestBody SensorDTO sensorDTO) 
+	@PostMapping//("/create")
+	public ResponseEntity<ResponseServices> createSensor(@RequestHeader(name = "api-key", required = true) String companyApiKey, @Valid @RequestBody SensorDTO sensorDTO) 
 	{
-		ResponseServices response = sensorService.createSensor(sensorDTO);
+		ResponseServices response = sensorService.createSensor(companyApiKey, sensorDTO);
 		if(response.getCode() == 201) {
 			return ResponseEntity.status(HttpStatus.CREATED).body(response);
 		}
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
 	}
 	
-	@PutMapping("/{id}")
-	public ResponseEntity<ResponseServices> updateSensor(@PathVariable Integer id, @Valid @RequestBody SensorDTO sensorDTO) {
-		ResponseServices response = sensorService.updateSensor(id, sensorDTO);
+	@PutMapping//("/{id}")
+	public ResponseEntity<ResponseServices> updateSensor(
+			@RequestHeader(name = "api-key", required = true) String companyApiKey,
+			@RequestParam(name = "id", required = false) Integer id, 
+			@Valid @RequestBody SensorDTO sensorDTO
+		) 
+	{
+		ResponseServices response = sensorService.updateSensor(id, sensorDTO, companyApiKey);
 		if(response.getCode() == 200) {
 			return ResponseEntity.ok(response);
 		}

@@ -31,9 +31,10 @@ public class SensorService {
 	@Autowired
 	private ApiKeysCacheData apiKeyCacheData;
 	
-	public ResponseServices getAllSensors() {
+	public ResponseServices getAllSensors(String companyApiKey) {
 		
-		List<Sensor> sensors = sensorRepository.findAll();
+		//List<Sensor> sensors = sensorRepository.findAll();
+		List<Sensor> sensors = sensorRepository.findAllActiveByCompanyApiKey(companyApiKey);
 		List<SensorDTO> sensorList = new ArrayList<>();
 		
 		for(Sensor sensor: sensors) {		
@@ -68,8 +69,10 @@ public class SensorService {
 		
 	}
 	
-	public ResponseServices getSensorById(Integer sensorId) {
-		Optional<Sensor> sensorOptional = sensorRepository.findById(sensorId);
+	public ResponseServices getSensorById(String companyApiKey, Integer sensorId) {
+		//Optional<Sensor> sensorOptional = sensorRepository.findById(sensorId);
+		
+		Optional<Sensor> sensorOptional = sensorRepository.findActiveByIdAndCompanyApiKey(companyApiKey, sensorId);
 		
 		if(sensorOptional.isPresent()) {
 			Sensor sensor = sensorOptional.get();
@@ -88,9 +91,11 @@ public class SensorService {
 		
 	}
 	
-	public ResponseServices createSensor(SensorDTO sensorDTO) {
+	public ResponseServices createSensor(String companyApiKey, SensorDTO sensorDTO) {
 		
-		Optional<Sensor> existSensor = sensorRepository.findBySensorNameAndLocationId(sensorDTO.getSensorName(), sensorDTO.getLocationId());
+		//Optional<Sensor> existSensor = sensorRepository.findBySensorNameAndLocationId(sensorDTO.getSensorName(), sensorDTO.getLocationId());
+		
+		Optional<Sensor> existSensor = sensorRepository.findActiveBySensorNameLocationIdCompanyApiKey(sensorDTO.getSensorName(), sensorDTO.getLocationId(), companyApiKey);
 		
 		if(existSensor.isPresent()) {
 			return ResponseServices.builder()
@@ -123,8 +128,10 @@ public class SensorService {
 
 	}
 	
-	public ResponseServices updateSensor(Integer sensorId, SensorDTO sensorDTO) {
-		Optional<Sensor> optionalSensor = sensorRepository.findById(sensorId);
+	public ResponseServices updateSensor(Integer sensorId, SensorDTO sensorDTO, String companyApiKey) {
+		//Optional<Sensor> optionalSensor = sensorRepository.findById(sensorId);
+		
+		Optional<Sensor> optionalSensor = sensorRepository.findActiveByIdAndCompanyApiKey(companyApiKey, sensorId);
 		
 		if(optionalSensor.isEmpty()) {
 			return ResponseServices.builder()
