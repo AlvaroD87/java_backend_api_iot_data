@@ -1,7 +1,9 @@
 package com.futuro.api_iot_data.services;
 
+import com.futuro.api_iot_data.models.Admin;
 import com.futuro.api_iot_data.models.Company;
 import com.futuro.api_iot_data.models.DTOs.CompanyDTO;
+import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.repositories.CompanyRepository;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,9 @@ class CompanyServiceImpTest {
 
     @Mock
     private CompanyRepository companyRepository;
+    
+    @Mock
+    private AdminRepository adminRepository;
 
     @InjectMocks
     private CompanyServiceImp companyService;
@@ -41,6 +46,7 @@ class CompanyServiceImpTest {
         companyDTO.setCompanyName("Example Company");
 
         when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(false);
+        when(adminRepository.findByUsername("admin")).thenReturn(Optional.of(Admin.builder().id(1).build()));
         when(companyRepository.save(any(Company.class))).thenAnswer(invocation -> {
             Company company = invocation.getArgument(0);
             company.setId(1);
@@ -49,7 +55,7 @@ class CompanyServiceImpTest {
         });
 
         // Act
-        ResponseServices response = companyService.createCompany(companyDTO);
+        ResponseServices response = companyService.createCompany(companyDTO, "admin");
 
         // Assert
         assertEquals(200, response.getCode());
@@ -70,7 +76,7 @@ class CompanyServiceImpTest {
         when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(true);
 
         // Act
-        ResponseServices response = companyService.createCompany(companyDTO);
+        ResponseServices response = companyService.createCompany(companyDTO, "admin");
 
         // Assert
         assertEquals(400, response.getCode());
@@ -138,7 +144,7 @@ class CompanyServiceImpTest {
         when(companyRepository.findAll()).thenReturn(List.of(company));
 
         // Act
-        ResponseServices response = companyService.getAllCompanies();
+        ResponseServices response = companyService.getAllCompanies("admin");
 
         // Assert
         assertEquals(200, response.getCode());
@@ -157,7 +163,7 @@ class CompanyServiceImpTest {
         when(companyRepository.findAll()).thenReturn(List.of());
 
         // Act
-        ResponseServices response = companyService.getAllCompanies();
+        ResponseServices response = companyService.getAllCompanies("admin");
 
         // Assert
         assertEquals(404, response.getCode());

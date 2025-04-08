@@ -20,15 +20,15 @@ public class CityController {
 	@Autowired
 	CityServiceImp cityService;
 
-	@PostMapping("/create")
+	/*@PostMapping("/create")
 	public ResponseEntity<ResponseServices> create(@RequestBody CityDTO newCity){
 		
 		ResponseServices response = cityService.create(newCity);
 		
 		return ResponseEntity.status(response.getCode() == 200 ? HttpStatus.CREATED : HttpStatus.CONFLICT).body(response);
-	}
+	}*/
 	
-	@GetMapping("/get-all")
+	@GetMapping//("/get-all")
 	public ResponseEntity<ResponseServices> getAll(){
 		return ResponseEntity.ok(cityService.listAll());
 	}

@@ -1,5 +1,10 @@
 package com.futuro.api_iot_data.repositories;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.futuro.api_iot_data.models.Location;
@@ -29,4 +34,21 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
      *         {@code false} en caso contrario.
      */
 	boolean existsByLocationNameAndLocationIdNot(String LocationName, Integer locationId);
+	
+	@Query(value="select s.sensor_api_key from locations l join sensors s on l.location_id = s.location_id where s.location_id = ?1", nativeQuery = true)
+	List<String> findAllSensorIdByLocationId(Integer locationId);
+	
+	@Modifying
+	@Query(value = "update locations set is_active = ?2 where location_id = ?1", nativeQuery = true)
+	void updateStatusByLocationId(Integer locationId, boolean statusIsActive);
+	
+	@Modifying
+	@Query(value = "update locations set is_active = ?2 where company_id = ?1", nativeQuery = true)
+	void updateStatusByCompanyId(Integer companyId, boolean statusIsActive);
+	
+	@Query(value = "select l from Location l join l.company c where c.companyApiKey = ?1 and l.isActive = True")
+	List<Location> findAllActiveByCompanyApiKey(String companyApiKey);
+	
+	@Query(value = "select l from Location l join l.company c where l.locationId = ?1 and c.companyApiKey = ?2 and l.isActive = True")
+	Optional<Location> findActiveByIdAndCompanyApiKey(Integer id, String companyApyKey);
 }

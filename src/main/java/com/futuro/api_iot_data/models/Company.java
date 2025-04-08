@@ -35,6 +35,12 @@ public class Company {
     private String companyApiKey;
 
     /**
+     * TO-DO.
+     */
+	@Column(name = "admin_id", nullable = false)
+	private Integer adminId;
+    
+    /**
      * Estado de actividad de la compañía. No puede ser nulo.
      */
     @Column(name = "is_active", nullable = false)

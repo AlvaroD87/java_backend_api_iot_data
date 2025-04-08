@@ -21,7 +21,7 @@ public class UserDetailsServiceImp implements UserDetailsService{
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
-		Admin admin = adminRepo.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("Doesn't exist username %s", username)));
+		Admin admin = adminRepo.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("No existe username %s", username)));
 		
 		return new User(admin.getUsername(), admin.getPassword(), admin.getIs_active(), true, true, true, Collections.emptyList());
 	}

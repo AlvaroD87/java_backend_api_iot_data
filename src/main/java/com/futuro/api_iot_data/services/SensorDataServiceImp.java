@@ -59,22 +59,25 @@ public class SensorDataServiceImp implements ISensorDataService{
 	@Override
 	public ResponseServices getData(JsonNode parameters) {
 		
-		String companyApiKey = parameters.get("companyApiKey").asText();
+		Set<String> querySensorCategory = StreamSupport.stream(parameters.get("sensorCategory").spliterator(), false)
+														.map(c -> c.asText())
+														.collect(Collectors.toSet());
 		
-		Set<Integer> querySensorId = StreamSupport.stream(parameters.get("sensorId").spliterator(), false).map(i -> i.asInt()).collect(Collectors.toSet()); 
-		querySensorId.retainAll(apiKeysCacheData.getCompanySensorIds(companyApiKey));
+		Set<Integer> querySensorId = parameters.get("sensorId").isEmpty()
+												? apiKeysCacheData.getCompanySensorIds(parameters.get("companyApiKey").asText())
+												: StreamSupport.stream(parameters.get("sensorId").spliterator(), false)
+																.map(i -> i.asInt())
+																.collect(Collectors.toSet()); 
 		
-		if(querySensorId.size() == 0) {
-			return ResponseServices.builder()
-					.code(400)
-					.message("lista de sensor_id consultada no valida")
-					.build();
-		}
+		querySensorId.retainAll(apiKeysCacheData.getCompanySensorIds(parameters.get("companyApiKey").asText()));
 		
 		Integer fromEpoch = parameters.get("fromEpoch").canConvertToInt() ? parameters.get("fromEpoch").asInt() : null;
 		Integer toEpoch = parameters.get("toEpoch").canConvertToInt() ? parameters.get("toEpoch").asInt() : null;
 		
-		List<SensorData> queryResult = sensorDataRepo.findAllByParameters(querySensorId, fromEpoch, toEpoch);
+		List<SensorData> queryResult = sensorDataRepo.findAllByParameters(querySensorId, 
+																		  fromEpoch, 
+																		  toEpoch, 
+																		  querySensorCategory);
 		
 		return ResponseServices.builder()
 				.code(200)

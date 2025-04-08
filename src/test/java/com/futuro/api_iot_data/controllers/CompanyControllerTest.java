@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,6 +21,9 @@ class CompanyControllerTest {
     @Mock
     private ICompanyService companyService;
 
+    @Mock
+    private UserDetails userDetailMock;
+    
     @InjectMocks
     private CompanyController companyController;
 
@@ -42,10 +46,11 @@ class CompanyControllerTest {
                 .message("Company created successfully")
                 .build();
 
-        when(companyService.createCompany(any(CompanyDTO.class))).thenReturn(responseServices);
+        when(userDetailMock.getUsername()).thenReturn("admin");
+        when(companyService.createCompany(any(CompanyDTO.class),any(String.class))).thenReturn(responseServices);
 
         // Act
-        ResponseEntity<ResponseServices> response = companyController.createCompany(companyDTO);
+        ResponseEntity<ResponseServices> response = companyController.createCompany(companyDTO, userDetailMock);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -67,10 +72,11 @@ class CompanyControllerTest {
                 .message("Company found")
                 .build();
 
-        when(companyService.getCompanyById(id, companyApiKey)).thenReturn(responseServices);
-
+        when(userDetailMock.getUsername()).thenReturn("admin");
+        when(companyService.getCompanyById(id, userDetailMock.getUsername())).thenReturn(responseServices);
+        
         // Act
-        ResponseEntity<ResponseServices> response = companyController.getCompanyById(id, companyApiKey);
+        ResponseEntity<ResponseServices> response = companyController.getCompanyById(id, userDetailMock);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -88,11 +94,14 @@ class CompanyControllerTest {
                 .code(200)
                 .message("Companies found")
                 .build();
+        String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
 
-        when(companyService.getAllCompanies()).thenReturn(responseServices);
-
+        when(userDetailMock.getUsername()).thenReturn("admin");
+        when(companyService.getAllCompanies(userDetailMock.getUsername())).thenReturn(responseServices);
+        
+        
         // Act
-        ResponseEntity<ResponseServices> response = companyController.getAllCompanies();
+        ResponseEntity<ResponseServices> response = companyController.getCompanyById(null, userDetailMock);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -117,10 +126,11 @@ class CompanyControllerTest {
                 .message("Company updated successfully")
                 .build();
 
-        when(companyService.updateCompany(id, companyDTO, companyApiKey)).thenReturn(responseServices);
-
+        when(userDetailMock.getUsername()).thenReturn("admin");
+        when(companyService.updateCompany(id, companyDTO, userDetailMock.getUsername())).thenReturn(responseServices);
+        
         // Act
-        ResponseEntity<ResponseServices> response = companyController.updateCompany(id, companyDTO, companyApiKey);
+        ResponseEntity<ResponseServices> response = companyController.updateCompany(id, companyDTO, userDetailMock);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -142,10 +152,11 @@ class CompanyControllerTest {
                 .message("Company deleted successfully")
                 .build();
 
-        when(companyService.deleteCompany(id, companyApiKey)).thenReturn(responseServices);
-
+        when(userDetailMock.getUsername()).thenReturn("admin");
+        when(companyService.deleteCompany(id, userDetailMock.getUsername())).thenReturn(responseServices);
+        
         // Act
-        ResponseEntity<ResponseServices> response = companyController.deleteCompany(id, companyApiKey);
+        ResponseEntity<ResponseServices> response = companyController.deleteCompany(id, userDetailMock);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());

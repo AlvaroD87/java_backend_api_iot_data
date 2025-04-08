@@ -27,7 +27,7 @@ public class AdminServiceImp implements IAdminService{
 		if(adminRepo.findByUsername(newAdminDAO.getUsername()).isPresent()) {
 			return ResponseServices.builder()
 					.modelDTO(newAdminDAO)
-					.message("Duplicate username")
+					.message("Usuario Duplicado")
 					.code(300)
 					.build();
 		};

@@ -1,13 +1,13 @@
 package com.futuro.api_iot_data.services;
 
-import java.sql.Date;
-import java.util.Calendar;
+//import java.sql.Date;
+//import java.util.Calendar;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.futuro.api_iot_data.models.Country;
-import com.futuro.api_iot_data.models.DTOs.CountryDTO;
+//import com.futuro.api_iot_data.models.Country;
+//import com.futuro.api_iot_data.models.DTOs.CountryDTO;
 import com.futuro.api_iot_data.repositories.CountryRepository;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
@@ -18,6 +18,19 @@ public class CountryServiceImp implements ICountryService{
 	CountryRepository countryRepo;
 	
 	@Override
+	public ResponseServices listAll() {
+		
+		return ResponseServices.builder()
+				.code(200)
+				.message("")
+				.listModelDTO(countryRepo.findAll().stream()
+								.map(country -> country.toCountryDTO())
+								.toList()
+							 )
+				.build();
+	}
+	
+	/*@Override
 	public ResponseServices create(CountryDTO newCountry) {
 		
 		if(countryRepo.findByName(newCountry.getName()).isEmpty()) {
@@ -40,9 +53,9 @@ public class CountryServiceImp implements ICountryService{
 				.message("Country already exists")
 				.code(300)
 				.build();
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public ResponseServices getByName(String countryName) {
 		
 		Country country = countryRepo.findByName(countryName).orElse(null);
@@ -52,19 +65,6 @@ public class CountryServiceImp implements ICountryService{
 				.message(country == null ? "Country doesn't exist" : "Country finded")
 				.code(country == null ? 300 : 200)
 				.build();
-	}
-
-	@Override
-	public ResponseServices listAll() {
-		
-		return ResponseServices.builder()
-				.code(200)
-				.message("")
-				.listModelDTO(countryRepo.findAll().stream()
-								.map(country -> country.toCountryDTO())
-								.toList()
-							 )
-				.build();
-	}
+	}*/
 
 }

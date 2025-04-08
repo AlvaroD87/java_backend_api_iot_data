@@ -5,8 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.models.City;
 import com.futuro.api_iot_data.models.Company;
 import com.futuro.api_iot_data.models.Location;
@@ -14,7 +18,11 @@ import com.futuro.api_iot_data.models.DTOs.LocationDTO;
 import com.futuro.api_iot_data.repositories.CityRepository;
 import com.futuro.api_iot_data.repositories.CompanyRepository;
 import com.futuro.api_iot_data.repositories.LocationRepository;
+import com.futuro.api_iot_data.services.util.EntityChangeStatusEvent;
+import com.futuro.api_iot_data.services.util.EntityModel;
 import com.futuro.api_iot_data.services.util.ResponseServices;
+
+import jakarta.transaction.Transactional;
 
 
 /**
@@ -30,12 +38,18 @@ public class LocationServiceImp implements ILocationService {
 
 	@Autowired
 	private CityRepository cityRepository;
+	
+	@Autowired
+	private ApiKeysCacheData apiKeyCacheData;
+	
+	@Autowired
+    private ApplicationEventPublisher eventPublisher;
 
 	@Override
-	public ResponseServices create(LocationDTO locationDTO) {
+	public ResponseServices create(LocationDTO locationDTO, String companyApiKey) {
 		String locationName = locationDTO.getLocationName();
 		var locationMeta = locationDTO.getLocationMeta();
-
+		
 		// Se valida el nombre de la locación
 		if (locationName == null) {
 			return ResponseServices.builder()
@@ -44,6 +58,7 @@ public class LocationServiceImp implements ILocationService {
 					.modelDTO(locationDTO)
 					.build();
 		}
+		
 		if (locationRepository.existsByLocationName(locationName)) {
 			return ResponseServices.builder()
 					.code(400)
@@ -60,16 +75,18 @@ public class LocationServiceImp implements ILocationService {
 					.modelDTO(locationDTO)
 					.build();
 		}
-
+		
 		// Se valida la compañia
-		if (locationDTO.getCompanyId() == null) {
+		/*if (locationDTO.getCompanyId() == null) {
 			return ResponseServices.builder()
 					.code(400)
 					.message("La compañía es obligatoria")
 					.modelDTO(locationDTO)
 					.build();
-		}
-		Company company = companyRepository.findById(locationDTO.getCompanyId()).orElse(null);
+		}*/
+		
+		//Company company = companyRepository.findById(locationDTO.getCompanyId()).orElse(null);
+		Company company = companyRepository.findByCompanyApiKey(companyApiKey).orElse(null);
 		if (company == null) {
 			return ResponseServices.builder()
 					.code(400)
@@ -85,6 +102,7 @@ public class LocationServiceImp implements ILocationService {
 					.modelDTO(locationDTO)
 					.build();
 		}
+		
 		City city = cityRepository.findById(locationDTO.getCityId()).orElse(null);
 		if (city == null) {
 			return ResponseServices.builder()
@@ -114,8 +132,9 @@ public class LocationServiceImp implements ILocationService {
 	}
 
 	@Override
-	public ResponseServices update(Integer id, LocationDTO locationDTO) {
-		Location objLocation = locationRepository.findById(id).orElse(null);
+	public ResponseServices update(String companyApiKey, Integer id, LocationDTO locationDTO) {
+		//Location objLocation = locationRepository.findById(id).orElse(null);
+		Location objLocation = locationRepository.findActiveByIdAndCompanyApiKey(id,companyApiKey).orElse(null);
 		if(objLocation == null){
 			return ResponseServices.builder()
 				.code(400)
@@ -137,8 +156,9 @@ public class LocationServiceImp implements ILocationService {
 		}
 
 		// Se valida la compañía
-		Company company;
-		if (locationDTO.getCompanyId() == null) {
+		//Company company;
+		Company company = objLocation.getCompany();
+		/*if (locationDTO.getCompanyId() == null) {
 			company = objLocation.getCompany();
 		} else {
 			company = companyRepository.findById(locationDTO.getCompanyId()).orElse(null);
@@ -149,7 +169,7 @@ public class LocationServiceImp implements ILocationService {
 				.modelDTO(locationDTO)
 				.build();
 			}
-		}
+		}*/
 
 		// Se valida la ciudad
 		City city;
@@ -185,8 +205,8 @@ public class LocationServiceImp implements ILocationService {
 	}
 
 	@Override
-	public ResponseServices findAll() {
-		List<Location> locations = locationRepository.findAll();
+	public ResponseServices findAll(String companyApiKey) {
+		List<Location> locations = locationRepository.findAllActiveByCompanyApiKey(companyApiKey);
 		if (locations.isEmpty()) {
 			return ResponseServices.builder()
 				.code(200)
@@ -203,6 +223,7 @@ public class LocationServiceImp implements ILocationService {
 	}
 
 	@Override
+	@Transactional
 	public ResponseServices deleteById(Integer id) {
 		if (!locationRepository.existsById(id)) {
 			return ResponseServices.builder()
@@ -213,14 +234,28 @@ public class LocationServiceImp implements ILocationService {
 		}
 		Location objLocation = locationRepository.findById(id).get();
 
-		locationRepository.deleteById(id);
+		/*locationRepository.deleteById(id);
 		if (locationRepository.existsById(id)) {
 			return ResponseServices.builder()
 				.code(400)
 				.message("No se pudo eliminar la locación")
 				.modelDTO(new LocationDTO())
 				.build();
-		}
+		}*/
+		
+		locationRepository.updateStatusByLocationId(id, false);
+		
+		eventPublisher.publishEvent(
+        		EntityChangeStatusEvent.builder()
+        		.entity(EntityModel.LOCATION)
+        		.entityId(id)
+        		.status(false)
+        		.build()
+        		);
+		
+		locationRepository.findAllSensorIdByLocationId(id)
+			.forEach(s -> apiKeyCacheData.deleteSensorApiKey(getCompanyApiKeyFromSecurityContext(), s));
+		
 		return ResponseServices.builder()
 				.code(200)
 				.message("La locación se ha eliminado con éxito")
@@ -229,8 +264,10 @@ public class LocationServiceImp implements ILocationService {
 	}
 
 	@Override
-	public ResponseServices findById(Integer id) {
-		Location objLocation = locationRepository.findById(id).orElse(new Location());
+	public ResponseServices findById(Integer id, String companyApiKey) {
+		//Location objLocation = locationRepository.findById(id).orElse(new Location());
+		Location objLocation = locationRepository.findActiveByIdAndCompanyApiKey(id,companyApiKey).orElse(new Location());
+		
 		if (objLocation == null || objLocation.getLocationId() == null) {
 			return ResponseServices.builder()
 				.code(404)
@@ -259,6 +296,16 @@ public class LocationServiceImp implements ILocationService {
 				.createdDate(objLocation.getCreatedDate())
 				.updateDate(objLocation.getUpdateDate())
 				.build();
+	}
+	
+	private String getCompanyApiKeyFromSecurityContext() {
+		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+	}
+	
+	@EventListener
+	@Transactional
+	public void handlerEventEntityChangeStatus(EntityChangeStatusEvent event) {
+		locationRepository.updateStatusByCompanyId(event.getEntityId(), event.isStatus());
 	}
 
 }

@@ -124,7 +124,7 @@ class LocationServiceTest {
         when(cityRepository.findById(any(Integer.class))).thenReturn(Optional.of(city));
         when(locationRepository.save(any(Location.class))).thenReturn(location);
 
-        ResponseServices response = locationService.create(locationDTO);
+        ResponseServices response = locationService.create(locationDTO, "4324234234");
         assertNotNull(response.getModelDTO());
         LocationDTO modelDTO = (LocationDTO) response.getModelDTO();
 
@@ -136,7 +136,7 @@ class LocationServiceTest {
     void testFindAllLocations() {
         when(locationRepository.findAll()).thenReturn(Collections.singletonList(location));
 
-        ResponseServices response  = locationService.findAll();
+        ResponseServices response  = locationService.findAll("4324234234");
         
         List<LocationDTO> result = (List<LocationDTO>) response.getListModelDTO();
 
@@ -149,7 +149,7 @@ class LocationServiceTest {
     void testFindLocationByIdSuccess() {
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
 
-        ResponseServices response = locationService.findById(1);
+        ResponseServices response = locationService.findById(1,"4324234234");
         assertNotNull(response.getModelDTO());
         LocationDTO foundLocation = (LocationDTO) response.getModelDTO();
 
@@ -166,9 +166,9 @@ class LocationServiceTest {
 
         String nombreActualizado = "Nombre de locación actualizado";
         locationDTO.setLocationName(nombreActualizado);
-        locationService.update(1, locationDTO);
+        locationService.update("4324234234", 1, locationDTO);
 
-        ResponseServices response = locationService.findById(1);
+        ResponseServices response = locationService.findById(1,"4324234234");
         assertNotNull(response.getModelDTO());
         LocationDTO updatedLocation = (LocationDTO) response.getModelDTO();
         assertEquals(nombreActualizado, updatedLocation.getLocationName());
@@ -180,7 +180,7 @@ class LocationServiceTest {
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
     
         locationService.deleteById(1);
-        ResponseServices response = locationService.findById(1);
+        ResponseServices response = locationService.findById(1, "4324234234");
         assertNotNull(response.getModelDTO());
         LocationDTO deletedLocation = (LocationDTO) response.getModelDTO();
     

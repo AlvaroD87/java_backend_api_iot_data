@@ -1,16 +1,26 @@
 package com.futuro.api_iot_data.services;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.models.Sensor;
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
 import com.futuro.api_iot_data.repositories.SensorRepository;
+import com.futuro.api_iot_data.services.util.EntityChangeStatusEvent;
+import com.futuro.api_iot_data.services.util.EntityModel;
 import com.futuro.api_iot_data.services.util.ResponseServices;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class SensorService {
@@ -18,9 +28,13 @@ public class SensorService {
 	@Autowired
 	private SensorRepository sensorRepository;
 	
-	public ResponseServices getAllSensors() {
+	@Autowired
+	private ApiKeysCacheData apiKeyCacheData;
+	
+	public ResponseServices getAllSensors(String companyApiKey) {
 		
-		List<Sensor> sensors = sensorRepository.findAll();
+		//List<Sensor> sensors = sensorRepository.findAll();
+		List<Sensor> sensors = sensorRepository.findAllActiveByCompanyApiKey(companyApiKey);
 		List<SensorDTO> sensorList = new ArrayList<>();
 		
 		for(Sensor sensor: sensors) {		
@@ -55,8 +69,10 @@ public class SensorService {
 		
 	}
 	
-	public ResponseServices getSensorById(Integer sensorId) {
-		Optional<Sensor> sensorOptional = sensorRepository.findById(sensorId);
+	public ResponseServices getSensorById(String companyApiKey, Integer sensorId) {
+		//Optional<Sensor> sensorOptional = sensorRepository.findById(sensorId);
+		
+		Optional<Sensor> sensorOptional = sensorRepository.findActiveByIdAndCompanyApiKey(companyApiKey, sensorId);
 		
 		if(sensorOptional.isPresent()) {
 			Sensor sensor = sensorOptional.get();
@@ -75,9 +91,11 @@ public class SensorService {
 		
 	}
 	
-	public ResponseServices createSensor(SensorDTO sensorDTO) {
+	public ResponseServices createSensor(String companyApiKey, SensorDTO sensorDTO) {
 		
-		Optional<Sensor> existSensor = sensorRepository.findBySensorNameAndLocationId(sensorDTO.getSensorName(), sensorDTO.getLocationId());
+		//Optional<Sensor> existSensor = sensorRepository.findBySensorNameAndLocationId(sensorDTO.getSensorName(), sensorDTO.getLocationId());
+		
+		Optional<Sensor> existSensor = sensorRepository.findActiveBySensorNameLocationIdCompanyApiKey(sensorDTO.getSensorName(), sensorDTO.getLocationId(), companyApiKey);
 		
 		if(existSensor.isPresent()) {
 			return ResponseServices.builder()
@@ -90,14 +108,17 @@ public class SensorService {
 		Sensor sensor = new Sensor();
 		sensor.setSensorName(sensorDTO.getSensorName());
 		sensor.setSensorCategory(sensorDTO.getSensorCategory());
-		sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
+		//sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
+		sensor.setSensorApiKey(UUID.randomUUID().toString());
 		sensor.setSensorMeta(sensorDTO.getSensorMeta());
 		sensor.setLocationId(sensorDTO.getLocationId());
-		sensor.setIsActive(sensorDTO.getIsActive());
-		sensor.setCreatedDate(sensorDTO.getCreatedDate());
-		sensor.setUpdateDate(sensorDTO.getUpdateDate());
+		sensor.setIsActive(true);
+		sensor.setCreatedDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		sensor.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		
 		Sensor savedSensor = sensorRepository.save(sensor);
+		
+		apiKeyCacheData.setNewSensorApiKey(getCompanyApiKeyFromSecurityContext(), savedSensor.getSensorApiKey(), savedSensor.getSensorId());
 		
 		return ResponseServices.builder()
 				.message("Sensor creado exitosamente")
@@ -107,8 +128,10 @@ public class SensorService {
 
 	}
 	
-	public ResponseServices updateSensor(Integer sensorId, SensorDTO sensorDTO) {
-		Optional<Sensor> optionalSensor = sensorRepository.findById(sensorId);
+	public ResponseServices updateSensor(Integer sensorId, SensorDTO sensorDTO, String companyApiKey) {
+		//Optional<Sensor> optionalSensor = sensorRepository.findById(sensorId);
+		
+		Optional<Sensor> optionalSensor = sensorRepository.findActiveByIdAndCompanyApiKey(companyApiKey, sensorId);
 		
 		if(optionalSensor.isEmpty()) {
 			return ResponseServices.builder()
@@ -122,12 +145,12 @@ public class SensorService {
 		
 		sensor.setSensorName(sensorDTO.getSensorName());
 		sensor.setSensorCategory(sensorDTO.getSensorCategory());
-		sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
+		//sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
 		sensor.setSensorMeta(sensorDTO.getSensorMeta());
 		sensor.setLocationId(sensorDTO.getLocationId());
-		sensor.setIsActive(sensorDTO.getIsActive());
-		sensor.setCreatedDate(sensorDTO.getCreatedDate());
-		sensor.setUpdateDate(sensorDTO.getUpdateDate());
+		//sensor.setIsActive(sensorDTO.getIsActive());
+		//sensor.setCreatedDate(sensorDTO.getCreatedDate());
+		sensor.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		
 		Sensor savedSensor = sensorRepository.save(sensor);
 		
@@ -138,6 +161,7 @@ public class SensorService {
 				.build();
 	}
 	
+	@Transactional
 	public ResponseServices deleteSensor(Integer id) {
 		Optional<Sensor> optionalSendor = sensorRepository.findById(id);
 		
@@ -151,12 +175,34 @@ public class SensorService {
 		Sensor sensorInfo = optionalSendor.get();
 		SensorDTO selectSensor = sensorInfo.toSensorDTO();
 		
-		sensorRepository.deleteById(id);
+		//sensorRepository.deleteById(id);
+		
+		sensorRepository.updateIsActiveBySensorId(id, false);
+		
+		apiKeyCacheData.deleteSensorApiKey(getCompanyApiKeyFromSecurityContext(), sensorInfo.getSensorApiKey());
 		
 		return ResponseServices.builder()
 				.message("Sensor eliminado exitosamente")
 				.code(200)
 				.modelDTO(selectSensor)
 				.build();
+	}
+	
+	private String getCompanyApiKeyFromSecurityContext() {
+		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+	}
+	
+	@EventListener
+	@Transactional
+	void handlerEventEntityChangeStatus(EntityChangeStatusEvent event) {
+		switch (event.getEntity()) {
+		case EntityModel.COMPANY: {
+			sensorRepository.updateIsActiveByCompanyId(event.getEntityId(), event.isStatus());
+			break;
+		}
+		case EntityModel.LOCATION: {
+			sensorRepository.updateIsActiveByLocationId(event.getEntityId(), event.isStatus());
+			break;
+		}}
 	}
 }

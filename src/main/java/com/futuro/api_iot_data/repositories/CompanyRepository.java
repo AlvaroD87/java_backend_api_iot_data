@@ -2,6 +2,8 @@ package com.futuro.api_iot_data.repositories;
 
 import com.futuro.api_iot_data.models.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -30,6 +32,9 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
      */
     Optional<Company> findByCompanyApiKey(String companyApiKey);
     
+    @Query(value = "select * from companies where admin_id = ?1", nativeQuery = true)
+    List<Company> findAllByAdminId(Integer adminId);
+    
     @Query(value="""
     				select
     					c.company_api_key,
@@ -44,4 +49,15 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     		nativeQuery = true
     		)
     List<Object[]> joinedCompanyKeySensorKey();
+    
+    @Modifying
+    @Query(value = "update companies set is_active = ?2 where company_id = ?1", nativeQuery = true)
+    void updateIsActiveStatus(Integer companyId, boolean newIsActive);
+    
+    
+    @Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.company_id = ?1 and c.is_active = True and a.username = ?2", nativeQuery = true)
+    Optional<Company> findActiveByIdAndUsername(Integer comapanyId, String username);
+    
+    @Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.is_active = True and a.username = ?1", nativeQuery = true)
+    List<Company> findAllActiveByUsername(String username);
 }

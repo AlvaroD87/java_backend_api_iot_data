@@ -2,14 +2,14 @@ package com.futuro.api_iot_data.securities.util;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
@@ -22,11 +22,13 @@ import jakarta.servlet.http.HttpServletResponse;
 public class CompanyApiKeyValidator extends OncePerRequestFilter{
 
 	private ApiKeysCacheData apiKeysCacheData;
-	private List<String> pathsToApplyFilter;
+	private Map<String,List<String>> pathsToApplyFilter;	
+	private AuthenticationEntryPoint failureHandler;
 	
-	public CompanyApiKeyValidator(ApiKeysCacheData apiKeysCacheData, List<String> pathsToApplyFilter) {
+	public CompanyApiKeyValidator(ApiKeysCacheData apiKeysCacheData, Map<String,List<String>> pathsToApplyFilter, AuthenticationEntryPoint failureHandler) {	
 		this.apiKeysCacheData = apiKeysCacheData;
 		this.pathsToApplyFilter = pathsToApplyFilter;
+		this.failureHandler = failureHandler;
 	}
 	
 	@Override
@@ -34,22 +36,16 @@ public class CompanyApiKeyValidator extends OncePerRequestFilter{
 			throws ServletException, IOException {
 		
 		String headerCompanyApiKey = request.getHeader("api-key");
-		
+		System.out.println(apiKeysCacheData.isValidCompanyApiKey(headerCompanyApiKey));
 		if(Objects.isNull(headerCompanyApiKey) || !apiKeysCacheData.isValidCompanyApiKey(headerCompanyApiKey)) {
 			
 			SecurityContextHolder.clearContext();
 			
-			response.setStatus(HttpStatus.BAD_REQUEST.value());
-	        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-	        
-	        response.getWriter().write(String.format("{\"status\": %d, \"error\": \"%s\", \"message\": \"%s\"}", 
-	        											HttpStatus.BAD_REQUEST.value(), 
-	        											HttpStatus.BAD_REQUEST.getReasonPhrase(), 
-	        											"api_key invalida o inexistente")
-	        							);
-	        
-	        response.getWriter().flush();
-	        
+			failureHandler.commence(request,
+									response, 
+									new AuthenticationFailException("api_key invalida o inexistente")
+								   );
+						
 	        return;
 		}
 		
@@ -63,7 +59,8 @@ public class CompanyApiKeyValidator extends OncePerRequestFilter{
 	
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		String requestPath = request.getRequestURI();
-		return !pathsToApplyFilter.stream().anyMatch(p -> requestPath.startsWith(p));
+		return pathsToApplyFilter.containsKey(request.getRequestURI()) 
+				? !pathsToApplyFilter.get(request.getRequestURI()).contains(request.getMethod()) 
+				: true;
 	}
 }
