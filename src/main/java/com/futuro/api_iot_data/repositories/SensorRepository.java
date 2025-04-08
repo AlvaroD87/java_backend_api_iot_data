@@ -29,12 +29,12 @@ public interface SensorRepository extends JpaRepository<Sensor, Integer> {
 	@Query(value = "update sensors set is_active = ?2 where sensor_id = ?1", nativeQuery = true)
 	void updateIsActiveBySensorId(Integer sensorId, boolean newIsActive);
 	
-	@Query(value = "select s.* from sensors s join locations l on s.location_id=l.location_id join companies c on l.company_id=c.company_id where c.company_api_key = ?1", nativeQuery = true)
+	@Query(value = "select s.* from sensors s join locations l on s.location_id=l.location_id join companies c on l.company_id=c.company_id where c.company_api_key = ?1 and s.is_active = True", nativeQuery = true)
 	List<Sensor> findAllActiveByCompanyApiKey(String companyApiKey);
 	
-	@Query(value = "select s.* from sensors s join locations l on s.location_id=l.location_id join companies c on l.company_id=c.company_id where c.company_api_key = ?1 and s.sensor_id = ?2", nativeQuery = true)
+	@Query(value = "select s.* from sensors s join locations l on s.location_id=l.location_id join companies c on l.company_id=c.company_id where c.company_api_key = ?1 and s.sensor_id = ?2 and s.is_active = True", nativeQuery = true)
 	Optional<Sensor> findActiveByIdAndCompanyApiKey (String companyApiKey, Integer id);
 	
-	@Query(value = "select s.* from sensors s join locations l on s.location_id=l.location_id join companies c on l.company_id=c.company_id where s.sensor_name = ?1 and s.location_id = ?2 and c.company_api_key = ?3 ", nativeQuery = true)
+	@Query(value = "select s.* from sensors s join locations l on s.location_id=l.location_id join companies c on l.company_id=c.company_id where s.sensor_name = ?1 and s.location_id = ?2 and c.company_api_key = ?3 and s.is_active = True", nativeQuery = true)
 	Optional<Sensor> findActiveBySensorNameLocationIdCompanyApiKey(String sensorName, Integer locationId, String companyApiKey);
 }
