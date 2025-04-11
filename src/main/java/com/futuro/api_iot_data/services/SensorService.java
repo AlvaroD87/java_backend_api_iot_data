@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
+import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.Sensor;
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
 import com.futuro.api_iot_data.repositories.SensorRepository;
@@ -30,6 +31,9 @@ public class SensorService {
 	
 	@Autowired
 	private ApiKeysCacheData apiKeyCacheData;
+	
+	@Autowired
+	private LastActionCacheData lastActionCacheData;
 	
 	public ResponseServices getAllSensors(String companyApiKey) {
 		
@@ -115,6 +119,7 @@ public class SensorService {
 		sensor.setIsActive(true);
 		sensor.setCreatedDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		sensor.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		sensor.setLastAction(lastActionCacheData.getLastAction("CREATED"));
 		
 		Sensor savedSensor = sensorRepository.save(sensor);
 		
@@ -151,6 +156,7 @@ public class SensorService {
 		//sensor.setIsActive(sensorDTO.getIsActive());
 		//sensor.setCreatedDate(sensorDTO.getCreatedDate());
 		sensor.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		sensor.setLastAction(lastActionCacheData.getLastAction("UPDATED"));
 		
 		Sensor savedSensor = sensorRepository.save(sensor);
 		
@@ -177,7 +183,13 @@ public class SensorService {
 		
 		//sensorRepository.deleteById(id);
 		
-		sensorRepository.updateIsActiveBySensorId(id, false);
+		//sensorRepository.updateIsActiveBySensorId(id, false);
+		
+		sensorInfo.setIsActive(false);
+		sensorInfo.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		sensorInfo.setLastAction(lastActionCacheData.getLastAction("DELETED"));
+		
+		sensorRepository.save(sensorInfo);
 		
 		apiKeyCacheData.deleteSensorApiKey(getCompanyApiKeyFromSecurityContext(), sensorInfo.getSensorApiKey());
 		
@@ -197,11 +209,11 @@ public class SensorService {
 	void handlerEventEntityChangeStatus(EntityChangeStatusEvent event) {
 		switch (event.getEntity()) {
 		case EntityModel.COMPANY: {
-			sensorRepository.updateIsActiveByCompanyId(event.getEntityId(), event.isStatus());
+			sensorRepository.updateIsActiveByCompanyId(event.getEntityId(), event.isStatus(), event.getLastAction().getId());
 			break;
 		}
 		case EntityModel.LOCATION: {
-			sensorRepository.updateIsActiveByLocationId(event.getEntityId(), event.isStatus());
+			sensorRepository.updateIsActiveByLocationId(event.getEntityId(), event.isStatus(), event.getLastAction().getId());
 			break;
 		}}
 	}

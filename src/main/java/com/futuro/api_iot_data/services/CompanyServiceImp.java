@@ -1,6 +1,7 @@
 package com.futuro.api_iot_data.services;
 
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
+import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.Company;
 import com.futuro.api_iot_data.models.DTOs.CompanyDTO;
 import com.futuro.api_iot_data.models.DTOs.ITemplateDTO;
@@ -40,8 +41,11 @@ public class CompanyServiceImp implements ICompanyService {
     @Autowired
     private ApiKeysCacheData apiKeysCacheData;
 
-    //@Autowired
+    @Autowired
     private AdminRepository adminRepository;
+    
+    @Autowired
+	private LastActionCacheData lastActionCacheData;
     
     @Autowired
     private ApplicationEventPublisher eventPublisher;
@@ -63,7 +67,6 @@ public class CompanyServiceImp implements ICompanyService {
                     .build();
         }
 
-        // Obtenemos el Usuario authenticado
         String companyApiKey = UUID.randomUUID().toString();
 
         Company company = new Company();
@@ -73,7 +76,8 @@ public class CompanyServiceImp implements ICompanyService {
         company.setIsActive(true);
         company.setCreatedDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
         company.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-
+        company.setLastAction(lastActionCacheData.getLastAction("CREATED"));
+        
         companyRepository.save(company);
         
         apiKeysCacheData.setNewCompanyApiKey(companyApiKey);
@@ -189,6 +193,7 @@ public class CompanyServiceImp implements ICompanyService {
         Company company = companyOptional.get();
         company.setCompanyName(companyDTO.getCompanyName());
         company.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+        company.setLastAction(lastActionCacheData.getLastAction("UPDATED"));
 
         companyRepository.save(company);
 
@@ -222,15 +227,24 @@ public class CompanyServiceImp implements ICompanyService {
 
         //companyRepository.delete(companyOptional.get());
         
-        companyRepository.updateIsActiveStatus(id, false);
+        //companyRepository.updateIsActiveStatus(id, false);
+        
+        Company company = companyOptional.get();
+        
+        company.setIsActive(false);
+        company.setLastAction(lastActionCacheData.getLastAction("DELETED"));
+        company.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+        
+        companyRepository.save(company);
         
         eventPublisher.publishEvent(
         		EntityChangeStatusEvent.builder()
         		.entity(EntityModel.COMPANY)
         		.entityId(id)
         		.status(false)
+        		.lastAction(lastActionCacheData.getLastAction("DELETED_BY_CASCADE"))
         		.build()
-        		);
+        	);
         
         apiKeysCacheData.deleteCompanyApiKey(companyOptional.get().getCompanyApiKey());
 

@@ -11,8 +11,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
+import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.City;
 import com.futuro.api_iot_data.models.Company;
+import com.futuro.api_iot_data.models.LastAction;
 import com.futuro.api_iot_data.models.Location;
 import com.futuro.api_iot_data.models.DTOs.LocationDTO;
 import com.futuro.api_iot_data.repositories.CityRepository;
@@ -44,6 +46,9 @@ public class LocationServiceImp implements ILocationService {
 	
 	@Autowired
     private ApplicationEventPublisher eventPublisher;
+	
+	@Autowired
+	private LastActionCacheData lastActionCacheData;
 
 	@Override
 	public ResponseServices create(LocationDTO locationDTO, String companyApiKey) {
@@ -121,6 +126,7 @@ public class LocationServiceImp implements ILocationService {
 				.isActive(true) // Al crear, las compañias siempre van a estar activas
 				.createdDate(new Date(System.currentTimeMillis()))
 				.updateDate(new Date(System.currentTimeMillis()))
+				.lastAction(lastActionCacheData.getLastAction("CREATED"))
 				.build();
 
 		objLocation = locationRepository.save(objLocation);
@@ -196,6 +202,7 @@ public class LocationServiceImp implements ILocationService {
 		objLocation.setCity(city);
 		objLocation.setIsActive(isActive != null ? isActive : objLocation.getIsActive());
 		objLocation.setUpdateDate(new Date(System.currentTimeMillis()));
+		objLocation.setLastAction(lastActionCacheData.getLastAction("UPDATED"));
 		objLocation = locationRepository.save(objLocation);
 		return ResponseServices.builder()
 				.code(200)
@@ -242,14 +249,21 @@ public class LocationServiceImp implements ILocationService {
 				.modelDTO(new LocationDTO())
 				.build();
 		}*/
+				
+		//locationRepository.updateStatusByLocationId(id, false);
 		
-		locationRepository.updateStatusByLocationId(id, false);
+		objLocation.setIsActive(false);
+		objLocation.setUpdateDate(new Date(System.currentTimeMillis()));
+		objLocation.setLastAction(lastActionCacheData.getLastAction("DELETED"));
+		
+		locationRepository.save(objLocation);
 		
 		eventPublisher.publishEvent(
         		EntityChangeStatusEvent.builder()
         		.entity(EntityModel.LOCATION)
         		.entityId(id)
         		.status(false)
+        		.lastAction(lastActionCacheData.getLastAction("DELETED_BY_CASCADE"))
         		.build()
         		);
 		
@@ -305,7 +319,7 @@ public class LocationServiceImp implements ILocationService {
 	@EventListener
 	@Transactional
 	public void handlerEventEntityChangeStatus(EntityChangeStatusEvent event) {
-		locationRepository.updateStatusByCompanyId(event.getEntityId(), event.isStatus());
+		locationRepository.updateStatusByCompanyId(event.getEntityId(), event.isStatus(), event.getLastAction().getId());
 	}
 
 }
