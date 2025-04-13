@@ -2,16 +2,11 @@ package com.futuro.api_iot_data.models;
 
 import java.sql.Date;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,28 +22,14 @@ import lombok.ToString;
 @ToString
 @Builder
 @Entity
-@Table(name = "admins")
-public class Admin {
-
+@Table(name = "last_actions")
+public class LastAction {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "admin_id")
+	@Column(name = "last_action_id")
 	private Integer id;
+	private String actionEnum;
+	private String actionDesc;
 	
-	private String username;
-	
-	private String password;
-	
-	private Boolean is_active;
-	
-	@Column(name = "created_date")
-	private Date created_in;
-	
-	@Column(name = "update_date")
-	private Date updated_in;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "last_action_id")
-	@JsonBackReference
-	private LastAction lastAction;
 }

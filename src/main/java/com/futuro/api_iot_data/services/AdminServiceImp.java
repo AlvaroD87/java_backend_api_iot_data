@@ -6,7 +6,9 @@ import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.Admin;
+import com.futuro.api_iot_data.models.LastAction;
 import com.futuro.api_iot_data.models.DTOs.AdminDTO;
 import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.securities.services.PasswordEncoderImp;
@@ -20,6 +22,9 @@ public class AdminServiceImp implements IAdminService{
 	
 	@Autowired
 	PasswordEncoderImp passwordService;
+	
+	@Autowired
+	LastActionCacheData lastActionCacheData;
 	
 	@Override
 	public ResponseServices create(AdminDTO newAdminDAO) {
@@ -38,6 +43,7 @@ public class AdminServiceImp implements IAdminService{
 				.is_active(true)
 				.created_in(new Date(Calendar.getInstance().getTimeInMillis()))
 				.updated_in(new Date(Calendar.getInstance().getTimeInMillis()))
+				.lastAction(lastActionCacheData.getLastAction("CREATED"))
 				.build()
 		);
 		

@@ -4,6 +4,7 @@ package com.futuro.api_iot_data.models;
 import java.sql.Date;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import jakarta.persistence.Column;
@@ -63,4 +64,9 @@ public class Location {
     private Date createdDate;
     
     private Date updateDate;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "last_action_id")
+	@JsonBackReference
+	private LastAction lastAction;
 }
