@@ -56,6 +56,8 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(http -> {
 					http.requestMatchers(HttpMethod.POST,"/api/v1/sensor_data").permitAll();
+					http.requestMatchers(HttpMethod.GET,"doc/swagger-ui/**").permitAll();
+					http.requestMatchers(HttpMethod.GET,"/v3/api-docs/**").permitAll();
 					http.anyRequest().authenticated();
 				})
 				.addFilterBefore(new ServerIPValidator(pathsToValidateByServerIp, authenticationEntryPoint), BasicAuthenticationFilter.class)

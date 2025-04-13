@@ -69,7 +69,7 @@ public class LocationController {
 	public ResponseEntity<ResponseServices> findById(
 			@RequestHeader(name = "api-key", required = true) 
 				String companyApiKey,
-			@Parameter(description = "Id de la locación a buscar", required = true) 
+			@Parameter(description = "Id de la locación a buscar", required = false) 
 			@RequestParam(name = "location_id", required = false) 
 				Integer id
 		)
