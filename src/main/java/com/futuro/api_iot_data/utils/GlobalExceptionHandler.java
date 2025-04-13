@@ -1,7 +1,11 @@
 package com.futuro.api_iot_data.utils;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -53,6 +57,18 @@ public class GlobalExceptionHandler {
         //ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error en el servidor");
     	ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handlerMethodArgumentNotValidException(MethodArgumentNotValidException ex){
+    	String errors = ex.getBindingResult()
+    	        .getFieldErrors()
+    	        .stream()
+    	        .map(error -> error.getDefaultMessage())
+    	        .collect(Collectors.joining("; "));
+    	        //.map(error -> error.getField() + ": " + error.getDefaultMessage())
+    	        
+    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(HttpStatus.BAD_REQUEST, errors));
     }
     
 }

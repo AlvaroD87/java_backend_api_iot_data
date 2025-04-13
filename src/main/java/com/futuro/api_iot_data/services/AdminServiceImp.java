@@ -1,14 +1,12 @@
 package com.futuro.api_iot_data.services;
 
-import java.sql.Date;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.Admin;
-import com.futuro.api_iot_data.models.LastAction;
 import com.futuro.api_iot_data.models.DTOs.AdminDTO;
 import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.securities.services.PasswordEncoderImp;
@@ -40,16 +38,16 @@ public class AdminServiceImp implements IAdminService{
 		adminRepo.save(Admin.builder()
 				.username(newAdminDAO.getUsername())
 				.password(passwordService.encode(newAdminDAO.getPassword()))
-				.is_active(true)
-				.created_in(new Date(Calendar.getInstance().getTimeInMillis()))
-				.updated_in(new Date(Calendar.getInstance().getTimeInMillis()))
+				.isActive(true)
+				.created_in(LocalDateTime.now())
+				.updated_in(LocalDateTime.now())
 				.lastAction(lastActionCacheData.getLastAction("CREATED"))
 				.build()
 		);
 		
 		return ResponseServices.builder()
 				.modelDTO(newAdminDAO)
-				.message("Admin created")
+				.message("Admin creado")
 				.code(200)
 				.build();
 	}

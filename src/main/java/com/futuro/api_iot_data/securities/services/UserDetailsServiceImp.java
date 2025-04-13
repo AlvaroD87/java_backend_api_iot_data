@@ -23,7 +23,7 @@ public class UserDetailsServiceImp implements UserDetailsService{
 		
 		Admin admin = adminRepo.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("No existe username %s", username)));
 		
-		return new User(admin.getUsername(), admin.getPassword(), admin.getIs_active(), true, true, true, Collections.emptyList());
+		return new User(admin.getUsername(), admin.getPassword(), admin.getIsActive(), true, true, true, Collections.emptyList());
 	}
 
 }

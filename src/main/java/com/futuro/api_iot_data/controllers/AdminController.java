@@ -12,6 +12,8 @@ import com.futuro.api_iot_data.models.DTOs.AdminDTO;
 import com.futuro.api_iot_data.services.AdminServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/admin")
 public class AdminController {
@@ -20,7 +22,7 @@ public class AdminController {
 	AdminServiceImp adminService;
 	
 	@PostMapping//("/create")
-	public ResponseEntity<ResponseServices> createAdmin(@RequestBody AdminDTO newAdmin){
+	public ResponseEntity<ResponseServices> createAdmin(@RequestBody @Valid AdminDTO newAdmin){
 		
 		ResponseServices response = adminService.create(newAdmin);
 		
