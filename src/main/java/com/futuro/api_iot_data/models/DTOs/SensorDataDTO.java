@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * DTO que representa los datos almacenados de un sensor.
+*/
 @Getter
 @Setter
 @AllArgsConstructor

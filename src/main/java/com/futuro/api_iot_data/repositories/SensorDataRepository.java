@@ -10,9 +10,30 @@ import org.springframework.stereotype.Repository;
 
 import com.futuro.api_iot_data.models.SensorData;
 
+/**
+ * Repositorio para la entidad {@link SensorData} que maneja los datos recolectados por sensores.
+ * 
+ * <p>Proporciona métodos para acceder y consultar datos de sensores con diversos filtros.</p>
+ */
 @Repository
 public interface SensorDataRepository extends JpaRepository<SensorData, Integer>{
 
+	/**
+     * Busca datos de sensores aplicando múltiples filtros opcionales.
+     * 
+     * <p>Consulta nativa que filtra datos de sensores basado en:</p>
+     * <ul>
+     *   <li>IDs de sensores específicos</li>
+     *   <li>Categoría de sensor (opcional)</li>
+     *   <li>Rango de fechas en formato epoch (opcional)</li>
+     * </ul>
+     *
+     * @param sensorId Conjunto de IDs de sensores a incluir en la búsqueda (requerido)
+     * @param fromEpoch Límite inferior del rango de tiempo (epoch timestamp, opcional)
+     * @param toEpoch Límite superior del rango de tiempo (epoch timestamp, opcional)
+     * @param sensorCategory Conjunto de categorías de sensor para filtrar (opcional)
+     * @return Lista de objetos SensorData que cumplen con los criterios de filtrado
+     */
 	@Query(value = """
 				SELECT
 					sd.sensor_data_id,

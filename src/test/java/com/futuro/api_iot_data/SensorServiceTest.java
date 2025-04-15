@@ -29,6 +29,12 @@ import com.futuro.api_iot_data.services.util.ResponseServices;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
+/**
+ * Pruebas unitarias para el servicio de sensores (SensorService).
+ * 
+ * <p>Verifica el comportamiento del servicio para operaciones CRUD de sensores,
+ * incluyendo creación, consulta, actualización y eliminación.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 public class SensorServiceTest {
 	
@@ -44,6 +50,9 @@ public class SensorServiceTest {
 	private Sensor sensor;
 	private SensorDTO sensorDTO;
 	
+	/**
+     * Configuración inicial para cada prueba.
+     */
 	@BeforeEach
 	void setUp() {
 		sensor = new Sensor();
@@ -71,6 +80,9 @@ public class SensorServiceTest {
 				
 	}
 	
+	/**
+     * Prueba la obtención exitosa de todos los sensores.
+     */
 	@Test
 	void testGetAllSensors() {
 		when(sensorRepository.findAll()).thenReturn(List.of(sensor));
@@ -85,6 +97,9 @@ public class SensorServiceTest {
 		
 	}
 	
+	/**
+     * Prueba la obtención exitosa de un sensor por ID.
+     */
 	@Test
 	void testGetSensorById_Exists() {
 		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
@@ -98,6 +113,9 @@ public class SensorServiceTest {
 		assertEquals("Sensor de Prueba", ((SensorDTO) response.getModelDTO()).getSensorName());
 	}
 	
+	/**
+     * Prueba la creación exitosa de un sensor.
+     */
 	@Test
 	void testCreateSensor() {
 		when(sensorRepository.save(any(Sensor.class))).thenReturn(sensor);
@@ -111,6 +129,9 @@ public class SensorServiceTest {
 		assertEquals("Sensor de Prueba", ((SensorDTO) response.getModelDTO()).getSensorName());
 	}
 	
+	/**
+     * Prueba la actualización exitosa de un sensor.
+     */
 	@Test
 	void testUpdateSensor() {
 		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
@@ -133,6 +154,9 @@ public class SensorServiceTest {
 		assertEquals("modificación", ((SensorDTO) response.getModelDTO()).getSensorCategory());
 	}
 	
+	/**
+     * Prueba la eliminación exitosa de un sensor.
+     */
 	@Test
 	void testDeleteSensor() {
 		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
