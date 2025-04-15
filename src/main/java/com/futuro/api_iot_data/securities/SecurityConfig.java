@@ -26,6 +26,17 @@ import com.futuro.api_iot_data.securities.util.ServerIPValidator;
 import com.futuro.api_iot_data.securities.util.CompanyApiKeyValidator;
 import com.futuro.api_iot_data.securities.util.CustomAuthenticationEntryPoint;
 
+/**
+ * Configuración principal de seguridad para la aplicación.
+ * 
+ * <p>Esta clase define:</p>
+ * <ul>
+ *   <li>Reglas de autorización para endpoints</li>
+ *   <li>Filtros de seguridad personalizados</li>
+ *   <li>Configuración de autenticación</li>
+ *   <li>Políticas de sesión y CSRF</li>
+ * </ul>
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -34,11 +45,13 @@ public class SecurityConfig {
 	@Autowired
 	ApiKeysCacheData apiKeysCacheData;
 	
+	// Rutas protegidas por validación de IP del servidor
 	private final Map<String, List<String>> pathsToValidateByServerIp = Map.of("/api/v1/admin", List.of("POST","PUT","DELETE"), 
 																			   "/api/v1/city", List.of("POST","PUT","DELETE"), 
 																			   "/api/v1/country", List.of("POST","PUT","DELETE")
 																			  );
 	
+	// Rutas protegidas por validación de API Key																		  
 	private final Map<String, List<String>> pathsToValidateByApiKey = Map.of("/api/v1/city", List.of("GET"),
 																			 "/api/v1/country", List.of("GET"),
 																			 "/api/v1/location", List.of("GET","POST","PUT","DELETE"),
@@ -48,6 +61,9 @@ public class SecurityConfig {
 	@Autowired
 	private CustomAuthenticationEntryPoint authenticationEntryPoint;
 	
+	/**
+     * Configura la cadena de filtros de seguridad.
+     */
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity
@@ -66,11 +82,17 @@ public class SecurityConfig {
 				.build();
 	}
 	
+	/**
+     * Configura el AuthenticationManager.
+     */
 	@Bean
 	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
 	
+	/**
+     * Configura el proveedor de autenticación para usuarios/password.
+     */
 	@Bean
 	AuthenticationProvider userPasswordProvider(UserDetailsService userDetailService, PasswordEncoder passwordEncode) {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();

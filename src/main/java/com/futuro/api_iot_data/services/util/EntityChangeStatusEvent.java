@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Representa un evento de cambio de estado en una entidad del sistema.
+ */
 @Getter
 @Setter
 @Builder

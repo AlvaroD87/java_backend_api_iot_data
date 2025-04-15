@@ -23,6 +23,12 @@ import com.futuro.api_iot_data.services.util.ResponseServices;
 
 import jakarta.transaction.Transactional;
 
+/**
+ * Servicio para la gestión de sensores IoT.
+ * 
+ * <p>Proporciona operaciones CRUD completas para sensores,
+ * incluyendo manejo de API Keys y sincronización con el caché.</p>
+ */
 @Service
 public class SensorService {
 
@@ -35,6 +41,12 @@ public class SensorService {
 	@Autowired
 	private LastActionCacheData lastActionCacheData;
 	
+	/**
+     * Obtiene todos los sensores activos de una compañía.
+     * 
+     * @param companyApiKey API Key de la compañía
+     * @return ResponseServices con lista de sensores o mensaje de error
+     */
 	public ResponseServices getAllSensors(String companyApiKey) {
 		
 		//List<Sensor> sensors = sensorRepository.findAll();
@@ -73,6 +85,13 @@ public class SensorService {
 		
 	}
 	
+	/**
+     * Obtiene un sensor específico por ID y API Key de compañía.
+     * 
+     * @param companyApiKey API Key de validación
+     * @param sensorId ID del sensor
+     * @return ResponseServices con el sensor o mensaje de error
+     */
 	public ResponseServices getSensorById(String companyApiKey, Integer sensorId) {
 		//Optional<Sensor> sensorOptional = sensorRepository.findById(sensorId);
 		
@@ -95,6 +114,13 @@ public class SensorService {
 		
 	}
 	
+	/**
+     * Crea un nuevo sensor con API Key generada automáticamente.
+     * 
+     * @param companyApiKey API Key de la compañía
+     * @param sensorDTO Datos del nuevo sensor
+     * @return ResponseServices con el sensor creado o mensaje de error
+     */
 	public ResponseServices createSensor(String companyApiKey, SensorDTO sensorDTO) {
 		
 		//Optional<Sensor> existSensor = sensorRepository.findBySensorNameAndLocationId(sensorDTO.getSensorName(), sensorDTO.getLocationId());
@@ -133,6 +159,14 @@ public class SensorService {
 
 	}
 	
+	/**
+     * Actualiza un sensor existente.
+     * 
+     * @param sensorId ID del sensor
+     * @param sensorDTO Nuevos datos del sensor
+     * @param companyApiKey API Key de validación
+     * @return ResponseServices con el sensor actualizado o mensaje de error
+     */
 	public ResponseServices updateSensor(Integer sensorId, SensorDTO sensorDTO, String companyApiKey) {
 		//Optional<Sensor> optionalSensor = sensorRepository.findById(sensorId);
 		
@@ -167,6 +201,12 @@ public class SensorService {
 				.build();
 	}
 	
+	/**
+     * Elimina lógicamente un sensor (marca como inactivo).
+     * 
+     * @param id ID del sensor
+     * @return ResponseServices con confirmación o mensaje de error
+     */
 	@Transactional
 	public ResponseServices deleteSensor(Integer id) {
 		Optional<Sensor> optionalSendor = sensorRepository.findById(id);
@@ -200,10 +240,16 @@ public class SensorService {
 				.build();
 	}
 	
+	 /**
+     * Obtiene la API Key del contexto de seguridad.
+     */
 	private String getCompanyApiKeyFromSecurityContext() {
 		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
 	}
 	
+	 /**
+     * Maneja eventos de cambio de estado para actualizar sensores relacionados.
+     */
 	@EventListener
 	@Transactional
 	void handlerEventEntityChangeStatus(EntityChangeStatusEvent event) {
