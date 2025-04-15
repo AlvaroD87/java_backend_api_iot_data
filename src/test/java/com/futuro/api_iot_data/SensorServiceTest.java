@@ -20,6 +20,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
+import com.futuro.api_iot_data.cache.LastActionCacheData;
+import com.futuro.api_iot_data.models.LastAction;
 import com.futuro.api_iot_data.models.Sensor;
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
 import com.futuro.api_iot_data.repositories.SensorRepository;
@@ -34,8 +36,12 @@ public class SensorServiceTest {
 	
 	@Mock
 	private SensorRepository sensorRepository;
+	
 	@Mock
 	private ApiKeysCacheData apiKeyCacheDataMock;
+	
+	@Mock
+	private LastActionCacheData lastActionCacheData;
 	
 	
 	@InjectMocks
@@ -43,6 +49,9 @@ public class SensorServiceTest {
 	
 	private Sensor sensor;
 	private SensorDTO sensorDTO;
+	private LastAction lastActionCreated;
+	private LastAction lastActionUpdated;
+	private LastAction lastActionDeleted;
 	
 	@BeforeEach
 	void setUp() {
@@ -64,8 +73,20 @@ public class SensorServiceTest {
 				Timestamp.valueOf("2025-03-02 13:00:00")
 				);
 		
+		lastActionCreated = new LastAction();
+		lastActionCreated.setId(1);
+		lastActionCreated.setActionEnum("CREATED");
+		
+		lastActionUpdated = new LastAction();
+		lastActionUpdated.setId(2);
+		lastActionUpdated.setActionEnum("UPDATED");
+		
+		lastActionDeleted = new LastAction();
+		lastActionDeleted.setId(3);
+		lastActionDeleted.setActionEnum("DELETED");
+		
 		Authentication authentication = new UsernamePasswordAuthenticationToken("companyApiKey", null, null);
-		SecurityContext context = SecurityContextHolder.getContext();
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
 		SecurityContextHolder.setContext(context);
 				
@@ -73,7 +94,7 @@ public class SensorServiceTest {
 	
 	@Test
 	void testGetAllSensors() {
-		when(sensorRepository.findAll()).thenReturn(List.of(sensor));
+		when(sensorRepository.findAllActiveByCompanyApiKey("companyApiKey")).thenReturn(List.of(sensor));
 		
 		ResponseServices response = sensorService.getAllSensors("companyApiKey");
 		
@@ -87,7 +108,7 @@ public class SensorServiceTest {
 	
 	@Test
 	void testGetSensorById_Exists() {
-		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
+		when(sensorRepository.findActiveByIdAndCompanyApiKey("companyApiKey",1)).thenReturn(Optional.of(sensor));
 		
 		ResponseServices response = sensorService.getSensorById("companyApiKey",1);
 		
@@ -100,7 +121,11 @@ public class SensorServiceTest {
 	
 	@Test
 	void testCreateSensor() {
+		when(sensorRepository.findActiveBySensorNameLocationIdCompanyApiKey("Sensor de Prueba", 3, "companyApiKey"))
+			.thenReturn(Optional.empty());
 		when(sensorRepository.save(any(Sensor.class))).thenReturn(sensor);
+		when(lastActionCacheData.getLastAction("CREATED"))
+			.thenReturn(lastActionCreated);
 		
 		ResponseServices response = sensorService.createSensor("companyApiKey", sensorDTO);
 		
@@ -113,8 +138,10 @@ public class SensorServiceTest {
 	
 	@Test
 	void testUpdateSensor() {
-		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
+		when(sensorRepository.findActiveByIdAndCompanyApiKey("companyApiKey",1)).thenReturn(Optional.of(sensor));
 		when(sensorRepository.save(any(Sensor.class))).thenReturn(sensor);
+		when(lastActionCacheData.getLastAction("UPDATED"))
+			.thenReturn(lastActionUpdated);
 		
 		SensorDTO updateSensor = new SensorDTO(
 				1, "Sensor Modificado", "modificación", "123abcd",
@@ -136,7 +163,10 @@ public class SensorServiceTest {
 	@Test
 	void testDeleteSensor() {
 		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
-		doNothing().when(sensorRepository).deleteById(1);
+		//doNothing().when(sensorRepository).deleteById(1);
+		when(sensorRepository.save(any(Sensor.class))).thenReturn(sensor);
+		when(lastActionCacheData.getLastAction("DELETED"))
+			.thenReturn(lastActionDeleted);
 		
 		ResponseServices response = sensorService.deleteSensor(1);
 		
