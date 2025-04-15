@@ -2,6 +2,8 @@ package com.futuro.api_iot_data.repositories;
 
 import com.futuro.api_iot_data.models.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -30,6 +32,19 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
      */
     Optional<Company> findByCompanyApiKey(String companyApiKey);
     
+
+    /**
+     * Obtiene todas las compañías asociadas a un administrador.
+     * @param adminId ID del administrador
+     * @return Lista de compañías del administrador
+     */
+    @Query(value = "select * from companies where admin_id = ?1", nativeQuery = true)
+    List<Company> findAllByAdminId(Integer adminId);
+    
+    /**
+     * Obtiene una lista de objetos con claves de compañía y sensores asociados.
+     * @return Lista de arrays de objetos con [company_api_key, sensor_api_key, sensor_id]
+     */
     @Query(value="""
     				select
     					c.company_api_key,
@@ -44,4 +59,31 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     		nativeQuery = true
     		)
     List<Object[]> joinedCompanyKeySensorKey();
+    
+    /**
+     * Actualiza el estado activo de una compañía.
+     * @param companyId ID de la compañía a actualizar
+     * @param newIsActive Nuevo valor para el estado activo (true/false)
+     */
+    @Modifying
+    @Query(value = "update companies set is_active = ?2 where company_id = ?1", nativeQuery = true)
+    void updateIsActiveStatus(Integer companyId, boolean newIsActive);
+    
+    
+    /**
+     * Busca una compañía activa por ID y nombre de usuario del administrador.
+     * @param companyId ID de la compañía
+     * @param username Nombre de usuario del administrador
+     * @return {@link Optional} conteniendo la Company si existe y cumple los criterios
+     */
+    @Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.company_id = ?1 and c.is_active = True and a.username = ?2", nativeQuery = true)
+    Optional<Company> findActiveByIdAndUsername(Integer companyId, String username);
+    
+    /**
+     * Obtiene todas las compañías activas asociadas a un administrador.
+     * @param username Nombre de usuario del administrador
+     * @return Lista de compañías activas del administrador
+     */
+    @Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.is_active = True and a.username = ?1", nativeQuery = true)
+    List<Company> findAllActiveByUsername(String username);
 }

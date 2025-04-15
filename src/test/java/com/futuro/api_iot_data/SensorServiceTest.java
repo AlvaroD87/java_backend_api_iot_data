@@ -14,7 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.models.Sensor;
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
 import com.futuro.api_iot_data.repositories.SensorRepository;
@@ -24,11 +29,20 @@ import com.futuro.api_iot_data.services.util.ResponseServices;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
+/**
+ * Pruebas unitarias para el servicio de sensores (SensorService).
+ * 
+ * <p>Verifica el comportamiento del servicio para operaciones CRUD de sensores,
+ * incluyendo creación, consulta, actualización y eliminación.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 public class SensorServiceTest {
 	
 	@Mock
 	private SensorRepository sensorRepository;
+	@Mock
+	private ApiKeysCacheData apiKeyCacheDataMock;
+	
 	
 	@InjectMocks
 	private SensorService sensorService;
@@ -36,6 +50,9 @@ public class SensorServiceTest {
 	private Sensor sensor;
 	private SensorDTO sensorDTO;
 	
+	/**
+     * Configuración inicial para cada prueba.
+     */
 	@BeforeEach
 	void setUp() {
 		sensor = new Sensor();
@@ -55,14 +72,22 @@ public class SensorServiceTest {
 				Timestamp.valueOf("2025-03-02 12:00:00"),
 				Timestamp.valueOf("2025-03-02 13:00:00")
 				);
+		
+		Authentication authentication = new UsernamePasswordAuthenticationToken("companyApiKey", null, null);
+		SecurityContext context = SecurityContextHolder.getContext();
+		context.setAuthentication(authentication);
+		SecurityContextHolder.setContext(context);
 				
 	}
 	
+	/**
+     * Prueba la obtención exitosa de todos los sensores.
+     */
 	@Test
 	void testGetAllSensors() {
 		when(sensorRepository.findAll()).thenReturn(List.of(sensor));
 		
-		ResponseServices response = sensorService.getAllSensors();
+		ResponseServices response = sensorService.getAllSensors("companyApiKey");
 		
 		assertNotNull(response);
 		assertEquals(200, response.getCode());
@@ -72,11 +97,14 @@ public class SensorServiceTest {
 		
 	}
 	
+	/**
+     * Prueba la obtención exitosa de un sensor por ID.
+     */
 	@Test
 	void testGetSensorById_Exists() {
 		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
 		
-		ResponseServices response = sensorService.getSensorById(1);
+		ResponseServices response = sensorService.getSensorById("companyApiKey",1);
 		
 		assertNotNull(response);
 		assertEquals(200, response.getCode());
@@ -85,11 +113,14 @@ public class SensorServiceTest {
 		assertEquals("Sensor de Prueba", ((SensorDTO) response.getModelDTO()).getSensorName());
 	}
 	
+	/**
+     * Prueba la creación exitosa de un sensor.
+     */
 	@Test
 	void testCreateSensor() {
 		when(sensorRepository.save(any(Sensor.class))).thenReturn(sensor);
 		
-		ResponseServices response = sensorService.createSensor(sensorDTO);
+		ResponseServices response = sensorService.createSensor("companyApiKey", sensorDTO);
 		
 		assertNotNull(response);
 		assertEquals(201, response.getCode());
@@ -98,6 +129,9 @@ public class SensorServiceTest {
 		assertEquals("Sensor de Prueba", ((SensorDTO) response.getModelDTO()).getSensorName());
 	}
 	
+	/**
+     * Prueba la actualización exitosa de un sensor.
+     */
 	@Test
 	void testUpdateSensor() {
 		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
@@ -110,7 +144,7 @@ public class SensorServiceTest {
 				Timestamp.valueOf("2025-03-03 13:00:00")
 				);
 		
-		ResponseServices response = sensorService.updateSensor(1, updateSensor);
+		ResponseServices response = sensorService.updateSensor(1, updateSensor, "companyApiKey");
 		
 		assertNotNull(response);
 		assertEquals(200, response.getCode());
@@ -120,6 +154,9 @@ public class SensorServiceTest {
 		assertEquals("modificación", ((SensorDTO) response.getModelDTO()).getSensorCategory());
 	}
 	
+	/**
+     * Prueba la eliminación exitosa de un sensor.
+     */
 	@Test
 	void testDeleteSensor() {
 		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));

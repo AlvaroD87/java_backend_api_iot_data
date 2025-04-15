@@ -13,6 +13,17 @@ import com.futuro.api_iot_data.models.DTOs.CityDTO;
 import com.futuro.api_iot_data.services.CityServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+/**
+ * Controlador REST para la gestión de ciudades del sistema
+ */
+@Tag(name="City Controller", description="Controlador REST para la gestión de ciudades del sistema")
 @RestController
 @RequestMapping("/api/v1/city")
 public class CityController {
@@ -20,15 +31,25 @@ public class CityController {
 	@Autowired
 	CityServiceImp cityService;
 
-	@PostMapping("/create")
+	/*@PostMapping("/create")
 	public ResponseEntity<ResponseServices> create(@RequestBody CityDTO newCity){
 		
 		ResponseServices response = cityService.create(newCity);
 		
 		return ResponseEntity.status(response.getCode() == 200 ? HttpStatus.CREATED : HttpStatus.CONFLICT).body(response);
-	}
-	
-	@GetMapping("/get-all")
+	}*/
+
+	/**
+	 * Obtener todas las ciudades registradas
+	 * @return Listado de ciudades registradas
+	 */
+	@GetMapping//("/get-all")
+	@Operation(summary="Listado de ciudades", description = "Obtener todas las ciudades registradas")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode ="200", description = "Listado de ciudades encontradas",
+		content = @Content(schema = @Schema(implementation = ResponseServices.class)) 
+		)
+	})
 	public ResponseEntity<ResponseServices> getAll(){
 		return ResponseEntity.ok(cityService.listAll());
 	}

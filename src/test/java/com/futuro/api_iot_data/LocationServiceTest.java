@@ -33,6 +33,12 @@ import com.futuro.api_iot_data.repositories.LocationRepository;
 import com.futuro.api_iot_data.services.LocationServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
+/**
+ * Pruebas unitarias para el servicio de ubicaciones (LocationService).
+ * 
+ * <p>Verifica el comportamiento del servicio para operaciones CRUD de ubicaciones,
+ * incluyendo creación, consulta, actualización y eliminación.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 class LocationServiceTest {
 
@@ -61,6 +67,9 @@ class LocationServiceTest {
     private LocationDTO locationDTO;
     private Location location;
 
+    /**
+     * Configuración inicial para cada prueba.
+     */
     @BeforeEach
     void setUp() {
         admin = new Admin();
@@ -117,6 +126,9 @@ class LocationServiceTest {
                 .build();
     }
 
+    /**
+     * Prueba la creación exitosa de una ubicación.
+     */
     @Test
     void testCreateLocationSuccess() {
         when(companyRepository.findById(any(Integer.class))).thenReturn(Optional.of(company));
@@ -124,7 +136,7 @@ class LocationServiceTest {
         when(cityRepository.findById(any(Integer.class))).thenReturn(Optional.of(city));
         when(locationRepository.save(any(Location.class))).thenReturn(location);
 
-        ResponseServices response = locationService.create(locationDTO);
+        ResponseServices response = locationService.create(locationDTO, "4324234234");
         assertNotNull(response.getModelDTO());
         LocationDTO modelDTO = (LocationDTO) response.getModelDTO();
 
@@ -132,11 +144,14 @@ class LocationServiceTest {
         assertEquals("Locación inicial", modelDTO.getLocationName());
     }
 
+    /**
+     * Prueba la obtención de todas las ubicaciones.
+     */
     @Test
     void testFindAllLocations() {
         when(locationRepository.findAll()).thenReturn(Collections.singletonList(location));
 
-        ResponseServices response  = locationService.findAll();
+        ResponseServices response  = locationService.findAll("4324234234");
         
         List<LocationDTO> result = (List<LocationDTO>) response.getListModelDTO();
 
@@ -145,11 +160,14 @@ class LocationServiceTest {
         assertEquals("Locación inicial", result.get(0).getLocationName());
     }
 
+    /**
+     * Prueba la búsqueda exitosa de una ubicación por ID.
+     */
     @Test
     void testFindLocationByIdSuccess() {
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
 
-        ResponseServices response = locationService.findById(1);
+        ResponseServices response = locationService.findById(1,"4324234234");
         assertNotNull(response.getModelDTO());
         LocationDTO foundLocation = (LocationDTO) response.getModelDTO();
 
@@ -157,6 +175,9 @@ class LocationServiceTest {
         assertEquals("Locación inicial", foundLocation.getLocationName());
     }
 
+     /**
+     * Prueba la actualización exitosa de una ubicación.
+     */
     @Test
     void testUpdateLocationSuccess() {
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
@@ -166,21 +187,24 @@ class LocationServiceTest {
 
         String nombreActualizado = "Nombre de locación actualizado";
         locationDTO.setLocationName(nombreActualizado);
-        locationService.update(1, locationDTO);
+        locationService.update("4324234234", 1, locationDTO);
 
-        ResponseServices response = locationService.findById(1);
+        ResponseServices response = locationService.findById(1,"4324234234");
         assertNotNull(response.getModelDTO());
         LocationDTO updatedLocation = (LocationDTO) response.getModelDTO();
         assertEquals(nombreActualizado, updatedLocation.getLocationName());
     }
 
+    /**
+     * Prueba la eliminación exitosa de una ubicación.
+     */
     @Test
     void testDeleteLocationByIdSuccess() {
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
     
         locationService.deleteById(1);
-        ResponseServices response = locationService.findById(1);
+        ResponseServices response = locationService.findById(1, "4324234234");
         assertNotNull(response.getModelDTO());
         LocationDTO deletedLocation = (LocationDTO) response.getModelDTO();
     

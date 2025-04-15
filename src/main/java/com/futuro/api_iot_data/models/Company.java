@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.sql.Timestamp;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 /**
  * Clase que representa la entidad Company (Compañía).
  * Contiene información sobre las compañías registradas en el sistema,
@@ -35,6 +37,12 @@ public class Company {
     private String companyApiKey;
 
     /**
+     * TO-DO.
+     */
+	@Column(name = "admin_id", nullable = false)
+	private Integer adminId;
+    
+    /**
      * Estado de actividad de la compañía. No puede ser nulo.
      */
     @Column(name = "is_active", nullable = false)
@@ -51,4 +59,9 @@ public class Company {
      */
     @Column(name = "update_date", nullable = false)
     private Timestamp updateDate;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "last_action_id")
+	@JsonBackReference
+	private LastAction lastAction;
 }

@@ -15,7 +15,7 @@ public interface ILocationService {
 	 * @param locationDTO {@link LocationDTO} con la información de la locación
 	 * @return {@link ResponseServices} incluyendo la {@link LocationDTO} creada
 	 */
-	public ResponseServices create(LocationDTO locationDTO);
+	public ResponseServices create(LocationDTO locationDTO, String companyApiKey);
 
 
 	/**
@@ -24,13 +24,13 @@ public interface ILocationService {
 	 * @param locationDTO {@link LocationDTO} con la información de la locación
 	 * @return {@link ResponseServices} incluyendo la {@link LocationDTO} actualizada
 	 */
-	public ResponseServices update(Integer id, LocationDTO locationDTO);
+	public ResponseServices update(String companyApiKey, Integer id, LocationDTO locationDTO);
 
 	/**
 	 * Obtiene una lista de todas las locaciones registradas
 	 * @return {@link ResponseServices} incluyendo una lista de todas las {@link LocationDTO} encontradas
 	 */
-	public ResponseServices findAll();
+	public ResponseServices findAll(String companyApiKey);
 
 	/**
 	 * Elimina la locación asociada al id especificado
@@ -44,6 +44,6 @@ public interface ILocationService {
 	 * @param id Id de la locación a buscar
 	 * @return {@link ResponseServices} incluyendo la {@link LocationDTO} encontrada
 	 */
-	public ResponseServices findById(Integer id);
+	public ResponseServices findById(Integer id, String companyApiKey);
 	
 }
