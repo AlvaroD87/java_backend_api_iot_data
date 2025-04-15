@@ -18,6 +18,16 @@ import com.futuro.api_iot_data.services.util.ResponseServices;
 
 import jakarta.transaction.Transactional;
 
+/**
+ * Implementación del servicio para manejo de datos de sensores IoT.
+ * 
+ * <p>Proporciona funcionalidades para:</p>
+ * <ul>
+ *   <li>Almacenamiento masivo de datos de sensores</li>
+ *   <li>Consulta flexible con múltiples filtros</li>
+ *   <li>Validación de acceso mediante API Keys</li>
+ * </ul>
+ */
 @Service
 public class SensorDataServiceImp implements ISensorDataService{
 
@@ -27,6 +37,15 @@ public class SensorDataServiceImp implements ISensorDataService{
 	@Autowired
 	ApiKeysCacheData apiKeysCacheData;
 	
+	/**
+     * Inserta datos recibidos desde un sensor.
+     * 
+     * @param sensorApiKey API Key que autentica el sensor
+     * @param dataList Lista de lecturas del sensor en formato JSON
+     * @return ResponseServices con:
+     *         - Código 200 (éxito) y conteo de datos insertados
+     *         - Código 400 (error) si la API Key es inválida
+     */
 	@Override
 	@Transactional
 	public ResponseServices insertData(String sensorApiKey, List<JsonNode> dataList) {
@@ -56,6 +75,18 @@ public class SensorDataServiceImp implements ISensorDataService{
 				.build();
 	}
 
+	/**
+     * Consulta datos de sensores con múltiples filtros.
+     * 
+     * @param parameters JSON con parámetros de búsqueda:
+     *        - companyApiKey: API Key de la compañía (requerido)
+     *        - sensorId: IDs de sensores (opcional)
+     *        - sensorCategory: Categorías de sensores (opcional)
+     *        - fromEpoch/toEpoch: Rango temporal (opcional)
+     * @return ResponseServices con:
+     *         - Código 200 y los datos encontrados
+     *         - Lista vacía si no hay coincidencias
+     */
 	@Override
 	public ResponseServices getData(JsonNode parameters) {
 		

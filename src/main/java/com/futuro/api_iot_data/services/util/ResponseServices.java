@@ -13,6 +13,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Clase genérica para respuestas estandarizadas de servicios API.
+ * 
+ * <p>Proporciona una estructura consistente para todas las respuestas del sistema,
+ * incluyendo manejo de entidades individuales, listados, códigos de estado y mensajes.</p>
+ */
 @Getter
 @Setter
 @NoArgsConstructor

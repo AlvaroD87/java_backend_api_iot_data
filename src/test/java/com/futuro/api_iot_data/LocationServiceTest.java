@@ -37,6 +37,12 @@ import com.futuro.api_iot_data.repositories.LocationRepository;
 import com.futuro.api_iot_data.services.LocationServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
+/**
+ * Pruebas unitarias para el servicio de ubicaciones (LocationService).
+ * 
+ * <p>Verifica el comportamiento del servicio para operaciones CRUD de ubicaciones,
+ * incluyendo creación, consulta, actualización y eliminación.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 class LocationServiceTest {
 
@@ -77,6 +83,9 @@ class LocationServiceTest {
     private LastAction lastAction;
     private LastAction deleledCascadeAction;
 
+    /**
+     * Configuración inicial para cada prueba.
+     */
     @BeforeEach
     void setUp() {
         /*
@@ -148,6 +157,9 @@ class LocationServiceTest {
         deleledCascadeAction.setActionEnum("DELETED_BY_CASCADE");
     }
 
+    /**
+     * Prueba la creación exitosa de una ubicación.
+     */
     @Test
     void testCreateLocationSuccess() {
         when(companyRepository.findByCompanyApiKey("4324234234")).thenReturn(Optional.of(company));
@@ -165,6 +177,9 @@ class LocationServiceTest {
         assertEquals("Locación inicial", modelDTO.getLocationName());
     }
 
+    /**
+     * Prueba la obtención de todas las ubicaciones.
+     */
     @Test
     void testFindAllLocations() {
         when(locationRepository.findAllActiveByCompanyApiKey("4324234234")).thenReturn(Collections.singletonList(location));
@@ -178,6 +193,9 @@ class LocationServiceTest {
         assertEquals("Locación inicial", result.get(0).getLocationName());
     }
 
+    /**
+     * Prueba la búsqueda exitosa de una ubicación por ID.
+     */
     @Test
     void testFindLocationByIdSuccess() {
         //when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
@@ -191,6 +209,9 @@ class LocationServiceTest {
         assertEquals("Locación inicial", foundLocation.getLocationName());
     }
 
+     /**
+     * Prueba la actualización exitosa de una ubicación.
+     */
     @Test
     void testUpdateLocationSuccess() {
     	/*
@@ -218,6 +239,9 @@ class LocationServiceTest {
         //assertEquals(nombreActualizado, updatedLocation.getLocationName());
     }
 
+    /**
+     * Prueba la eliminación exitosa de una ubicación.
+     */
     @Test
     void testDeleteLocationByIdSuccess() {
     	when(locationRepository.existsById(1)).thenReturn(true);

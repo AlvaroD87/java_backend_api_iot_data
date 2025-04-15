@@ -20,6 +20,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Representa un administrador en el sistema.
+ */
 @Getter
 @Setter
 @AllArgsConstructor

@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * DTO que representa los datos de un administrador para la transferencia entre capas.
+*/
 @Getter
 @Setter
 @AllArgsConstructor

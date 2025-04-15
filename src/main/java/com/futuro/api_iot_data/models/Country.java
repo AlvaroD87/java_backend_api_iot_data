@@ -17,6 +17,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Permite mapear los datos de un país con un registro de la base de datos.
+ */
 @Getter
 @Setter
 @AllArgsConstructor
