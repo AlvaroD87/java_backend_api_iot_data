@@ -90,7 +90,7 @@ public class SensorDataServiceTest {
 	
 	@Test
 	void testGetData_Success() throws Exception {
-		Set<Integer> sensorIds = new HashSet(Set.of(1, 2));
+		Set<Integer> sensorIds = new HashSet<>(Set.of(1, 2));
 		List<SensorData> sensorDataList = List.of(SensorData.builder().data(validData).build());
 		
 		when(apiKeysCacheData.getCompanySensorIds("apikey123")).thenReturn(sensorIds);

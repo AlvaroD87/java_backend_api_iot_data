@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -186,7 +187,10 @@ class LocationServiceTest {
     	//when(locationRepository.findAll()).thenReturn(Collections.singletonList(location));
 
         ResponseServices response  = locationService.findAll("4324234234");
-        List<LocationDTO> result = (List<LocationDTO>) response.getListModelDTO();
+        List<LocationDTO> result = response.getListModelDTO()
+        		.stream()
+        		.map(dto -> (LocationDTO) dto)
+        		.collect(Collectors.toList());
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());

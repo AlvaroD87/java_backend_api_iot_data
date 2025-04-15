@@ -1,6 +1,5 @@
 package com.futuro.api_iot_data;
 
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;

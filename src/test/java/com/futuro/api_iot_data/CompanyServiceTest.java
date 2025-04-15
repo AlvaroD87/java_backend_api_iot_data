@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +54,6 @@ public class CompanyServiceTest {
 	@InjectMocks
 	private CompanyServiceImp companyService;
 	
-	private CompanyDTO companyDTO;
 	private Company company;
 	private LastAction lastAction;
 	
