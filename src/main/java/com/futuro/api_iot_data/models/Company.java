@@ -1,101 +1,67 @@
 package com.futuro.api_iot_data.models;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.List;
+import jakarta.persistence.*;
+import lombok.Data;
+import java.sql.Timestamp;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+/**
+ * Clase que representa la entidad Company (Compañía).
+ * Contiene información sobre las compañías registradas en el sistema,
+ * incluyendo su nombre, clave API, estado de actividad,
+ * y fechas de creación y actualización.
+ *
+ * Esta clase está mapeada a la tabla "companies" en la base de datos.
+ */
+@Data
 @Entity
 @Table(name = "companies")
 public class Company {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int company_id;
+    @Column(name = "company_id")
+    private Integer id;
 
-    @Column(nullable = false)
-    private String company_name;
+    /**
+     * Nombre de la compañía. No puede ser nulo y debe ser único.
+     */
+    @Column(name = "company_name", nullable = false, unique = true)
+    private String companyName;
 
-    @Column(unique = true, nullable = false)
-    private String company_api_key;
+    /**
+     * Clave API única de la compañía. No puede ser nula y debe ser única.
+     */
+    @Column(name = "company_api_key", unique = true, nullable = false)
+    private String companyApiKey;
 
-    @ManyToOne
-    @JoinColumn(name = "admin_id", nullable = false)
-    private Admin admin;
-
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Location> locations;
-
-    @Column(nullable = false)
-    private boolean is_active;
-
-    @Column(nullable = false)
-    private LocalDateTime created_date;
-
-    @Column(nullable = false)
-    private LocalDateTime update_date;
-
+    /**
+     * TO-DO.
+     */
+	@Column(name = "admin_id", nullable = false)
+	private Integer adminId;
     
-    public int getCompany_id() {
-        return company_id;
-    }
+    /**
+     * Estado de actividad de la compañía. No puede ser nulo.
+     */
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-    public void setCompany_id(int company_id) {
-        this.company_id = company_id;
-    }
+    /**
+     * Fecha de creación de la compañía. No puede ser nula.
+     */
+    @Column(name = "created_date", nullable = false)
+    private Timestamp createdDate;
 
-    public String getCompany_name() {
-        return company_name;
-    }
-
-    public void setCompany_name(String company_name) {
-        this.company_name = company_name;
-    }
-
-    public String getCompany_api_key() {
-        return company_api_key;
-    }
-
-    public void setCompany_api_key(String company_api_key) {
-        this.company_api_key = company_api_key;
-    }
-
-    public Admin getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(Admin admin) {
-        this.admin = admin;
-    }
-
-    public List<Location> getLocations() {
-        return locations;
-    }
-
-    public void setLocations(List<Location> locations) {
-        this.locations = locations;
-    }
-
-    public boolean isIs_active() {
-        return is_active;
-    }
-
-    public void setIs_active(boolean is_active) {
-        this.is_active = is_active;
-    }
-
-    public LocalDateTime getCreated_date() {
-        return created_date;
-    }
-
-    public void setCreated_date(LocalDateTime created_date) {
-        this.created_date = created_date;
-    }
-
-    public LocalDateTime getUpdate_date() {
-        return update_date;
-    }
-
-    public void setUpdate_date(LocalDateTime update_date) {
-        this.update_date = update_date;
-    }
+    /**
+     * Fecha de última actualización de la compañía. No puede ser nula.
+     */
+    @Column(name = "update_date", nullable = false)
+    private Timestamp updateDate;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "last_action_id")
+	@JsonBackReference
+	private LastAction lastAction;
 }
