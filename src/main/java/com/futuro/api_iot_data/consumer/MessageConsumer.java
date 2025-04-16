@@ -11,6 +11,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futuro.api_iot_data.services.ISensorDataService;
 
+/**
+ * Permite conectarse a una cola de activemq para la carga y procesamiento de datos
+ * de dispositivos que no admitan el protocolo tcp/ip
+ */
 @Component
 public class MessageConsumer {
     private ObjectMapper mapper = new ObjectMapper();
@@ -18,6 +22,10 @@ public class MessageConsumer {
     @Autowired
     private ISensorDataService sensorDataService;
 
+    /**
+     * Permite obtener y procesar los datos desde la cola de mensajería
+     * @param message representa el mensaje recibido
+     */
     @JmsListener(destination = "grupo3_prueba1")
     public void receiveFromQueue(String message){
         try{

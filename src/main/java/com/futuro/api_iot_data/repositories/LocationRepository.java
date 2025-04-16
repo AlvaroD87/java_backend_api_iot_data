@@ -35,6 +35,12 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
      */
 	boolean existsByLocationNameAndLocationIdNot(String LocationName, Integer locationId);
 	
+	/**
+     * Obtiene todos los API Keys de sensores asociados a una locación.
+     * 
+     * @param locationId ID de la locación
+     * @return Lista de strings con los API Keys de los sensores
+     */
 	@Query(value="""
 			select 
 				s.sensor_api_key 
@@ -46,6 +52,12 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
 			nativeQuery = true)
 	List<String> findAllSensorIdByLocationId(Integer locationId);
 	
+	/**
+     * Actualiza el estado activo de una locación específica.
+     * 
+     * @param locationId ID de la locación a actualizar
+     * @param statusIsActive Nuevo estado activo (true/false)
+     */
 	@Modifying
 	@Query(value = """
 			update locations 
@@ -57,6 +69,13 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
 			nativeQuery = true)
 	void updateStatusByLocationId(Integer locationId, boolean statusIsActive);
 	
+	/**
+     * Actualiza el estado de múltiples locaciones pertenecientes a una compañía.
+     * 
+     * @param companyId ID de la compañía cuyas locaciones se actualizarán
+     * @param statusIsActive Nuevo estado activo (true/false)
+     * @param lastActionId ID de la última acción registrada
+     */
 	@Modifying
 	@Query(value = """
 			update locations 
@@ -69,6 +88,12 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
 			nativeQuery = true)
 	void updateStatusByCompanyId(Integer companyId, boolean statusIsActive, Integer lastActionId);
 	
+	/**
+     * Obtiene todas las locaciones activas de una compañía.
+     * 
+     * @param companyApiKey API Key de la compañía
+     * @return Lista de locaciones activas
+     */
 	@Query(value = """
 			select l 
 			from Location l 
@@ -80,6 +105,13 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
 			)
 	List<Location> findAllActiveByCompanyApiKey(String companyApiKey);
 	
+	/**
+     * Busca una locación activa por su ID y API Key de compañía.
+     * 
+     * @param id ID de la locación
+     * @param companyApyKey API Key de la compañía
+     * @return Optional con la locación si existe y está activa, vacío en caso contrario
+     */
 	@Query(value = """
 			select l 
 			from Location l 

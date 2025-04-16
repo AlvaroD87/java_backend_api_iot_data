@@ -19,16 +19,37 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Filtro de seguridad que valida las solicitudes basado en la IP del cliente.
+ * 
+ * <p>Este filtro restringe el acceso solo a:
+ * <ul>
+ *   <li>La IP del propio servidor</li>
+ *   <li>Localhost (IPv4 e IPv6)</li>
+ * </ul>
+ * 
+ * <p><strong>Propósito:</strong> Proteger endpoints internos que solo deberían ser accesibles
+ * desde el propio servidor o localhost.</p>
+ */
 public class ServerIPValidator extends OncePerRequestFilter{
 
 	private Map<String,List<String>> pathsToApplyFilter;
 	private AuthenticationEntryPoint failureHandler;
 	
+	/**
+     * Constructor del filtro.
+     * 
+     * @param pathsToApplyFilter Mapa de rutas y métodos HTTP a proteger
+     * @param failureHandler Manejador para respuestas no autorizadas
+     */
 	public ServerIPValidator(Map<String,List<String>> pathsToApplyFilter, AuthenticationEntryPoint failureHandler) {
 		this.pathsToApplyFilter = pathsToApplyFilter;
 		this.failureHandler = failureHandler;
 	}
 	
+	/**
+     * Lógica principal de validación de IP.
+     */
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -62,6 +83,9 @@ public class ServerIPValidator extends OncePerRequestFilter{
 		
 	}
 	
+	/**
+     * Determina si el filtro debe aplicarse a la solicitud actual.
+     */
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 		return pathsToApplyFilter.containsKey(request.getRequestURI()) 

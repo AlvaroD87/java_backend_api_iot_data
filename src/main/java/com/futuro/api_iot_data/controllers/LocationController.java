@@ -54,22 +54,25 @@ public class LocationController {
 		return ResponseEntity.status(response.getCode()).body(response);
 	}*/
 	/**
-     * Obtener una locación a partir de su identificador
+     * Obtiene el listado de locaciones, en caso de proveer un identificador, 
+     * se filtrará solo la locación que corresponda a este identificador
      * @param id Id de la locación a buscar
      * @return ResponseEntity con el DTO de la locación encontrada
      */
 	@GetMapping//("/{id}")
-    @Operation(summary = "Obtener una locación a partir de su identificador", description = "Devuelve una locación específica basada en su identificador")
+    @Operation(summary = "Listado de locaciones", 
+        description = "Obtiene el listado de locaciones, en caso de proveer un identificador, se filtrará solo la locación que corresponda a este identificador")
     @ApiResponses(
        value = {
-        @ApiResponse(responseCode = "200", description = "Locación encontrada", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
+        @ApiResponse(responseCode = "200", description = "Listado de locaciones", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
         @ApiResponse(responseCode = "404", description = "No se ha encontrado ninguna locación para el ID espécificado", content = @Content(schema =@Schema(implementation = ResponseServices.class)))
        }
     )
 	public ResponseEntity<ResponseServices> findById(
+            @Parameter(description = "Api key de la compañía asociada", required = true)
 			@RequestHeader(name = "api-key", required = true) 
 				String companyApiKey,
-			@Parameter(description = "Id de la locación a buscar", required = true) 
+			@Parameter(description = "Id de la locación a buscar", required = false) 
 			@RequestParam(name = "location_id", required = false) 
 				Integer id
 		)
