@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -74,8 +75,8 @@ class LocationServiceTest {
         company.setCompanyApiKey("4324234234");
         company.setIsActive(true);
         //company.setAdmin(admin);
-        company.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-        company.setUpdateDate(new Timestamp(System.currentTimeMillis()));
+        company.setCreatedDate(LocalDateTime.now());
+        company.setUpdateDate(LocalDateTime.now());
 
         country = Country.builder()
                 .id(1)

@@ -1,11 +1,9 @@
 package com.futuro.api_iot_data.models;
 
-
-import java.sql.Date;
-import java.util.Map;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,10 +44,9 @@ public class Location {
 
     private String locationName;
     
-    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    @JsonDeserialize(using = com.fasterxml.jackson.databind.deser.std.MapDeserializer.class)
-    private Map<String, Object> locationMeta;
+	@JdbcTypeCode(SqlTypes.JSON)
+	private JsonNode locationMeta;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
@@ -59,11 +56,17 @@ public class Location {
     @JoinColumn(name = "city_id")
     private City city;
     
-    private Boolean isActive;
-    
-    private Date createdDate;
-    
-    private Date updateDate;
+    @Column(name = "is_active")
+	@Builder.Default
+	private Boolean isActive = true;
+	
+	@Column(name = "created_date")
+	@Builder.Default
+	private LocalDateTime createdOn = LocalDateTime.now();
+	
+	@Column(name = "update_date")
+	@Builder.Default
+	private LocalDateTime updatedOn = LocalDateTime.now();
     
     @ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "last_action_id")

@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,25 +39,12 @@ public class LocationController {
 	@Autowired
 	private ILocationService locationService;
 	
-    /**
-     * Obtiene una lista con todas las locaciones registradas.
-     * @return ResponseEntity con la lista de locaciones
-     */
-	/*@GetMapping//("/all")
-	@Operation(summary="Obtener el listado de locaciones", description = "Retorna una lista con todas las locaciones registradas")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Lista de locaciones encontradas",content = @Content(schema = @Schema(implementation = ResponseServices.class))),
-    })
-	public ResponseEntity<ResponseServices> findAll(@RequestHeader(name = "api-key", required = true) String companyApiKey){
-		ResponseServices response = locationService.findAll(companyApiKey);
-		return ResponseEntity.status(response.getCode()).body(response);
-	}*/
 	/**
      * Obtener una locación a partir de su identificador
      * @param id Id de la locación a buscar
      * @return ResponseEntity con el DTO de la locación encontrada
      */
-	@GetMapping//("/{id}")
+	@GetMapping
     @Operation(summary = "Obtener una locación a partir de su identificador", description = "Devuelve una locación específica basada en su identificador")
     @ApiResponses(
        value = {
@@ -69,12 +55,12 @@ public class LocationController {
 	public ResponseEntity<ResponseServices> findById(
 			@RequestHeader(name = "api-key", required = true) 
 				String companyApiKey,
-			@Parameter(description = "Id de la locación a buscar", required = true) 
-			@RequestParam(name = "location_id", required = false) 
+			@Parameter(description = "Id de la locación a buscar", required = false) 
+			@RequestParam(name = "id", required = false) 
 				Integer id
 		)
 	{
-		ResponseServices response = id == null ? locationService.findAll(companyApiKey) : locationService.findById(id, companyApiKey);
+		ResponseServices response = id == null ? locationService.findAll(companyApiKey) : locationService.findById(companyApiKey, id);
 		return ResponseEntity.status(response.getCode()).body(response);
 	}
 	
@@ -83,17 +69,33 @@ public class LocationController {
      * @param locationDTO DTO con la información de la locación a crear
      * @return ResonseEntity con el DTO de la locación creada
      */
-	@PostMapping//("/create")
+	@PostMapping
     @Operation(summary = "Crear una nueva locación", description = "Crea una nueva locación con la información proporcionada.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Locación creada exitosamente", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
         @ApiResponse(responseCode = "400", description = "Datos de la locación inválidos", content = @Content(schema =@Schema(implementation = ResponseServices.class)))
     })
     public ResponseEntity<ResponseServices> create(
-    		@Parameter(description = "Datos de la locación a crear", required = true) @Valid @RequestBody LocationDTO locationDTO,
-    		@RequestHeader(name = "api-key", required = true) String companyApiKey
+    		@RequestHeader(name = "api-key", required = true) String companyApiKey,
+    		@Parameter(description = "Datos de la locación a crear", required = true) @RequestBody LocationDTO locationDTO
     	)
 	{
+		if(List.of(locationDTO.getLocationName(),
+				   locationDTO.getCityId())
+			.stream()
+			.anyMatch(s -> s == null)
+		  )
+		{
+			return ResponseEntity
+					.status(HttpStatus.BAD_REQUEST)
+					.body(ResponseServices.builder()
+							.code(400)
+							.message("locationName y/o cityId son requeridos")
+							.modelDTO(locationDTO)
+							.build()
+						 );
+		}
+		
         ResponseServices response = locationService.create(locationDTO, companyApiKey);
         return ResponseEntity.status(response.getCode()).body(response);
     }
@@ -104,7 +106,7 @@ public class LocationController {
      * @param locationDTO DTO con la información actualizada de la locación.
      * @return ResponseEntity con los datos actualizados de la locación.
      */
-    @PutMapping//("/{id}")
+    @PutMapping
     @Operation(summary = "Actualizar una locación existente", description = "Actualiza la información de una locación existente basada en su ID.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Locación actualizada exitosamente", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
@@ -114,7 +116,7 @@ public class LocationController {
     			@RequestHeader(name = "api-key", required = true) 
     				String companyApiKey,
                 @Parameter(description = "ID de la locación a actualizar", required = true) 
-    			@RequestParam(name = "location_id", required = false) 
+    			@RequestParam(name = "id", required = true) 
     				Integer id,
                 @Parameter(description = "Datos actualizados de la locación", required = true) 
     				@RequestBody LocationDTO locationDTO
@@ -128,14 +130,18 @@ public class LocationController {
      * @param id Identificador de la locación a eliminar.
      * @return ResponseEntity con los datos de la locación eliminada
      */
-    @DeleteMapping//("/{id}")
+    @DeleteMapping
     @Operation(summary = "Eliminar una locación por ID", description = "Elimina una locación específica basada en su ID.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Locación eliminada exitosamente", content = @Content(schema = @Schema(implementation = ResponseServices.class))),
         @ApiResponse(responseCode = "400", description = "Error al eliminar la locación", content = @Content(schema =@Schema(implementation = ResponseServices.class) ))
     })
-    public ResponseEntity<ResponseServices> deleteById(@RequestParam(name = "location_id", required = true) Integer id){
-        ResponseServices response = locationService.deleteById(id);
+    public ResponseEntity<ResponseServices> deleteById(
+    		@RequestHeader(name = "api-key", required = true) String companyApiKey,
+			@RequestParam(name = "id", required = true) Integer id
+		)
+    {
+        ResponseServices response = locationService.deleteById(companyApiKey, id);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 }

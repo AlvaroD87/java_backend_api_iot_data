@@ -1,7 +1,6 @@
 package com.futuro.api_iot_data.controllers;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,21 +32,7 @@ public class SensorController {
 	@Autowired
 	private SensorService sensorService;
 	
-	/*
-	 *	@RequestHeader(name = "api-key", required = true) String companyApiKey,
-	 *	@RequestParam(name = "from", required = false) Integer fromEpoch,
-	 */
-	
-	/*@GetMapping("/all")
-	public ResponseEntity<ResponseServices> getAllSensors() {
-		ResponseServices response = sensorService.getAllSensors();
-		if(response.getCode() == 200) {
-			return ResponseEntity.ok(response);
-		}
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-	}*/
-	
-	@GetMapping//("/{id}")
+	@GetMapping
 	public ResponseEntity<ResponseServices> getSensorById(
 			@RequestHeader(name = "api-key", required = true) String companyApiKey,
 			@RequestParam(name = "id", required = false) Integer id) 
@@ -60,7 +44,7 @@ public class SensorController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
-	@PostMapping//("/create")
+	@PostMapping
 	public ResponseEntity<ResponseServices> createSensor(@RequestHeader(name = "api-key", required = true) String companyApiKey, @Valid @RequestBody SensorDTO sensorDTO) 
 	{
 		ResponseServices response = sensorService.createSensor(companyApiKey, sensorDTO);
@@ -70,7 +54,7 @@ public class SensorController {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
 	}
 	
-	@PutMapping//("/{id}")
+	@PutMapping
 	public ResponseEntity<ResponseServices> updateSensor(
 			@RequestHeader(name = "api-key", required = true) String companyApiKey,
 			@RequestParam(name = "id", required = false) Integer id, 
@@ -84,9 +68,9 @@ public class SensorController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
-	@DeleteMapping//("/{id}")
-	public ResponseEntity<ResponseServices> deleteSensor(@RequestParam(name = "sensor_id", required = true) Integer id) {
-		ResponseServices response = sensorService.deleteSensor(id);
+	@DeleteMapping
+	public ResponseEntity<ResponseServices> deleteSensor(@RequestHeader(name = "api-key", required = true) String companyApiKey, @RequestParam(name = "sensor_id", required = true) Integer id) {
+		ResponseServices response = sensorService.deleteSensor(companyApiKey, id);
 		
 		if(response.getCode() == 200) {
 			return ResponseEntity.ok(response);

@@ -83,17 +83,16 @@ public interface SensorRepository extends JpaRepository<Sensor, Integer> {
 	
 	@Query(value = """
 			select 
-				s.* 
+				s 
 			from 
-				sensors s 
-				join locations l on s.location_id=l.location_id 
-				join companies c on l.company_id=c.company_id 
+				Sensor s 
+				join s.location l 
+				join l.company c 
 			where 
-				s.sensor_name = ?1 
-				and s.location_id = ?2 
-				and c.company_api_key = ?3 
-				and s.is_active = True
-			""", 
-			nativeQuery = true)
+				s.sensorName = ?1 
+				and l.locationId = ?2 
+				and c.companyApiKey = ?3 
+				and s.isActive = True
+			""")
 	Optional<Sensor> findActiveBySensorNameLocationIdCompanyApiKey(String sensorName, Integer locationId, String companyApiKey);
 }

@@ -1,13 +1,12 @@
 package com.futuro.api_iot_data.models;
 
-import java.sql.Timestamp;
-import java.util.Map;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.futuro.api_iot_data.models.DTOs.SensorDTO;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,12 +23,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Entity
 @Table(name = "sensors")
 public class Sensor {
 	
@@ -42,35 +41,31 @@ public class Sensor {
 	private String sensorCategory;
 	
 	private String sensorApiKey;
-	
-    @JdbcTypeCode(SqlTypes.JSON)
+    
     @Column(columnDefinition = "jsonb")
-	private Map<String, Object> sensorMeta;
+	@JdbcTypeCode(SqlTypes.JSON)
+	private JsonNode sensorMeta;
 	
-	private Integer locationId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "location_id")
+	@JsonBackReference
+	private Location location;
 	
-	private Boolean isActive;
+	@Column(name = "is_active")
+	@Builder.Default
+	private Boolean isActive = true;
 	
-	private Timestamp createdDate;
+	@Column(name = "created_date")
+	@Builder.Default
+	private LocalDateTime createdOn = LocalDateTime.now();
 	
-	private Timestamp updateDate;
+	@Column(name = "update_date")
+	@Builder.Default
+	private LocalDateTime updatedOn = LocalDateTime.now();
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "last_action_id")
 	@JsonBackReference
 	private LastAction lastAction;
-	
-	public SensorDTO toSensorDTO() { return new SensorDTO(          
-			this.sensorId,
-            this.sensorName,
-            this.sensorCategory,
-            this.sensorApiKey,
-            this.sensorMeta,
-            this.locationId,
-            this.isActive,
-            this.createdDate,
-            this.updateDate
-            );
-	}
 
 }

@@ -9,9 +9,9 @@ import com.futuro.api_iot_data.services.util.ResponseServices;
  * y para obtener la lista de todas las compañías registradas en el sistema.
  */
 public interface ICompanyService {
-    ResponseServices createCompany(CompanyDTO companyDTO, String username);
-    ResponseServices getCompanyById(Integer id, String companyApiKey);
+    ResponseServices createCompany(String username, CompanyDTO companyDTO);
+    ResponseServices getCompanyById(String username, Integer id);
     ResponseServices getAllCompanies(String username);
-    ResponseServices updateCompany(Integer id, CompanyDTO companyDTO, String companyApiKey);
-    ResponseServices deleteCompany(Integer id, String companyApiKey);
+    ResponseServices updateCompany(String username, Integer id, CompanyDTO companyDTO);
+    ResponseServices deleteCompany(String username, Integer id);
 }

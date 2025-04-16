@@ -1,9 +1,10 @@
 package com.futuro.api_iot_data.models.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.futuro.api_iot_data.models.Country;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,17 +15,13 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@JsonInclude(JsonInclude.Include.NON_EMPTY) // JsonInclude.Include.NON_NULL
+@Builder
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class CountryDTO implements ITemplateDTO {
 
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	private Integer countryId;
+	
 	private String name;
-	
-	public CountryDTO(Country country) {
-		this.settingByCountry(country);
-	}
-	
-	public void settingByCountry(Country country) {
-		this.name = country.getName();
-	}
 	
 }

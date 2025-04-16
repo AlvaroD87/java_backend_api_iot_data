@@ -3,7 +3,6 @@ package com.futuro.api_iot_data.repositories;
 import com.futuro.api_iot_data.models.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -55,9 +54,10 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     void updateIsActiveStatus(Integer companyId, boolean newIsActive);
     
     
-    @Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.company_id = ?1 and c.is_active = True and a.username = ?2", nativeQuery = true)
-    Optional<Company> findActiveByIdAndUsername(Integer comapanyId, String username);
+    @Query(value = "SELECT c FROM Company c JOIN c.admin a WHERE c.isActive = true AND c.id = ?2 AND a.username = ?1")
+    Optional<Company> findActiveByIdAndUsername(String username, Integer comapanyId);
     
-    @Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.is_active = True and a.username = ?1", nativeQuery = true)
+    //@Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.is_active = True and a.username = ?1", nativeQuery = true)
+    @Query(value = "SELECT c FROM Company c JOIN c.admin a WHERE c.isActive = true AND a.username = ?1")
     List<Company> findAllActiveByUsername(String username);
 }

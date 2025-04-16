@@ -1,14 +1,9 @@
 package com.futuro.api_iot_data.models.DTOs;
 
-import java.sql.Date;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,26 +26,13 @@ public class LocationDTO implements ITemplateDTO{
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	private Integer locationId;
 	
-	//@NotBlank(message = "El nombre de la locación es obligatorio")
 	private String locationName;
 	
-	//@NotEmpty(message = "Las metadatas de la locación son obligatorias")
-    private Map<String, Object> locationMeta;
+	private JsonNode locationMeta;
     
-    // private CompanyDTO companyDTO;
-	//@NotNull(message = "La compañía es obligatoria")
-    private Integer companyId;
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	private Integer companyId;
     
-    // private CityDTO cityDTO;
-	//@NotNull(message = "La ciudad es obligatoria")
 	private Integer cityId;
-    
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Boolean isActive;
-    
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Date createdDate;
-    
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Date updateDate;
+	
 }

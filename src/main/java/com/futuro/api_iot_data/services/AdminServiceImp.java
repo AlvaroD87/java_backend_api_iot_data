@@ -39,8 +39,8 @@ public class AdminServiceImp implements IAdminService{
 				.username(newAdminDAO.getUsername())
 				.password(passwordService.encode(newAdminDAO.getPassword()))
 				.isActive(true)
-				.created_in(LocalDateTime.now())
-				.updated_in(LocalDateTime.now())
+				.createdOn(LocalDateTime.now())
+				.updatedOn(LocalDateTime.now())
 				.lastAction(lastActionCacheData.getLastAction("CREATED"))
 				.build()
 		);

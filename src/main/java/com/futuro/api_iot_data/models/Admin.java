@@ -40,13 +40,16 @@ public class Admin {
 	private String password;
 	
 	@Column(name = "is_active")
-	private Boolean isActive;
+	@Builder.Default
+	private Boolean isActive = true;
 	
 	@Column(name = "created_date")
-	private LocalDateTime created_in;
+	@Builder.Default
+	private LocalDateTime createdOn = LocalDateTime.now();
 	
 	@Column(name = "update_date")
-	private LocalDateTime updated_in;
+	@Builder.Default
+	private LocalDateTime updatedOn = LocalDateTime.now();
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "last_action_id")

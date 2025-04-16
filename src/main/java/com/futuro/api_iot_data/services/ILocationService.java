@@ -37,13 +37,13 @@ public interface ILocationService {
 	 * @param id Id de la locación a eliminar
 	 * @return {@link ResponseServices} incluyendo la {@link LocationDTO} eliminada
 	 */
-	public ResponseServices deleteById(Integer id);
+	public ResponseServices deleteById(String companyApiKey, Integer id);
 
 	/**
 	 * Obtiene una locación a partir de su identificador
 	 * @param id Id de la locación a buscar
 	 * @return {@link ResponseServices} incluyendo la {@link LocationDTO} encontrada
 	 */
-	public ResponseServices findById(Integer id, String companyApiKey);
+	public ResponseServices findById(String companyApiKey, Integer id);
 	
 }
