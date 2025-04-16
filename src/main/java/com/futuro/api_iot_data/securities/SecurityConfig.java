@@ -73,6 +73,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(http -> {
 					http.requestMatchers(HttpMethod.POST,"/api/v1/sensor_data").permitAll();
 					http.requestMatchers(HttpMethod.GET,"doc/swagger-ui/**").permitAll();
+					http.requestMatchers(HttpMethod.GET,"/doc/swagger-ui.html").permitAll();
 					http.requestMatchers(HttpMethod.GET,"/v3/api-docs/**").permitAll();
 					http.anyRequest().authenticated();
 				})
