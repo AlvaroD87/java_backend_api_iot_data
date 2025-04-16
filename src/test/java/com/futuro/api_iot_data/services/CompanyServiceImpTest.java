@@ -55,7 +55,7 @@ class CompanyServiceImpTest {
         });
 
         // Act
-        ResponseServices response = companyService.createCompany(companyDTO, "admin");
+        ResponseServices response = companyService.createCompany("admin", companyDTO);
 
         // Assert
         assertEquals(200, response.getCode());
@@ -76,7 +76,7 @@ class CompanyServiceImpTest {
         when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(true);
 
         // Act
-        ResponseServices response = companyService.createCompany(companyDTO, "admin");
+        ResponseServices response = companyService.createCompany("admin", companyDTO);
 
         // Assert
         assertEquals(400, response.getCode());
@@ -101,7 +101,7 @@ class CompanyServiceImpTest {
         when(companyRepository.findById(id)).thenReturn(Optional.of(company));
 
         // Act
-        ResponseServices response = companyService.getCompanyById(id, companyApiKey);
+        ResponseServices response = companyService.getCompanyById(companyApiKey, id);
 
         // Assert
         assertEquals(200, response.getCode());
@@ -122,7 +122,7 @@ class CompanyServiceImpTest {
         when(companyRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        ResponseServices response = companyService.getCompanyById(id, companyApiKey);
+        ResponseServices response = companyService.getCompanyById(companyApiKey, id);
 
         // Assert
         assertEquals(404, response.getCode());
@@ -193,7 +193,7 @@ class CompanyServiceImpTest {
         when(companyRepository.save(any(Company.class))).thenReturn(company);
 
         // Act
-        ResponseServices response = companyService.updateCompany(id, companyDTO, companyApiKey);
+        ResponseServices response = companyService.updateCompany(companyApiKey, id, companyDTO);
 
         // Assert
         assertEquals(200, response.getCode());
@@ -223,7 +223,7 @@ class CompanyServiceImpTest {
         when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(true);
 
         // Act
-        ResponseServices response = companyService.updateCompany(id, companyDTO, companyApiKey);
+        ResponseServices response = companyService.updateCompany(companyApiKey, id, companyDTO);
 
         // Assert
         assertEquals(400, response.getCode());
@@ -248,7 +248,7 @@ class CompanyServiceImpTest {
         when(companyRepository.findById(id)).thenReturn(Optional.of(company));
 
         // Act
-        ResponseServices response = companyService.deleteCompany(id, companyApiKey);
+        ResponseServices response = companyService.deleteCompany(companyApiKey, id);
 
         // Assert
         assertEquals(200, response.getCode());
@@ -268,7 +268,7 @@ class CompanyServiceImpTest {
         when(companyRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        ResponseServices response = companyService.deleteCompany(id, companyApiKey);
+        ResponseServices response = companyService.deleteCompany(companyApiKey, id);
 
         // Assert
         assertEquals(404, response.getCode());

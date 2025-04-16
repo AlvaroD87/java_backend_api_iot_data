@@ -4,6 +4,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +20,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
+import com.futuro.api_iot_data.models.Location;
 import com.futuro.api_iot_data.models.Sensor;
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
 import com.futuro.api_iot_data.repositories.SensorRepository;
@@ -36,7 +41,8 @@ public class SensorServiceTest {
 	private SensorRepository sensorRepository;
 	@Mock
 	private ApiKeysCacheData apiKeyCacheDataMock;
-	
+	@Mock
+	private Location locationMock;
 	
 	@InjectMocks
 	private SensorService sensorService;
@@ -44,25 +50,46 @@ public class SensorServiceTest {
 	private Sensor sensor;
 	private SensorDTO sensorDTO;
 	
+	private ObjectMapper mapper = new ObjectMapper();
+	
 	@BeforeEach
 	void setUp() {
+		
+		JsonNode jsonMeta;
+        try {
+        	jsonMeta = mapper.readTree("{\"Prueba\":30}");
+		} catch (JsonProcessingException e) {
+			jsonMeta = null;
+		}
+        
 		sensor = new Sensor();
 		sensor.setSensorId(1);
 		sensor.setSensorName("Sensor de Prueba");
 		sensor.setSensorCategory("Prueba");
 		sensor.setSensorApiKey("abc123");
-		sensor.setSensorMeta(Map.of("Prueba", 30));
-		sensor.setLocationId(3);
+		sensor.setSensorMeta(jsonMeta);
+		sensor.setLocation(locationMock);
 		sensor.setIsActive(true);
-		sensor.setCreatedDate(Timestamp.valueOf("2025-03-02 12:00:00"));
-		sensor.setUpdateDate(Timestamp.valueOf("2025-03-02 13:00:00"));
+		sensor.setCreatedOn(LocalDateTime.of(2025,3,2,12,0,0));
+		sensor.setUpdatedOn(LocalDateTime.of(2025,3,2,12,0,0));
 		
+		/*
 		sensorDTO = new SensorDTO(
 				1,"Sensor de Prueba","Prueba","abc123",
-				Map.of("Prueba", 30), 3, true,
+				jsonMeta, locationMock, true,
 				Timestamp.valueOf("2025-03-02 12:00:00"),
 				Timestamp.valueOf("2025-03-02 13:00:00")
 				);
+		*/
+		
+		sensorDTO = SensorDTO.builder()
+					.sensorId(1)
+					.sensorName("Sensor de Prueba")
+					.sensorCategory("Prueba")
+					.sensorApiKey("abc123")
+					.sensorMeta(jsonMeta)
+					.locationId(3)
+					.build();
 		
 		Authentication authentication = new UsernamePasswordAuthenticationToken("companyApiKey", null, null);
 		SecurityContext context = SecurityContextHolder.getContext();
@@ -116,12 +143,21 @@ public class SensorServiceTest {
 		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
 		when(sensorRepository.save(any(Sensor.class))).thenReturn(sensor);
 		
-		SensorDTO updateSensor = new SensorDTO(
-				1, "Sensor Modificado", "modificación", "123abcd",
-				Map.of("Modificado", 50), 3, false,
-				Timestamp.valueOf("2025-03-03 12:00:00"),
-				Timestamp.valueOf("2025-03-03 13:00:00")
-				);
+		JsonNode jsonMetaModificado;
+        try {
+        	jsonMetaModificado = mapper.readTree("{\"Modificado\":50}");
+		} catch (JsonProcessingException e) {
+			jsonMetaModificado = null;
+		}
+        
+		SensorDTO updateSensor = SensorDTO.builder()
+									.sensorId(1)
+									.sensorName("Sensor Modificado")
+									.sensorCategory("modificación")
+									.sensorApiKey("123abcd")
+									.sensorMeta(jsonMetaModificado)
+									.locationId(3)
+									.build();
 		
 		ResponseServices response = sensorService.updateSensor(1, updateSensor, "companyApiKey");
 		
@@ -138,7 +174,7 @@ public class SensorServiceTest {
 		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
 		doNothing().when(sensorRepository).deleteById(1);
 		
-		ResponseServices response = sensorService.deleteSensor(1);
+		ResponseServices response = sensorService.deleteSensor("companyApiKey",1);
 		
 		assertNotNull(response);
 		assertEquals(200, response.getCode());

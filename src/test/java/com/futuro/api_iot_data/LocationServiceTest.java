@@ -19,6 +19,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futuro.api_iot_data.models.Admin;
 import com.futuro.api_iot_data.models.City;
 import com.futuro.api_iot_data.models.Company;
@@ -61,6 +66,8 @@ class LocationServiceTest {
     private City city;
     private LocationDTO locationDTO;
     private Location location;
+    
+    private ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
@@ -74,47 +81,50 @@ class LocationServiceTest {
         company.setCompanyName("Compañía de prueba");
         company.setCompanyApiKey("4324234234");
         company.setIsActive(true);
-        //company.setAdmin(admin);
-        company.setCreatedDate(LocalDateTime.now());
-        company.setUpdateDate(LocalDateTime.now());
+        company.setCreatedOn(LocalDateTime.now());
+        company.setUpdatedOn(LocalDateTime.now());
 
         country = Country.builder()
                 .id(1)
                 .name("Chile")
-                .is_active(true)
-                .created_in(new Date(System.currentTimeMillis()))
-                .updated_in(new Date(System.currentTimeMillis()))
+                .isActive(true)
+                .createdOn(LocalDateTime.now())
+                .updatedOn(LocalDateTime.now())
                 .build();
 
         city = City.builder()
                 .id(1)
                 .name("Ciudad de prueba")
-                .is_active(true)
-                .created_in(new Date(Calendar.getInstance().getTimeInMillis()))
-                .updated_in(new Date(Calendar.getInstance().getTimeInMillis()))
+                .isActive(true)
+                .createdOn(LocalDateTime.now())
+                .updatedOn(LocalDateTime.now())
                 .country(country)
                 .build();
 
+        JsonNode jsonMeta;
+        try {
+        	jsonMeta = mapper.readTree("{\"clave uno\":\"valor 1\"}");
+		} catch (JsonProcessingException e) {
+			jsonMeta = null;
+		}
+        
         locationDTO = LocationDTO.builder()
                 .locationId(1)
                 .locationName("Locación inicial")
-                .locationMeta(Map.of("clave uno", "valor 1"))
+                .locationMeta(jsonMeta)
                 .companyId(company.getId())
                 .cityId(city.getId())
-                .isActive(true)
-                .createdDate(new Date(System.currentTimeMillis()))
-                .updateDate(new Date(System.currentTimeMillis()))
                 .build();
 
         location = Location.builder()
                 .locationId(1)
                 .locationName("Locación inicial")
-                .locationMeta(Map.of("clave uno", "valor 1"))
+                .locationMeta(jsonMeta)
                 .company(company)
                 .city(city)
                 .isActive(true)
-                .createdDate(new Date(System.currentTimeMillis()))
-                .updateDate(new Date(System.currentTimeMillis()))
+                .createdOn(LocalDateTime.now())
+                .updatedOn(LocalDateTime.now())
                 .build();
     }
 
@@ -150,7 +160,7 @@ class LocationServiceTest {
     void testFindLocationByIdSuccess() {
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
 
-        ResponseServices response = locationService.findById(1,"4324234234");
+        ResponseServices response = locationService.findById("4324234234", 1);
         assertNotNull(response.getModelDTO());
         LocationDTO foundLocation = (LocationDTO) response.getModelDTO();
 
@@ -169,7 +179,7 @@ class LocationServiceTest {
         locationDTO.setLocationName(nombreActualizado);
         locationService.update("4324234234", 1, locationDTO);
 
-        ResponseServices response = locationService.findById(1,"4324234234");
+        ResponseServices response = locationService.findById("4324234234", 1);
         assertNotNull(response.getModelDTO());
         LocationDTO updatedLocation = (LocationDTO) response.getModelDTO();
         assertEquals(nombreActualizado, updatedLocation.getLocationName());
@@ -180,8 +190,8 @@ class LocationServiceTest {
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
     
-        locationService.deleteById(1);
-        ResponseServices response = locationService.findById(1, "4324234234");
+        locationService.deleteById("4324234234", 1);
+        ResponseServices response = locationService.findById("4324234234", 1);
         assertNotNull(response.getModelDTO());
         LocationDTO deletedLocation = (LocationDTO) response.getModelDTO();
     
