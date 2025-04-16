@@ -26,71 +26,85 @@ Este proyecto corresponde al proyecto final del curso de desarrollo de aplicacio
 	* Luego se debe abrir y ejecutar el DDL del proyecto disponible en la carpeta de recursos
 	* Este script creará todas las tablas necesarias y agregará los registros iniciales.
 
-3.  **Crear el archivo application.properties según el archivo de ejemplo proporcionado **:
+3.  **Crear el archivo application.properties según el archivo de ejemplo proporcionado**:
 	```bash
-cp .\src\main\resources\application.properties.example .\src\main\resources\application.properties
-```
+    cp .\src\main\resources\application.properties.example .\src\main\resources\application.properties
+    ```
 
 4.  **Modificar los parametros de conexión de la base de datos según corresponda**
-	 Se debe abrir el archivo "src\main\resources\application.properties" y modificar los parametros de conexión a la base de datos, las otras configuraciones se deben mantener tal como están.
+    
+Se debe abrir el archivo "src\main\resources\application.properties" y modificar los parametros de conexión a la base de datos, las otras configuraciones se deben mantener tal como están.
 	 
 
 ## 🔦 Ejecución del proyecto
 
 
-** ⚠️ Advertencia sobre el uso de JSON:**  
+**⚠️ Advertencia sobre el uso de JSON:**  
 
 Copiar y pegar las estructuras de json puede romper el formato, se recomienda escribir manualmente los valores y/o validar el formato de json utilizando alguna herramienta como  [https://jsonlint.com/](https://jsonlint.com/)
 
 1. **Levantar el proyecto**
+
 	Para levantar el proyecto, se puede utilizar el programa vscode o Visual Studio o compilar el proyecto y ejecutarlo con los siguientes comandos:
 	```bash
 	mvn clean package -DskipTests
 	java -jar .\target\api-iot-data-0.0.1-SNAPSHOT.jar
 	```
 2. **Visualizar la documentación de swagger**
+
 	Una vez levantado el proyecto, la documentación de swagger quedará disponible en la dirección: [http://localhost:8080/doc/swagger-ui/index.html](http://localhost:8080/doc/swagger-ui/index.html)
 
 3. **Crear un usuario administrador**
+
 	 Para crear un usuario administrador, se debe realizar una solicitud de tipo POST a la ruta [http://localhost:8080/api/v1/admin](http://localhost:8080/api/v1/admin) con los siguientes datos:
 	 ```json
-{
-  	"username": "admin",
-  	"password": "1234"
-}
-```
+    {
+        "username": "admin",
+        "password": "1234"
+    }
+    ```
 
 4. **Visualizar listado de paises**
+
 	Para visualizar el listado de paises disponibles, se debe realizar una solicitud de tipo GET a la ruta: [localhost:8080/api/v1/country](localhost:8080/api/v1/country). En la cabecera de la solicitud, se debe proporcionar una clave "api-key" con una api key de una compañía registrada.
 
 5. **Visualizar listado de ciudades**
+
 	Para visualizar el listado de ciudades disponibles, se debe realizar una solicitud de tipo GET a la ruta: [localhost:8080/api/v1/city](localhost:8080/api/v1/city). En la cabecera de la solicitud, se debe proporcionar una clave "api-key" con una api key de una compañía registrada.
 
 4. **Crear una compañía**
+
 	 Para crear una compañía, se debe realizar una solicitud de tipo POST a la ruta [http://localhost:8080/api/v1/company](http://localhost:8080/api/v1/company) con los siguientes datos:
 	 ```json
-{
-  	"companyName": "Primera compañía"
-}
-```
+    {
+        "companyName": "Primera compañía"
+    }
+    ```
 	En autorización, se debe seleccionar "Autenticación básica" y proporcionar las credenciales del administrador creado anteriormente
 	
 5. **Visualizar listado de compañías**
+
 	Para visualizar el listado de compañías, se debe realizar una solicitud de tipo GET a la ruta  [http://localhost:8080/api/v1/company](http://localhost:8080/api/v1/company).
 
-6. ** Visualizar una compañía en concrecto**
+6. **Visualizar una compañía en concrecto**
+
 	Para visualizar una compañía en concreto se debe realizar una solicitud de tipo GET a la ruta [http://localhost:8080/api/v1/company?company_id=AQUI_ID_COMPAÑÍA](http://localhost:8080/api/v1/company?company_id=AQUI_ID_COMPAÑÍA). Se debe igual utilizar la autenticación básica.
+
 7. **Editar una compañía**
+
 Para editar una compañía, se debe realizar una solicitud de tipo PUT utilizando autenticación básica a la ruta  [http://localhost:8080/api/v1/company?company_id=AQUI_ID_COMPAÑÍA](http://localhost:8080/api/v1/company?company_id=AQUI_ID_COMPAÑÍA) con los siguientes datos:
-```json
-{
-  	"companyName": "Nombre actualizado"
-}
-```
+
+    
+    {
+        "companyName": "Nombre actualizado"
+    }
+    
 8. **Eliminar una compañía**
+
 Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE utilizando autenticación básica a la ruta  [http://localhost:8080/api/v1/company?company_id=AQUI_ID_COMPAÑÍA](http://localhost:8080/api/v1/company?company_id=AQUI_ID_COMPAÑÍA)
 
 9. **Crear una locación**
+
 	Para crear una nueva locación, se debe realizar una solicitud de tipo POST a la ruta [http://localhost:8080/api/v1/location](http://localhost:8080/api/v1/location). En la cabecera de la solicitud se debe agregar la siguiente clave 
 	```json
 	{
@@ -113,114 +127,128 @@ Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE util
 	El id de la compañía y el id de la ciudad, deben existir en sus respectivas tablas.
 
 10. **Visualizar listado de locaciones**
+
 	Para visualizar el listado de locaciones se debe realizar una solicitud de tipo GET a la siguiente dirección: [http://localhost:8080/api/v1/location](http://localhost:8080/api/v1/location). Se debe proporcionar de igual manera la api key de la compañía en la cabecera de la solicitud.
 	
 11. **Visualizar una locación en concreto**
+
 	 Para visualizar una locación en concreto, se debe realizar una solicitud de tipo GET a la siguiente ruta: [http://localhost:8080/api/v1/location?location_id=AQUI_EL_ID](http://localhost:8080/api/v1/location?location_id=AQUÍ_EL_ID). Proporcionando la api key de la compañía asociada en la cabecera de la solicitud.
 	 
 12. **Actualizar los datos de una locación**
+
 	Para actualizar los datos de una locación, se debe realizar una solicitud de tipo PUT a la ruta: [http://localhost:8080/api/v1/location?location_id=AQUI_EL_ID](http://localhost:8080/api/v1/location?location_id=AQUÍ_EL_ID) proporcionando la api key de la compañía asociada en la cabecera y enviando los datos actualizados como en el siguiente ejemplo:
 	```json
-{
-  "locationName": "Primera locación actualizada",
-  "locationMeta": {
-    "Propiedad 1": "Valor 1",
-    "Propiedad 2": "Valor 2"
-  },
-  "companyId": 1,
-  "cityId": 1
-}
-```
+    {
+        "locationName": "Primera locación actualizada",
+        "locationMeta": {
+            "Propiedad 1": "Valor 1",
+            "Propiedad 2": "Valor 2"
+        },
+        "companyId": 1,
+          "cityId": 1
+        }
+    ```
 
 13. **Eliminar una locación**
+
 	Para eliminar una locación, se debe realizar una solicitud de tipo DELETE a la ruta: [http://localhost:8080/api/v1/location?location_id=AQUI_EL_ID](http://localhost:8080/api/v1/location?location_id=AQUÍ_EL_ID) proporcionando la api key de la compañía asociada en la cabecera
 14. **Crear un sensor**
+
 	Para crear un nuevo sensor, se debe realizar una solicitud de tipo POST a la ruta: [http://localhost:8080/api/v1/sensor](http://localhost:8080/api/v1/sensor). Incluyendo la siguiente cabecera de ejemplo
 	```json
-{
-	"api-key": "api key de la compañía asociada a la locación del sensor"
-}
-```
+    {
+        "api-key": "api key de la compañía asociada a la locación del sensor"
+    }
+    ```
 	y un cuerpo de la solicitud parecido a lo siguiente:
 	```json
-{
-  "sensorName": "Primer sensor",
-  "sensorCategory": "Cualquier valor",
-  "sensorMeta": {
-    "Propierdad 1": "valor 1"
-  },
-  "locationId": 1
-}
-```
+    {
+        "sensorName": "Primer sensor",
+        "sensorCategory": "Cualquier valor",
+        "sensorMeta": {
+            "Propierdad 1": "valor 1"
+        },
+        "locationId": 1
+    }
+    ```
+
 	El id de la locación específicada debe existir en la tabla correspondiente.
 
 15. **Ver listado de sensores**
+
 	Para ver el listado de sensores, se debe realizar una solicitud de tipo GET a la ruta: [http://localhost:8080/api/v1/sensor](http://localhost:8080/api/v1/sensor). Especificando la api key de la compañía asociada en la cabecera de la solicitud.
 
 16. **Ver un sensor en concreto**
+
 	Para ver un sensor en concreto, se debe realizar una solicitud de tipo GET a la ruta [http://localhost:8080/api/v1/sensor?id=ID_DEL_SENSOR](http://localhost:8080/api/v1/sensor?id=ID_DEL_SENSOR). Especificando en la cabecera el api key de la compañía asociada.
+
 17. **Actualizar un sensor**
+
 	Para actualizar un sensor, se debe realizar una solicitud de tipo PUT a la ruta [http://localhost:8080/api/v1/sensor?id=ID_DEL_SENSOR](http://localhost:8080/api/v1/sensor?id=ID_DEL_SENSOR). Especificando en la cabecera el api key de la compañía asociada. y los datos actualizados del sensor como en el siguiente ejemplo:
 	```json
-{
-  "sensorName": "Primer sensor actualizado",
-  "sensorCategory": "Cualquier valor",
-  "sensorMeta": {
-    "Propierdad 1": "valor 1"
-  },
-  "locationId": 1
-}
-```
+    {
+        "sensorName": "Primer sensor actualizado",
+        "sensorCategory": "Cualquier valor",
+        "sensorMeta": {
+            "Propierdad 1": "valor 1"
+        },
+        "locationId": 1
+    }
+    ```
 18. **Eliminar un sensor**
+
 	Para eliminar un sensor, se debe realizar una solicitud de tipo DELETE a la ruta [http://localhost:8080/api/v1/sensor?sensor_id=ID_DEL_SENSOR](http://localhost:8080/api/v1/sensor?sensor_id=ID_DEL_SENSOR). Especificando el api key de la compañía asociada en la cabecera de la solicitud.
 
 19. **Agregar sensor data mediante api**
+
 	Para agregar sensor data mediante api, se debe realizar una solicitud de tipo POST a la ruta: [http://localhost:8080/api/v1/sensor_data](http://localhost:8080/api/v1/sensor_data). El cuerpo de la solicitud debe tener la siguiente estructura:
 	```json
-	{
-		"api_key": "AQUÍ api key del sensor", 
-		"json_data":[
-			{ 
-				"datetime": 1742861430,
-				"temp": 37.4,
-				"humidity": 0.5
-			}
-		] 
-	} 
-```
+        {
+            "api_key": "AQUÍ api key del sensor", 
+            "json_data":[
+                { 
+                    "datetime": 1742861430,
+                    "temp": 37.4,
+                    "humidity": 0.5
+                }
+            ] 
+        } 
+    ```
 20. **Ver listado de sensor data**
+
 	Para ver el listado de sensor data, se debe realizar una solicitud de tipo GET a la ruta: [http://localhost:8080/api/v1/sensor_data](http://localhost:8080/api/v1/sensor_data). Se debe proporcionar la api key de la compañía asociada en la cabecera de la solicitud bajo la clave "api-key".
 	Además se pueden utilizar los siguientes filtros de búsqueda:
 	- ***from:*** Fecha epoch mínima
 	- ***to:*** Fecha epoch máxima
 	- ***sensor_id:*** Listado de sensores id separados por coma
-	- ***sensor_category: *** Listado de categorías de sensores separados por coma.
+	- ***sensor_category:*** Listado de categorías de sensores separados por coma.
 	Por ejemplo: [http://localhost:8080/api/v1/sensor_data?from=1742861430](http://localhost:8080/api/v1/sensor_data?from=1742861430)
 
-13. **Agregar sensor data mediante cola de mensajería**
+21. **Agregar sensor data mediante cola de mensajería**
+
 	 Para probar la insersión de datos mediante la cola de mensajería, según como está configurada actualmente el proyecto, se puede realizar una solicitud de tipo POST a la siguiente cola de ActiveMq  [http://186.64.120.248:8161/api/message/grupo3_prueba1?type=queue](http://186.64.120.248:8161/api/message/grupo3_prueba1?type=queue) utilizando autenticación básica y usando las credenciales admin:admin y enviando un cuerpo de la solicitud parecido a lo siguiente:
 	 ```json
-{
-	"api_key": "b4d972dc-6ee5-444d-bd36-1d14d4c2cf57", 
-	"json_data": [
-		{"
-			datetime": 1744841119, 
-			"temp": 15.0, 
-			"humidity": 47.0
-		}, 
-    	{
-			"datetime": 1744841119, 
-			"temp": 18.8, 
-			"humidity": 28.5
-		}, 
-		{
-			"datetime": 1744841119, 
-			"temp": 9.6, 
-			"humidity": 48.5
-		}
-	]
-}
-```
+    {
+        "api_key": "b4d972dc-6ee5-444d-bd36-1d14d4c2cf57", 
+        "json_data": [
+            {"
+                datetime": 1744841119, 
+                "temp": 15.0, 
+                "humidity": 47.0
+            }, 
+            {
+                "datetime": 1744841119, 
+                "temp": 18.8, 
+                "humidity": 28.5
+            }, 
+            {
+                "datetime": 1744841119, 
+                "temp": 9.6, 
+                "humidity": 48.5
+            }
+        ]
+    }
+    ```
 	El campo 'api_key' proporcionado debe pertenecer a un api key de sensor existente en la base de datos.
 
 
@@ -238,4 +266,4 @@ Para generar los javadocs, se pueden ejecutar el siguiente comando:
 ```
 mvn javadoc:javadoc
 ```
-Al ejecutar el comando anterior, se generará la documentación del proyecto en la carpeta "target\reports\apidocs",. Se puede abrir el archivo "index.html" en el navegador para explorar la documentación.
+Al ejecutar el comando anterior, se generará la documentación del proyecto en la carpeta "target\reports\apidocs". Se puede abrir el archivo "index.html" en el navegador para explorar la documentación.
