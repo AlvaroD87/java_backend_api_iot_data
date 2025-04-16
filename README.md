@@ -66,11 +66,11 @@ Copiar y pegar las estructuras de json puede romper el formato, se recomienda es
 
 4. **Visualizar listado de paises**
 
-	Para visualizar el listado de paises disponibles, se debe realizar una solicitud de tipo GET a la ruta: [localhost:8080/api/v1/country](localhost:8080/api/v1/country). En la cabecera de la solicitud, se debe proporcionar una clave "api-key" con una api key de una compañía registrada.
+	Para visualizar el listado de paises disponibles, se debe realizar una solicitud de tipo GET a la ruta: [http://localhost:8080/api/v1/country](http://localhost:8080/api/v1/country). En la cabecera de la solicitud, se debe proporcionar una clave "api-key" con una api key de una compañía registrada.
 
 5. **Visualizar listado de ciudades**
 
-	Para visualizar el listado de ciudades disponibles, se debe realizar una solicitud de tipo GET a la ruta: [localhost:8080/api/v1/city](localhost:8080/api/v1/city). En la cabecera de la solicitud, se debe proporcionar una clave "api-key" con una api key de una compañía registrada.
+	Para visualizar el listado de ciudades disponibles, se debe realizar una solicitud de tipo GET a la ruta: [http://localhost:8080/api/v1/city](http://localhost:8080/api/v1/city). En la cabecera de la solicitud, se debe proporcionar una clave "api-key" con una api key de una compañía registrada.
 
 4. **Crear una compañía**
 
