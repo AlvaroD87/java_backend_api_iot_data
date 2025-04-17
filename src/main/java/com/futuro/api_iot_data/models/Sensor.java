@@ -23,6 +23,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Permite mapear un sensor con un registro de la base de datos
+ */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -12,6 +12,12 @@ import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.securities.services.PasswordEncoderImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
+/**
+ * Implementación concreta del servicio de administración de usuarios Admin.
+ * 
+ * <p>Esta clase proporciona la lógica de negocio para las operaciones CRUD de administradores,
+ * incluyendo validaciones, seguridad y registro de acciones.</p>
+ */
 @Service
 public class AdminServiceImp implements IAdminService{
 
@@ -24,6 +30,14 @@ public class AdminServiceImp implements IAdminService{
 	@Autowired
 	LastActionCacheData lastActionCacheData;
 	
+	/**
+     * Crea un nuevo administrador en el sistema con validaciones y seguridad.
+     * 
+     * @param newAdminDAO Objeto DTO con los datos del nuevo administrador
+     * @return ResponseServices con el resultado de la operación:
+     *         - Código 200 y mensaje "Admin created" en caso de éxito
+     *         - Código 300 y mensaje "Usuario Duplicado" si el username ya existe
+     */
 	@Override
 	public ResponseServices create(AdminDTO newAdminDAO) {
 		

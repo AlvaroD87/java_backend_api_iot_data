@@ -31,9 +31,19 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
      */
     Optional<Company> findByCompanyApiKey(String companyApiKey);
     
+
+    /**
+     * Obtiene todas las compañías asociadas a un administrador.
+     * @param adminId ID del administrador
+     * @return Lista de compañías del administrador
+     */
     @Query(value = "select * from companies where admin_id = ?1", nativeQuery = true)
     List<Company> findAllByAdminId(Integer adminId);
     
+    /**
+     * Obtiene una lista de objetos con claves de compañía y sensores asociados.
+     * @return Lista de arrays de objetos con [company_api_key, sensor_api_key, sensor_id]
+     */
     @Query(value="""
     				select
     					c.company_api_key,
@@ -49,15 +59,29 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     		)
     List<Object[]> joinedCompanyKeySensorKey();
     
+    /**
+     * Actualiza el estado activo de una compañía.
+     * @param companyId ID de la compañía a actualizar
+     * @param newIsActive Nuevo valor para el estado activo (true/false)
+     */
     @Modifying
     @Query(value = "update companies set is_active = ?2 where company_id = ?1", nativeQuery = true)
     void updateIsActiveStatus(Integer companyId, boolean newIsActive);
     
-    
-    @Query(value = "SELECT c FROM Company c JOIN c.admin a WHERE c.isActive = true AND c.id = ?2 AND a.username = ?1")
+    /**
+     * Busca una compañía activa por ID y nombre de usuario del administrador.
+     * @param companyId ID de la compañía
+     * @param username Nombre de usuario del administrador
+     * @return {@link Optional} conteniendo la Company si existe y cumple los criterios
+     */
+	@Query(value = "SELECT c FROM Company c JOIN c.admin a WHERE c.isActive = true AND c.id = ?2 AND a.username = ?1")
     Optional<Company> findActiveByIdAndUsername(String username, Integer comapanyId);
     
-    //@Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.is_active = True and a.username = ?1", nativeQuery = true)
+    /**
+     * Obtiene todas las compañías activas asociadas a un administrador.
+     * @param username Nombre de usuario del administrador
+     * @return Lista de compañías activas del administrador
+     */
     @Query(value = "SELECT c FROM Company c JOIN c.admin a WHERE c.isActive = true AND a.username = ?1")
     List<Company> findAllActiveByUsername(String username);
 }

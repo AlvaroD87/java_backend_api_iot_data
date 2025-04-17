@@ -31,6 +31,7 @@ public class CompanyController {
      * Crea una nueva compañía.
      *
      * @param companyDTO DTO con el nombre de la compañía a crear.
+     * @param userAuthenticated Detalles del usuario autenticado
      * @return Respuesta con el resultado de la operación.
      */
     @PostMapping
@@ -50,7 +51,7 @@ public class CompanyController {
      * Obtiene una compañía por su ID y API Key.
      *
      * @param id          ID de la compañía a buscar.
-     * @param companyApiKey API Key de la compañía.
+     * @param userAuthenticated Username del usuario autenticado.
      * @return Respuesta con la compañía encontrada.
      */
     @GetMapping
@@ -73,7 +74,7 @@ public class CompanyController {
      *
      * @param id          ID de la compañía a actualizar.
      * @param companyDTO  DTO con la nueva información de la compañía.
-     * @param companyApiKey API Key de la compañía.
+     * @param userAuthenticated Username del usuario autenticado.
      * @return Respuesta con el resultado de la operación.
      */
     @PutMapping
@@ -95,7 +96,7 @@ public class CompanyController {
      * Elimina una compañía por su ID y API Key.
      *
      * @param id          ID de la compañía a eliminar.
-     * @param companyApiKey API Key de la compañía.
+     * @param userAuthenticated Username del usuario autenticado.
      * @return Respuesta con el resultado de la operación.
      */
     @DeleteMapping

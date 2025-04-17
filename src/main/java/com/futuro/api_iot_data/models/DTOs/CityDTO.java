@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO que representa los datos de una ciudad para la transferencia entre capas.
+*/
 @Getter
 @Setter
 @AllArgsConstructor

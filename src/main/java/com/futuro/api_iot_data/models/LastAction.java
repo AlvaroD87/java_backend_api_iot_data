@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Permite mapear los datos de la última acción realizados sobre una entidad con un registro de la base de datos
+ */
 @Getter
 @Setter
 @AllArgsConstructor

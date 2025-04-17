@@ -89,10 +89,10 @@ public class CompanyServiceImp implements ICompanyService {
     }
 
     /**
-     * Obtiene una compañía por su ID y API Key.
+     * Obtiene una compañía por su ID.
      *
      * @param id          ID de la compañía a buscar.
-     * @param companyApiKey API Key de la compañía.
+     * @param username username del usuario autenticado.
      * @return Respuesta con el resultado de la operación.
      *         - Si la compañía no existe o el API Key no coincide, devuelve un mensaje de error.
      *         - Si la compañía existe, devuelve la compañía encontrada.
@@ -152,7 +152,7 @@ public class CompanyServiceImp implements ICompanyService {
      *
      * @param id          ID de la compañía a actualizar.
      * @param companyDTO  DTO con la nueva información de la compañía.
-     * @param companyApiKey API Key de la compañía.
+     * @param username Username del usuario autenticado.
      * @return Respuesta con el resultado de la operación.
      *         - Si la compañía no existe o el API Key no coincide, devuelve un mensaje de error.
      *         - Si el nombre de la compañía ya existe, devuelve un mensaje de error.
@@ -189,10 +189,10 @@ public class CompanyServiceImp implements ICompanyService {
     }
 
     /**
-     * Elimina una compañía por su ID y API Key.
+     * Elimina una compañía por su ID.
      *
      * @param id          ID de la compañía a eliminar.
-     * @param companyApiKey API Key de la compañía.
+     * @param username username del usuario autenticado.
      * @return Respuesta con el resultado de la operación.
      *         - Si la compañía no existe o el API Key no coincide, devuelve un mensaje de error.
      *         - Si la compañía se elimina correctamente, devuelve un mensaje de éxito.

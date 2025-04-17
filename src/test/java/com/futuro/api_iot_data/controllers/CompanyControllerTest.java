@@ -16,6 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Clase de pruebas unitarias para CompanyController.
+ * 
+ * <p>Verifica el comportamiento del controlador para las operaciones CRUD
+ * de compañías, incluyendo casos de éxito y manejo de errores.</p>
+ */
 class CompanyControllerTest {
 
     @Mock

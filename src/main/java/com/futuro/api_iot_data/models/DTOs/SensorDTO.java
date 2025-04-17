@@ -10,6 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO que representa los datos de un sensor.
+*/
 @Getter
 @Setter
 @NoArgsConstructor
