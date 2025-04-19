@@ -69,6 +69,11 @@ Copiar y pegar las estructuras de json puede romper el formato, se recomienda es
     - Al menos un número.
     - Al menos un carácter especial.
 
+    Por ejemplo:
+    ```bash
+	curl -X POST -H "Content-Type: application/json" -d '{"username":"admin10","password":"Admin1234@"}' -i "localhost:8080/api/v1/admin"
+	```
+
 
 
 4. **Crear una compañía**
@@ -129,7 +134,6 @@ Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE util
 		"Propiedad 1": "Valor 1",
 		"Propiedad 2": "Valor 2"
 	  },
-	  "companyId": 1,
 	  "cityId": 1
 	}
 	```
@@ -153,7 +157,6 @@ Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE util
             "Propiedad 1": "Valor 1",
             "Propiedad 2": "Valor 2"
         },
-        "companyId": 1,
           "cityId": 1
         }
     ```

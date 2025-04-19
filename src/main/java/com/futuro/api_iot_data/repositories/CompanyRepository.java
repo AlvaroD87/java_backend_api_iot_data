@@ -70,12 +70,12 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     
     /**
      * Busca una compañía activa por ID y nombre de usuario del administrador.
+     * @param username username del usuario que está realizando la acción
      * @param companyId ID de la compañía
-     * @param username Nombre de usuario del administrador
      * @return {@link Optional} conteniendo la Company si existe y cumple los criterios
      */
 	@Query(value = "SELECT c FROM Company c JOIN c.admin a WHERE c.isActive = true AND c.id = ?2 AND a.username = ?1")
-    Optional<Company> findActiveByIdAndUsername(String username, Integer comapanyId);
+    Optional<Company> findActiveByIdAndUsername(String username, Integer companyId);
     
     /**
      * Obtiene todas las compañías activas asociadas a un administrador.
