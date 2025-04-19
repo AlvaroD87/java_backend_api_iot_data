@@ -15,4 +15,6 @@ spring.activemq.broker-url=tcp://186.64.120.248:61617
 spring.activemq.user=admin
 spring.activemq.password=admin
 spring.activemq.in-memory=false
-spring.jms.pub-sub-domain=false
+spring.jms.pub-sub-domain=true
+
+activemq.topico =${TOPICO_ACTIVEMQ:tf-minera-01}
