@@ -62,7 +62,7 @@ public class CompanyServiceTest {
 		
 		MockitoAnnotations.openMocks(this);
 		
-		companyService = new CompanyServiceImp(companyRepository);
+		//companyService = new CompanyServiceImp(companyRepository);
 		
 		ReflectionTestUtils.setField(companyService, "companyRepository", companyRepository);
 		ReflectionTestUtils.setField(companyService, "adminRepository", adminRepository);
@@ -138,7 +138,7 @@ public class CompanyServiceTest {
 		ResponseServices response = companyService.getCompanyById("admin", 1);
 		
 		assertEquals(404, response.getCode());
-		assertEquals("Compañía no encontrada o API Key incorrecta", response.getMessage());
+		assertEquals("Compañía no encontrada", response.getMessage());
 	}
 	
 	

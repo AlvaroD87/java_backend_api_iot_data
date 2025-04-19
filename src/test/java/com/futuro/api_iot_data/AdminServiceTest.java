@@ -74,7 +74,7 @@ public class AdminServiceTest {
 		ResponseServices response = adminService.create(adminDTO);
 		
 		assertEquals(200, response.getCode());
-		assertEquals("Admin created", response.getMessage());
+		assertEquals("Admin creado", response.getMessage());
 		assertEquals("adminUser", ((AdminDTO) response.getModelDTO()).getUsername());
 		
 	}

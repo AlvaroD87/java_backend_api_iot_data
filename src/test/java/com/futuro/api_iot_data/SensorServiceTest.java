@@ -26,6 +26,7 @@ import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.LastAction;
 import com.futuro.api_iot_data.models.Sensor;
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
+import com.futuro.api_iot_data.repositories.LocationRepository;
 import com.futuro.api_iot_data.repositories.SensorRepository;
 import com.futuro.api_iot_data.services.SensorService;
 import com.futuro.api_iot_data.services.util.ResponseServices;
@@ -50,6 +51,9 @@ public class SensorServiceTest {
 
 	@Mock
 	private Location locationMock;
+	
+	@Mock
+	private LocationRepository locationRepoMock;
 	
 	@Mock
 	private LastActionCacheData lastActionCacheData;
@@ -169,6 +173,7 @@ public class SensorServiceTest {
 		when(sensorRepository.save(any(Sensor.class))).thenReturn(sensor);
 		when(lastActionCacheData.getLastAction("CREATED"))
 			.thenReturn(lastActionCreated);
+		when(locationRepoMock.findActiveByIdAndCompanyApiKey(sensorDTO.getLocationId(), "companyApiKey")).thenReturn(Optional.of(locationMock));
 		
 		ResponseServices response = sensorService.createSensor("companyApiKey", sensorDTO);
 		
@@ -188,6 +193,7 @@ public class SensorServiceTest {
 		when(sensorRepository.save(any(Sensor.class))).thenReturn(sensor);
 		when(lastActionCacheData.getLastAction("UPDATED"))
 			.thenReturn(lastActionUpdated);
+		when(locationRepoMock.findActiveByIdAndCompanyApiKey(sensorDTO.getLocationId(), "companyApiKey")).thenReturn(Optional.of(locationMock));
 		
 		JsonNode jsonMetaModificado;
         try {
@@ -220,7 +226,8 @@ public class SensorServiceTest {
      */
 	@Test
 	void testDeleteSensor() {
-		when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
+		//when(sensorRepository.findById(1)).thenReturn(Optional.of(sensor));
+		when(sensorRepository.findActiveByIdAndCompanyApiKey("companyApiKey",1)).thenReturn(Optional.of(sensor));
 		//doNothing().when(sensorRepository).deleteById(1);
 		when(sensorRepository.save(any(Sensor.class))).thenReturn(sensor);
 		when(lastActionCacheData.getLastAction("DELETED"))

@@ -246,7 +246,8 @@ class LocationServiceTest {
      */
     @Test
     void testDeleteLocationByIdSuccess() {
-    	when(locationRepository.existsById(1)).thenReturn(true);
+    	//when(locationRepository.existsById(1)).thenReturn(true);
+    	when(locationRepository.existsByIdAndCompanyCompanyApiKey(1, "4324234234")).thenReturn(true);
     	when(locationRepository.findById(1)).thenReturn(Optional.of(location));
     	when(locationRepository.save(any(Location.class))).thenReturn(location);
     	when(lastActionCacheData.getLastAction("DELETED")).thenReturn(lastAction);

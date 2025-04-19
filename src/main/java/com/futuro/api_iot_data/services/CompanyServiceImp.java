@@ -28,11 +28,12 @@ import java.util.stream.Collectors;
  * Contiene la lógica de negocio para las operaciones CRUD de compañías,
  * incluyendo la creación, actualización, eliminación y consulta de compañías.
  */
+//@RequiredArgsConstructor
 @Service
-@RequiredArgsConstructor
 public class CompanyServiceImp implements ICompanyService {
 
-    private final CompanyRepository companyRepository;
+	@Autowired
+    private CompanyRepository companyRepository;
     
     @Autowired
     private ApiKeysCacheData apiKeysCacheData;
