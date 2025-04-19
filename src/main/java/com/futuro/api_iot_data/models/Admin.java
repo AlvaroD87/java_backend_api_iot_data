@@ -1,6 +1,6 @@
 package com.futuro.api_iot_data.models;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -42,13 +42,17 @@ public class Admin {
 	
 	private String password;
 	
-	private Boolean is_active;
+	@Column(name = "is_active")
+	@Builder.Default
+	private Boolean isActive = true;
 	
 	@Column(name = "created_date")
-	private Date created_in;
+	@Builder.Default
+	private LocalDateTime createdOn = LocalDateTime.now();
 	
 	@Column(name = "update_date")
-	private Date updated_in;
+	@Builder.Default
+	private LocalDateTime updatedOn = LocalDateTime.now();
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "last_action_id")

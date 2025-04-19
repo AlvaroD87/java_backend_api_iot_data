@@ -1,20 +1,18 @@
 package com.futuro.api_iot_data.services;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.City;
-import com.futuro.api_iot_data.models.Company;
-import com.futuro.api_iot_data.models.LastAction;
 import com.futuro.api_iot_data.models.Location;
 import com.futuro.api_iot_data.models.DTOs.LocationDTO;
 import com.futuro.api_iot_data.repositories.CityRepository;
@@ -51,19 +49,8 @@ public class LocationServiceImp implements ILocationService {
 	private LastActionCacheData lastActionCacheData;
 
 	@Override
-	public ResponseServices create(LocationDTO locationDTO, String companyApiKey) {
+	public ResponseServices create(LocationDTO locationDTO, String companyApiKey) {		
 		String locationName = locationDTO.getLocationName();
-		var locationMeta = locationDTO.getLocationMeta();
-		
-		// Se valida el nombre de la locación
-		if (locationName == null) {
-			return ResponseServices.builder()
-					.code(400)
-					.message("El nombre de la locación es obligatorio")
-					.modelDTO(locationDTO)
-					.build();
-		}
-		
 		if (locationRepository.existsByLocationName(locationName)) {
 			return ResponseServices.builder()
 					.code(400)
@@ -72,42 +59,6 @@ public class LocationServiceImp implements ILocationService {
 					.build();
 		}
 
-		// Se validan los metadatos de la locación
-		if (locationMeta == null) {
-			return ResponseServices.builder()
-					.code(400)
-					.message("Las metadatas de la locación son obligatorias")
-					.modelDTO(locationDTO)
-					.build();
-		}
-		
-		// Se valida la compañia
-		/*if (locationDTO.getCompanyId() == null) {
-			return ResponseServices.builder()
-					.code(400)
-					.message("La compañía es obligatoria")
-					.modelDTO(locationDTO)
-					.build();
-		}*/
-		
-		//Company company = companyRepository.findById(locationDTO.getCompanyId()).orElse(null);
-		Company company = companyRepository.findByCompanyApiKey(companyApiKey).orElse(null);
-		if (company == null) {
-			return ResponseServices.builder()
-					.code(400)
-					.message("No se ha encontrado la compañía")
-					.modelDTO(locationDTO)
-					.build();
-		}
-
-		if (locationDTO.getCityId() == null) {
-			return ResponseServices.builder()
-					.code(400)
-					.message("La ciudad es obligatoria")
-					.modelDTO(locationDTO)
-					.build();
-		}
-		
 		City city = cityRepository.findById(locationDTO.getCityId()).orElse(null);
 		if (city == null) {
 			return ResponseServices.builder()
@@ -116,20 +67,19 @@ public class LocationServiceImp implements ILocationService {
 					.modelDTO(locationDTO)
 					.build();
 		}
+		
+		JsonNode locationMeta = locationDTO.getLocationMeta();
 
 		Location objLocation = Location.builder()
 				.locationName(locationName)
 				.locationMeta(locationMeta)
-				.company(company)
+				.company(companyRepository.findByCompanyApiKey(companyApiKey).get())
 				.city(city)
-				// .isActive(locationDTO.getIsActive())
-				.isActive(true) // Al crear, las compañias siempre van a estar activas
-				.createdDate(new Date(System.currentTimeMillis()))
-				.updateDate(new Date(System.currentTimeMillis()))
 				.lastAction(lastActionCacheData.getLastAction("CREATED"))
 				.build();
 
 		objLocation = locationRepository.save(objLocation);
+		
 		return ResponseServices.builder()
 				.code(201)
 				.message("La locación se ha creado con éxito")
@@ -139,7 +89,6 @@ public class LocationServiceImp implements ILocationService {
 
 	@Override
 	public ResponseServices update(String companyApiKey, Integer id, LocationDTO locationDTO) {
-		//Location objLocation = locationRepository.findById(id).orElse(null);
 		Location objLocation = locationRepository.findActiveByIdAndCompanyApiKey(id,companyApiKey).orElse(null);
 		if(objLocation == null){
 			return ResponseServices.builder()
@@ -150,33 +99,17 @@ public class LocationServiceImp implements ILocationService {
 		}
 
 		String locationName = locationDTO.getLocationName();
-		var locationMeta = locationDTO.getLocationMeta();
+		JsonNode locationMeta = locationDTO.getLocationMeta();
 
 		// Se valida el nombre de la locación
-		if (locationName != null && locationRepository.existsByLocationNameAndLocationIdNot(locationName, id)) {
+		if (locationName != null && locationRepository.existsByLocationNameAndIdNot(locationName, id)) {
 			return ResponseServices.builder()
 				.code(400)
 				.message("Ya existe una locación con este nombre")
 				.modelDTO(locationDTO)
 				.build();
 		}
-
-		// Se valida la compañía
-		//Company company;
-		Company company = objLocation.getCompany();
-		/*if (locationDTO.getCompanyId() == null) {
-			company = objLocation.getCompany();
-		} else {
-			company = companyRepository.findById(locationDTO.getCompanyId()).orElse(null);
-			if(company == null){
-				return ResponseServices.builder()
-				.code(400)
-				.message("No se ha encontrado la compañía")
-				.modelDTO(locationDTO)
-				.build();
-			}
-		}*/
-
+		
 		// Se valida la ciudad
 		City city;
 
@@ -194,16 +127,14 @@ public class LocationServiceImp implements ILocationService {
 
 		}
 
-		Boolean isActive = locationDTO.getIsActive();
-
 		objLocation.setLocationName(locationName != null ? locationName : objLocation.getLocationName());
 		objLocation.setLocationMeta(locationMeta != null ? locationMeta : objLocation.getLocationMeta());
-		objLocation.setCompany(company);
 		objLocation.setCity(city);
-		objLocation.setIsActive(isActive != null ? isActive : objLocation.getIsActive());
-		objLocation.setUpdateDate(new Date(System.currentTimeMillis()));
+		objLocation.setUpdatedOn(LocalDateTime.now());
 		objLocation.setLastAction(lastActionCacheData.getLastAction("UPDATED"));
+		
 		objLocation = locationRepository.save(objLocation);
+		
 		return ResponseServices.builder()
 				.code(200)
 				.message("La locación se ha actualizado con éxito")
@@ -231,8 +162,9 @@ public class LocationServiceImp implements ILocationService {
 
 	@Override
 	@Transactional
-	public ResponseServices deleteById(Integer id) {
-		if (!locationRepository.existsById(id)) {
+	public ResponseServices deleteById(String companyApiKey, Integer id) {
+		//if (!locationRepository.existsById(id)) {
+		if (!locationRepository.existsByIdAndCompanyCompanyApiKey(id, companyApiKey)) {
 			return ResponseServices.builder()
 				.code(400)
 				.message("No se ha encontrado la locación indicada")
@@ -240,35 +172,24 @@ public class LocationServiceImp implements ILocationService {
 				.build();
 		}
 		Location objLocation = locationRepository.findById(id).get();
-
-		/*locationRepository.deleteById(id);
-		if (locationRepository.existsById(id)) {
-			return ResponseServices.builder()
-				.code(400)
-				.message("No se pudo eliminar la locación")
-				.modelDTO(new LocationDTO())
-				.build();
-		}*/
-				
-		//locationRepository.updateStatusByLocationId(id, false);
 		
 		objLocation.setIsActive(false);
-		objLocation.setUpdateDate(new Date(System.currentTimeMillis()));
+		objLocation.setUpdatedOn(LocalDateTime.now());
 		objLocation.setLastAction(lastActionCacheData.getLastAction("DELETED"));
 		
 		locationRepository.save(objLocation);
 		
 		eventPublisher.publishEvent(
         		EntityChangeStatusEvent.builder()
-        		.entity(EntityModel.LOCATION)
-        		.entityId(id)
-        		.status(false)
-        		.lastAction(lastActionCacheData.getLastAction("DELETED_BY_CASCADE"))
-        		.build()
-        		);
+        			.entity(EntityModel.LOCATION)
+        			.entityId(id)
+        			.status(false)
+        			.lastAction(lastActionCacheData.getLastAction("DELETED_BY_CASCADE"))
+        			.build()
+        	);
 		
 		locationRepository.findAllSensorIdByLocationId(id)
-			.forEach(s -> apiKeyCacheData.deleteSensorApiKey(getCompanyApiKeyFromSecurityContext(), s));
+			.forEach(s -> apiKeyCacheData.deleteSensorApiKey(companyApiKey, s));
 		
 		return ResponseServices.builder()
 				.code(200)
@@ -278,11 +199,10 @@ public class LocationServiceImp implements ILocationService {
 	}
 
 	@Override
-	public ResponseServices findById(Integer id, String companyApiKey) {
-		//Location objLocation = locationRepository.findById(id).orElse(new Location());
+	public ResponseServices findById(String companyApiKey, Integer id) {
 		Location objLocation = locationRepository.findActiveByIdAndCompanyApiKey(id,companyApiKey).orElse(new Location());
 		
-		if (objLocation == null || objLocation.getLocationId() == null) {
+		if (objLocation == null || objLocation.getId() == null) {
 			return ResponseServices.builder()
 				.code(404)
 				.message("No se ha encontrado la locación especificada")
@@ -298,22 +218,13 @@ public class LocationServiceImp implements ILocationService {
 	}
 
 	private LocationDTO parseLocationDataToLocationDTO(Location objLocation) {
-		//AdminDTO adminDTO = new AdminDTO();
-		//adminDTO.setUsername(objLocation.getCompany().getAdmin().getUsername());
 		return LocationDTO.builder()
-				.locationId(objLocation.getLocationId())
+				.locationId(objLocation.getId())
 				.locationName(objLocation.getLocationName())
 				.locationMeta(objLocation.getLocationMeta())
 				.companyId(objLocation.getCompany().getId())
 				.cityId(objLocation.getCity().getId())
-				.isActive(objLocation.getIsActive())
-				.createdDate(objLocation.getCreatedDate())
-				.updateDate(objLocation.getUpdateDate())
 				.build();
-	}
-	
-	private String getCompanyApiKeyFromSecurityContext() {
-		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
 	}
 	
 	@EventListener

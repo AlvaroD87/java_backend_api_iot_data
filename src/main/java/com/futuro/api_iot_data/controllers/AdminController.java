@@ -12,6 +12,8 @@ import com.futuro.api_iot_data.models.DTOs.AdminDTO;
 import com.futuro.api_iot_data.services.AdminServiceImp;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
+import jakarta.validation.Valid;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -49,7 +51,7 @@ public class AdminController {
 	)
 	public ResponseEntity<ResponseServices> createAdmin(
 		@Parameter(description = "Datos del nuevo administrador")
-		@RequestBody AdminDTO newAdmin){
+		@RequestBody @Valid AdminDTO newAdmin){
 		
 		ResponseServices response = adminService.create(newAdmin);
 		

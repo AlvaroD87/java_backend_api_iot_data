@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 
-import java.sql.Date;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -59,10 +58,7 @@ public class AdminServiceTest {
 		adminEntity = Admin.builder()
 				.username("adminUser")
 				.password("hashed_password")
-				.is_active(true)
-	            .created_in(new Date(System.currentTimeMillis()))
-	            .updated_in(new Date(System.currentTimeMillis()))
-	            .lastAction(createdAction)
+				.lastAction(createdAction)
 	            .build();
 		
 	}
@@ -77,7 +73,7 @@ public class AdminServiceTest {
 		ResponseServices response = adminService.create(adminDTO);
 		
 		assertEquals(200, response.getCode());
-		assertEquals("Admin created", response.getMessage());
+		assertEquals("Admin creado", response.getMessage());
 		assertEquals("adminUser", ((AdminDTO) response.getModelDTO()).getUsername());
 		
 	}

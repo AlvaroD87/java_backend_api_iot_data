@@ -19,19 +19,16 @@ public interface ICompanyService {
      *         - Código 400 (BAD_REQUEST) si ya existe una compañía con el mismo nombre
      *         - Código 401 (UNAUTHORIZED) si el usuario no tiene permisos
      */
-    ResponseServices createCompany(CompanyDTO companyDTO, String username);
+	ResponseServices createCompany(String username, CompanyDTO companyDTO);
 
     /**
      * Obtiene una compañía por su ID y API Key de validación.
      *
+     * @param username username del usuario que está realizando la acción
      * @param id ID de la compañía a buscar
-     * @param companyApiKey API Key para validación de acceso
-     * @return ResponseServices con el resultado:
-     *         - Código 200 (OK) y los datos de la compañía si existe
-     *         - Código 404 (NOT_FOUND) si la compañía no existe
-     *         - Código 403 (FORBIDDEN) si la API Key no es válida
+     * @return ResponseServices con el resultado de la operación
      */
-    ResponseServices getCompanyById(Integer id, String companyApiKey);
+	ResponseServices getCompanyById(String username, Integer id);
 
     /**
      * Obtiene todas las compañías registradas en el sistema.
@@ -46,25 +43,19 @@ public interface ICompanyService {
     /**
      * Actualiza los datos de una compañía existente.
      *
+     * @param username username del usuario que está realizando la acción
      * @param id ID de la compañía a actualizar
      * @param companyDTO DTO con los nuevos datos de la compañía
-     * @param companyApiKey API Key para validación de acceso
-     * @return ResponseServices con el resultado:
-     *         - Código 200 (OK) si la actualización fue exitosa
-     *         - Código 400 (BAD_REQUEST) si el nombre ya existe
-     *         - Código 404 (NOT_FOUND) si la compañía no existe
+     * @return ResponseServices con el resultado de la operación:
      */
-    ResponseServices updateCompany(Integer id, CompanyDTO companyDTO, String companyApiKey);
-
+    ResponseServices updateCompany(String username, Integer id, CompanyDTO companyDTO);
+    
     /**
      * Elimina una compañía del sistema (eliminación lógica).
      *
+     * @param username username del usuario que está realizando la acción
      * @param id ID de la compañía a eliminar
-     * @param companyApiKey API Key para validación de acceso
-     * @return ResponseServices con el resultado:
-     *         - Código 200 (OK) si la eliminación fue exitosa
-     *         - Código 404 (NOT_FOUND) si la compañía no existe
-     *         - Código 403 (FORBIDDEN) si la API Key no es válida
+     * @return ResponseServices con el resultado de la operación:
      */
-    ResponseServices deleteCompany(Integer id, String companyApiKey);
+    ResponseServices deleteCompany(String username, Integer id);
 }

@@ -6,7 +6,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.sql.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -42,9 +41,6 @@ public class CountryServiceTest {
 		country = Country.builder()
 				.id(1)
 				.name("Chile")
-				.is_active(true)
-				.created_in(new Date(System.currentTimeMillis()))
-				.updated_in(new Date(System.currentTimeMillis()))
 				.build();
 	}
 	

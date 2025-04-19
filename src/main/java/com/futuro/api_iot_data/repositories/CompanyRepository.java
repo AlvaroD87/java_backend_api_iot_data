@@ -3,7 +3,6 @@ package com.futuro.api_iot_data.repositories;
 import com.futuro.api_iot_data.models.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -69,21 +68,20 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     @Query(value = "update companies set is_active = ?2 where company_id = ?1", nativeQuery = true)
     void updateIsActiveStatus(Integer companyId, boolean newIsActive);
     
-    
     /**
      * Busca una compañía activa por ID y nombre de usuario del administrador.
+     * @param username username del usuario que está realizando la acción
      * @param companyId ID de la compañía
-     * @param username Nombre de usuario del administrador
      * @return {@link Optional} conteniendo la Company si existe y cumple los criterios
      */
-    @Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.company_id = ?1 and c.is_active = True and a.username = ?2", nativeQuery = true)
-    Optional<Company> findActiveByIdAndUsername(Integer companyId, String username);
+	@Query(value = "SELECT c FROM Company c JOIN c.admin a WHERE c.isActive = true AND c.id = ?2 AND a.username = ?1")
+    Optional<Company> findActiveByIdAndUsername(String username, Integer companyId);
     
     /**
      * Obtiene todas las compañías activas asociadas a un administrador.
      * @param username Nombre de usuario del administrador
      * @return Lista de compañías activas del administrador
      */
-    @Query(value = "select c.* from companies c join admins a on c.admin_id = a.admin_id where c.is_active = True and a.username = ?1", nativeQuery = true)
+    @Query(value = "SELECT c FROM Company c JOIN c.admin a WHERE c.isActive = true AND a.username = ?1")
     List<Company> findAllActiveByUsername(String username);
 }

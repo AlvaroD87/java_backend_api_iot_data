@@ -1,8 +1,6 @@
 package com.futuro.api_iot_data.models;
 
-import java.sql.Date;
-
-import com.futuro.api_iot_data.models.DTOs.CountryDTO;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,13 +35,16 @@ public class Country {
 	
 	private String name;
 	
-	private Boolean is_active;
+	@Column(name = "is_active")
+	@Builder.Default
+	private Boolean isActive = true;
 	
 	@Column(name = "created_date")
-	private Date created_in;
+	@Builder.Default
+	private LocalDateTime createdOn = LocalDateTime.now();
 	
 	@Column(name = "update_date")
-	private Date updated_in;
+	@Builder.Default
+	private LocalDateTime updatedOn = LocalDateTime.now();
 
-	public CountryDTO toCountryDTO() { return new CountryDTO(this); }
 }

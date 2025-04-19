@@ -4,13 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import java.sql.Date;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -20,6 +17,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -81,6 +82,7 @@ class LocationServiceTest {
     private City city;
     private LocationDTO locationDTO;
     private Location location;
+    private ObjectMapper mapper = new ObjectMapper();
     private LastAction lastAction;
     private LastAction deleledCascadeAction;
 
@@ -104,49 +106,46 @@ class LocationServiceTest {
         company.setCompanyName("Compañía de prueba");
         company.setCompanyApiKey("4324234234");
         company.setIsActive(true);
-        //company.setAdmin(admin);
-        company.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-        company.setUpdateDate(new Timestamp(System.currentTimeMillis()));
+        company.setCreatedOn(LocalDateTime.now());
+        company.setUpdatedOn(LocalDateTime.now());
 
         /*
         country = Country.builder()
                 .id(1)
                 .name("Chile")
-                .is_active(true)
-                .created_in(new Date(System.currentTimeMillis()))
-                .updated_in(new Date(System.currentTimeMillis()))
+                .isActive(true)
+                .createdOn(LocalDateTime.now())
+                .updatedOn(LocalDateTime.now())
                 .build();
         */
         
         city = City.builder()
                 .id(1)
                 .name("Ciudad de prueba")
-                .is_active(true)
-                .created_in(new Date(Calendar.getInstance().getTimeInMillis()))
-                .updated_in(new Date(Calendar.getInstance().getTimeInMillis()))
                 .country(null)
                 .build();
 
+        JsonNode jsonMeta;
+        try {
+        	jsonMeta = mapper.readTree("{\"clave uno\":\"valor 1\"}");
+		} catch (JsonProcessingException e) {
+			jsonMeta = null;
+		}
+        
         locationDTO = LocationDTO.builder()
                 .locationId(1)
                 .locationName("Locación inicial")
-                .locationMeta(Map.of("clave uno", "valor 1"))
+                .locationMeta(jsonMeta)
                 .companyId(company.getId())
                 .cityId(city.getId())
-                .isActive(true)
-                .createdDate(new Date(System.currentTimeMillis()))
-                .updateDate(new Date(System.currentTimeMillis()))
                 .build();
 
         location = Location.builder()
-                .locationId(1)
+                .id(1)
                 .locationName("Locación inicial")
-                .locationMeta(Map.of("clave uno", "valor 1"))
+                .locationMeta(jsonMeta)
                 .company(company)
                 .city(city)
-                .isActive(true)
-                .createdDate(new Date(System.currentTimeMillis()))
-                .updateDate(new Date(System.currentTimeMillis()))
                 .build();
         
         lastAction = new LastAction();
@@ -205,7 +204,7 @@ class LocationServiceTest {
         //when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
     	when(locationRepository.findActiveByIdAndCompanyApiKey(1, "4324234234")).thenReturn(Optional.of(location));
 
-        ResponseServices response = locationService.findById(1,"4324234234");
+        ResponseServices response = locationService.findById("4324234234", 1);
         assertNotNull(response.getModelDTO());
         LocationDTO foundLocation = (LocationDTO) response.getModelDTO();
 
@@ -233,7 +232,6 @@ class LocationServiceTest {
         locationDTO.setLocationName(nombreActualizado);
         //locationService.update("4324234234", 1, locationDTO);
 
-        //ResponseServices response = locationService.findById(1,"4324234234");
         ResponseServices response = locationService.update("4324234234",1, locationDTO);
         
         assertNotNull(response);
@@ -248,14 +246,15 @@ class LocationServiceTest {
      */
     @Test
     void testDeleteLocationByIdSuccess() {
-    	when(locationRepository.existsById(1)).thenReturn(true);
+    	//when(locationRepository.existsById(1)).thenReturn(true);
+    	when(locationRepository.existsByIdAndCompanyCompanyApiKey(1, "4324234234")).thenReturn(true);
     	when(locationRepository.findById(1)).thenReturn(Optional.of(location));
     	when(locationRepository.save(any(Location.class))).thenReturn(location);
     	when(lastActionCacheData.getLastAction("DELETED")).thenReturn(lastAction);
     	when(lastActionCacheData.getLastAction("DELETED_BY_CASCADE")).thenReturn(deleledCascadeAction);
     	when(locationRepository.findAllSensorIdByLocationId(1)).thenReturn(List.of("sensor123"));
     	
-    	ResponseServices response = locationService.deleteById(1);
+    	ResponseServices response = locationService.deleteById("4324234234",1);
     	
     	assertNotNull(response);
     	assertEquals(200, response.getCode());
@@ -265,8 +264,8 @@ class LocationServiceTest {
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.of(location));
         when(locationRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
     
-        locationService.deleteById(1);
-        ResponseServices response = locationService.findById(1, "4324234234");
+        locationService.deleteById("4324234234", 1);
+        ResponseServices response = locationService.findById("4324234234", 1);
         assertNotNull(response.getModelDTO());
         LocationDTO deletedLocation = (LocationDTO) response.getModelDTO();
     
