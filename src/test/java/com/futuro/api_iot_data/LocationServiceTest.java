@@ -141,7 +141,7 @@ class LocationServiceTest {
                 .build();
 
         location = Location.builder()
-                .locationId(1)
+                .id(1)
                 .locationName("Locación inicial")
                 .locationMeta(jsonMeta)
                 .company(company)

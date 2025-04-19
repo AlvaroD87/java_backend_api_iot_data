@@ -84,7 +84,7 @@ public class CompanyController {
     @ApiResponse(responseCode = "404", description = "Company not found or API Key mismatch")
     public ResponseEntity<ResponseServices> updateCompany(
     			@AuthenticationPrincipal UserDetails userAuthenticated,
-    			@RequestParam(name = "company_id", required = true) Integer id, 
+    			@RequestParam(name = "id", required = true) Integer id, 
     			@RequestBody CompanyDTO companyDTO
     		) 
     {

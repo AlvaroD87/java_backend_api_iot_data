@@ -42,9 +42,6 @@ public class CountryServiceTest {
 		country = Country.builder()
 				.id(1)
 				.name("Chile")
-				.is_active(true)
-				.created_in(new Date(System.currentTimeMillis()))
-				.updated_in(new Date(System.currentTimeMillis()))
 				.build();
 	}
 	

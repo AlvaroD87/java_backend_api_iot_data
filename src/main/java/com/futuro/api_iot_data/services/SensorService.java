@@ -167,10 +167,10 @@ public class SensorService implements ISensorService{
 		
 		Sensor sensor = optionalSensor.get();
 		
-		sensor.setSensorName(sensorDTO.getSensorName());
-		sensor.setSensorCategory(sensorDTO.getSensorCategory());
-		sensor.setSensorMeta(sensorDTO.getSensorMeta());
-		sensor.setLocation(locationRepository.findActiveByIdAndCompanyApiKey(sensorDTO.getLocationId(), companyApiKey).get());
+		sensor.setSensorName(sensorDTO.getSensorName() == null ? sensor.getSensorName() : sensorDTO.getSensorName());
+		sensor.setSensorCategory(sensorDTO.getSensorCategory() == null ? sensor.getSensorCategory() : sensorDTO.getSensorCategory());
+		sensor.setSensorMeta(sensorDTO.getSensorMeta() == null ? sensor.getSensorMeta() : sensorDTO.getSensorMeta());
+		sensor.setLocation(sensorDTO.getLocationId() == null ? sensor.getLocation() : locationRepository.findActiveByIdAndCompanyApiKey(sensorDTO.getLocationId(), companyApiKey).get());
 		sensor.setUpdatedOn(LocalDateTime.now());
 		sensor.setLastAction(lastActionCacheData.getLastAction("UPDATED"));
 		
@@ -191,7 +191,7 @@ public class SensorService implements ISensorService{
      */
 	@Transactional
 	public ResponseServices deleteSensor(String companyApiKey, Integer id) {
-		Optional<Sensor> optionalSendor = sensorRepository.findById(id);
+		Optional<Sensor> optionalSendor = sensorRepository.findActiveByIdAndCompanyApiKey(companyApiKey, id);
 		
 		if(optionalSendor.isEmpty()) {			
 			return ResponseServices.builder()
@@ -243,7 +243,7 @@ public class SensorService implements ISensorService{
 				.sensorApiKey(sensor.getSensorApiKey())
 				.sensorCategory(sensor.getSensorCategory())
 				.sensorMeta(sensor.getSensorMeta())
-				.locationId(sensor.getLocation().getLocationId())
+				.locationId(sensor.getLocation().getId())
 				.build();
 	}
 }

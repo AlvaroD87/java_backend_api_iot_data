@@ -4,7 +4,6 @@ import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.Company;
 import com.futuro.api_iot_data.models.DTOs.CompanyDTO;
-import com.futuro.api_iot_data.models.DTOs.ITemplateDTO;
 import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.repositories.CompanyRepository;
 import com.futuro.api_iot_data.services.util.EntityChangeStatusEvent;
@@ -75,16 +74,11 @@ public class CompanyServiceImp implements ICompanyService {
         companyRepository.save(company);
         
         apiKeysCacheData.setNewCompanyApiKey(companyApiKey);
-        
-        // Crear un DTO para la respuesta
-        CompanyResponse response = new CompanyResponse();
-        response.setCompanyName(company.getCompanyName());
-        response.setCompanyApiKey(company.getCompanyApiKey());
 
         return ResponseServices.builder()
                 .message("Compañía creada exitosamente")
                 .code(200)
-                .modelDTO(response)
+                .modelDTO(companyToDTO(company))
                 .build();
     }
 
@@ -109,14 +103,11 @@ public class CompanyServiceImp implements ICompanyService {
         }
 
         Company company = companyOptional.get();
-        CompanyResponse response = new CompanyResponse();
-        response.setCompanyName(company.getCompanyName());
-        response.setCompanyApiKey(company.getCompanyApiKey());
 
         return ResponseServices.builder()
                 .message("Compañía encontrada")
                 .code(200)
-                .modelDTO(response)
+                .modelDTO(companyToDTO(company))
                 .build();
     }
 
@@ -136,8 +127,8 @@ public class CompanyServiceImp implements ICompanyService {
                     .build();
         }
         
-        List<CompanyResponse> companyNames = companies.stream()
-                .map(company -> new CompanyResponse(company.getCompanyName(), company.getCompanyApiKey()))
+        List<CompanyDTO> companyNames = companies.stream()
+                .map(company -> companyToDTO(company))
                 .collect(Collectors.toList());
 
         return ResponseServices.builder()
@@ -237,49 +228,12 @@ public class CompanyServiceImp implements ICompanyService {
      * Clase interna para representar la respuesta de una compañía.
      * Implementa ITemplateDTO para ser compatible con ResponseServices.
      */
-    public static class CompanyResponse implements ITemplateDTO {
-        private String companyName;
-        private String companyApiKey;
-        
-        public CompanyResponse () {}
-        
-        public CompanyResponse(String companyName, String companyApiKey) {
-        	this.companyName = companyName;
-        	this.companyApiKey = companyApiKey;
-        }
-        
-        // Getters y Setters
-        public String getCompanyName() {
-            return companyName;
-        }
-
-        public void setCompanyName(String companyName) {
-            this.companyName = companyName;
-        }
-
-        public String getCompanyApiKey() {
-            return companyApiKey;
-        }
-
-        public void setCompanyApiKey(String companyApiKey) {
-            this.companyApiKey = companyApiKey;
-        }
+    private CompanyDTO companyToDTO(Company company) {
+    	return CompanyDTO.builder()
+    			.companyId(company.getId())
+    			.companyName(company.getCompanyName())
+    			.companyApiKey(company.getCompanyApiKey())
+    			.build();
     }
 
-    /**
-     * Clase interna para representar solo el nombre de una compañía.
-     * Implementa ITemplateDTO para ser compatible con ResponseServices.
-     */
-    public static class CompanyNameResponse implements ITemplateDTO {
-        private String companyName;
-
-        public CompanyNameResponse(String companyName) {
-            this.companyName = companyName;
-        }
-
-        // Getter
-        public String getCompanyName() {
-            return companyName;
-        }
-    }
 }

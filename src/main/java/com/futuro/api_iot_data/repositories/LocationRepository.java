@@ -23,6 +23,7 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
      */
 	boolean existsByLocationName(String LocationName);
 
+	boolean existsByIdAndCompanyCompanyApiKey(Integer id, String companyApiKey);
 	/**
      * Verifica si existe una locación con el nombre especificado, excluyendo una locación con un ID determinado.
      * Este método es útil para validaciones durante la actualización de una locación, asegurando que no haya
@@ -33,7 +34,7 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
      * @return {@code true} si existe una locación con el nombre proporcionado (excluyendo la locación con el ID dado),
      *         {@code false} en caso contrario.
      */
-	boolean existsByLocationNameAndLocationIdNot(String LocationName, Integer locationId);
+	boolean existsByLocationNameAndIdNot(String LocationName, Integer locationId);
 	
 	/**
      * Obtiene todos los API Keys de sensores asociados a una locación.
@@ -117,7 +118,7 @@ public interface LocationRepository extends JpaRepository<Location,Integer>{
 			from Location l 
 				join l.company c 
 			where 
-				l.locationId = ?1 
+				l.id = ?1 
 				and c.companyApiKey = ?2 
 				and l.isActive = True
 			""")

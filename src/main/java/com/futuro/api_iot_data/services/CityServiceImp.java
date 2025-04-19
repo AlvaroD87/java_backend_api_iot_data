@@ -42,7 +42,7 @@ public class CityServiceImp implements ICityService{
 	}
 	
 	private CityDTO cityEntityToDTO(City city) {
-		return CityDTO.builder().name(city.getName()).build();
+		return CityDTO.builder().name(city.getName()).id(city.getId()).build();
 	}
 
 }

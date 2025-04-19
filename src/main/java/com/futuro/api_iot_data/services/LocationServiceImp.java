@@ -102,7 +102,7 @@ public class LocationServiceImp implements ILocationService {
 		JsonNode locationMeta = locationDTO.getLocationMeta();
 
 		// Se valida el nombre de la locación
-		if (locationName != null && locationRepository.existsByLocationNameAndLocationIdNot(locationName, id)) {
+		if (locationName != null && locationRepository.existsByLocationNameAndIdNot(locationName, id)) {
 			return ResponseServices.builder()
 				.code(400)
 				.message("Ya existe una locación con este nombre")
@@ -163,7 +163,8 @@ public class LocationServiceImp implements ILocationService {
 	@Override
 	@Transactional
 	public ResponseServices deleteById(String companyApiKey, Integer id) {
-		if (!locationRepository.existsById(id)) {
+		//if (!locationRepository.existsById(id)) {
+		if (!locationRepository.existsByIdAndCompanyCompanyApiKey(id, companyApiKey)) {
 			return ResponseServices.builder()
 				.code(400)
 				.message("No se ha encontrado la locación indicada")
@@ -201,7 +202,7 @@ public class LocationServiceImp implements ILocationService {
 	public ResponseServices findById(String companyApiKey, Integer id) {
 		Location objLocation = locationRepository.findActiveByIdAndCompanyApiKey(id,companyApiKey).orElse(new Location());
 		
-		if (objLocation == null || objLocation.getLocationId() == null) {
+		if (objLocation == null || objLocation.getId() == null) {
 			return ResponseServices.builder()
 				.code(404)
 				.message("No se ha encontrado la locación especificada")
@@ -218,7 +219,7 @@ public class LocationServiceImp implements ILocationService {
 
 	private LocationDTO parseLocationDataToLocationDTO(Location objLocation) {
 		return LocationDTO.builder()
-				.locationId(objLocation.getLocationId())
+				.locationId(objLocation.getId())
 				.locationName(objLocation.getLocationName())
 				.locationMeta(objLocation.getLocationMeta())
 				.companyId(objLocation.getCompany().getId())

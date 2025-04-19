@@ -149,7 +149,7 @@ public interface SensorRepository extends JpaRepository<Sensor, Integer> {
 				join l.company c 
 			where 
 				s.sensorName = ?1 
-				and l.locationId = ?2 
+				and l.id = ?2 
 				and c.companyApiKey = ?3 
 				and s.isActive = True
 			""")

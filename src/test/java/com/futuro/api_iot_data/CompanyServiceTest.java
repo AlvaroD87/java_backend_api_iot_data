@@ -94,7 +94,7 @@ public class CompanyServiceTest {
 		when(lastActionCacheData.getLastAction("CREATED")).thenReturn(lastAction);
 		when(companyRepository.save(any(Company.class))).thenReturn(company);
 		
-		ResponseServices response = companyService.createCompany(companyDTO, "admin");
+		ResponseServices response = companyService.createCompany("admin", companyDTO);
 		
 		assertEquals(200, response.getCode());
 		assertEquals("Compañía creada exitosamente", response.getMessage());
@@ -108,7 +108,7 @@ public class CompanyServiceTest {
 		
 		when(companyRepository.existsByCompanyName("Test Company")).thenReturn(true);
 		
-		ResponseServices response = companyService.createCompany(companyDTO, "admin");
+		ResponseServices response = companyService.createCompany("admin", companyDTO);
 		
 		assertEquals(400, response.getCode());
 		assertEquals("Ya existe una compañía con el mismo nombre", response.getMessage());
@@ -120,9 +120,9 @@ public class CompanyServiceTest {
 		CompanyDTO companyDTO = new CompanyDTO();
 		companyDTO.setCompanyName("Test Company");
 		
-		when(companyRepository.findActiveByIdAndUsername(1, "admin")).thenReturn(Optional.of(company));
+		when(companyRepository.findActiveByIdAndUsername("admin", 1)).thenReturn(Optional.of(company));
 		
-		ResponseServices response = companyService.getCompanyById(1, "admin");
+		ResponseServices response = companyService.getCompanyById("admin", 1);
 		
 		assertEquals(200, response.getCode());
 		assertEquals("Compañía encontrada", response.getMessage());
@@ -133,9 +133,9 @@ public class CompanyServiceTest {
 		CompanyDTO companyDTO = new CompanyDTO();
 		companyDTO.setCompanyName("Test Company");
 		
-		when(companyRepository.findActiveByIdAndUsername(1, "admin")).thenReturn(Optional.empty());
+		when(companyRepository.findActiveByIdAndUsername("admin", 1)).thenReturn(Optional.empty());
 		
-		ResponseServices response = companyService.getCompanyById(1, "admin");
+		ResponseServices response = companyService.getCompanyById("admin", 1);
 		
 		assertEquals(404, response.getCode());
 		assertEquals("Compañía no encontrada o API Key incorrecta", response.getMessage());
@@ -157,11 +157,11 @@ public class CompanyServiceTest {
 		CompanyDTO updateDTO = new CompanyDTO();
 		updateDTO.setCompanyName("Updated Company");
 		
-		when(companyRepository.findActiveByIdAndUsername(1, "admin")).thenReturn(Optional.of(company));
+		when(companyRepository.findActiveByIdAndUsername("admin", 1)).thenReturn(Optional.of(company));
 		when(companyRepository.existsByCompanyName("Updated Company")).thenReturn(false);
 		when(lastActionCacheData.getLastAction("UPDATED")).thenReturn(lastAction);
 		
-		ResponseServices response = companyService.updateCompany(1, updateDTO, "admin");
+		ResponseServices response = companyService.updateCompany("admin", 1, updateDTO);
 		
 		assertEquals(200, response.getCode());
 		assertEquals("Compañía actualizada exitosamente", response.getMessage());
@@ -170,11 +170,11 @@ public class CompanyServiceTest {
 	
 	@Test
 	void testDeleteCompany_Success() {
-		when(companyRepository.findActiveByIdAndUsername(1, "admin")).thenReturn(Optional.of(company));
+		when(companyRepository.findActiveByIdAndUsername("admin", 1)).thenReturn(Optional.of(company));
 		when(lastActionCacheData.getLastAction("DELETED")).thenReturn(lastAction);
 		when(lastActionCacheData.getLastAction("DELETED_BY_CASCADE")).thenReturn(lastAction);
 		
-		ResponseServices response = companyService.deleteCompany(1, "admin");
+		ResponseServices response = companyService.deleteCompany("admin", 1);
 		
 		assertEquals(200, response.getCode());
 		assertEquals("Compañía eliminada exitosamente", response.getMessage());

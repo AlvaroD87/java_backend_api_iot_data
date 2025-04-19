@@ -59,10 +59,7 @@ public class AdminServiceTest {
 		adminEntity = Admin.builder()
 				.username("adminUser")
 				.password("hashed_password")
-				.is_active(true)
-	            .created_in(new Date(System.currentTimeMillis()))
-	            .updated_in(new Date(System.currentTimeMillis()))
-	            .lastAction(createdAction)
+				.lastAction(createdAction)
 	            .build();
 		
 	}

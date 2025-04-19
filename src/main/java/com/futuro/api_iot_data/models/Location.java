@@ -40,7 +40,8 @@ import org.hibernate.type.SqlTypes;
 public class Location {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer locationId;
+	@Column(name = "location_id")
+	private Integer id;
 
     private String locationName;
     

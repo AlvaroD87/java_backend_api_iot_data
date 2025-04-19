@@ -31,21 +31,11 @@ public class CountryController {
 	@Autowired
 	CountryServiceImp countryService;
 	
-	/*@PostMapping("/create")
-	public ResponseEntity<ResponseServices> create(@RequestBody CountryDTO country){
-		
-		ResponseServices response = countryService.create(country);
-		
-		return ResponseEntity
-				.status(response.getCode() == 200 ? 201 : 400)
-				.body(response);
-	}*/
-	
 	/**
 	 * Obtener el listado de paises registrados en el sistema
 	 * @return Listado de paises registrados
 	 */
-	@GetMapping//("")
+	@GetMapping
 	@Operation(summary = "Listado de paises", description = "Obtener el listado de paises registrados en el sistema")
 	@ApiResponses(
 		value = {
