@@ -11,7 +11,6 @@ import com.futuro.api_iot_data.services.util.EntityModel;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
  * Contiene la lógica de negocio para las operaciones CRUD de compañías,
  * incluyendo la creación, actualización, eliminación y consulta de compañías.
  */
-//@RequiredArgsConstructor
 @Service
 public class CompanyServiceImp implements ICompanyService {
 

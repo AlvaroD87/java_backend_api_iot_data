@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 
-import java.sql.Date;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;

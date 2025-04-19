@@ -71,7 +71,7 @@ class CompanyControllerTest {
     void testGetCompanyById_Success() {
         // Arrange
         Integer id = 1;
-        String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
+        //String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
 
         ResponseServices responseServices = ResponseServices.builder()
                 .code(200)
@@ -100,7 +100,7 @@ class CompanyControllerTest {
                 .code(200)
                 .message("Companies found")
                 .build();
-        String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
+        //String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
 
         when(userDetailMock.getUsername()).thenReturn("admin");
         when(companyService.getAllCompanies(userDetailMock.getUsername())).thenReturn(responseServices);
@@ -122,7 +122,7 @@ class CompanyControllerTest {
     void testUpdateCompany_Success() {
         // Arrange
         Integer id = 1;
-        String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
+        //String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
 
         CompanyDTO companyDTO = new CompanyDTO();
         companyDTO.setCompanyName("Updated Company Name");
@@ -151,7 +151,7 @@ class CompanyControllerTest {
     void testDeleteCompany_Success() {
         // Arrange
         Integer id = 1;
-        String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
+        //String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
 
         ResponseServices responseServices = ResponseServices.builder()
                 .code(200)
