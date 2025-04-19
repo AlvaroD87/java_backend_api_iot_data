@@ -1,21 +1,20 @@
 package com.futuro.api_iot_data.services;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.Sensor;
 import com.futuro.api_iot_data.models.DTOs.SensorDTO;
+import com.futuro.api_iot_data.repositories.LocationRepository;
 import com.futuro.api_iot_data.repositories.SensorRepository;
 import com.futuro.api_iot_data.services.util.EntityChangeStatusEvent;
 import com.futuro.api_iot_data.services.util.EntityModel;
@@ -30,10 +29,13 @@ import jakarta.transaction.Transactional;
  * incluyendo manejo de API Keys y sincronización con el caché.</p>
  */
 @Service
-public class SensorService {
+public class SensorService implements ISensorService{
 
 	@Autowired
 	private SensorRepository sensorRepository;
+	
+	@Autowired
+	private LocationRepository locationRepository;
 	
 	@Autowired
 	private ApiKeysCacheData apiKeyCacheData;
@@ -49,23 +51,11 @@ public class SensorService {
      */
 	public ResponseServices getAllSensors(String companyApiKey) {
 		
-		//List<Sensor> sensors = sensorRepository.findAll();
 		List<Sensor> sensors = sensorRepository.findAllActiveByCompanyApiKey(companyApiKey);
 		List<SensorDTO> sensorList = new ArrayList<>();
 		
 		for(Sensor sensor: sensors) {		
-			SensorDTO dto = new SensorDTO(
-					sensor.getSensorId(),
-					sensor.getSensorName(),
-					sensor.getSensorCategory(),
-					sensor.getSensorApiKey(),
-					sensor.getSensorMeta(),
-					sensor.getLocationId(),
-					sensor.getIsActive(),
-					sensor.getCreatedDate(),
-					sensor.getUpdateDate()
-					);
-			
+			SensorDTO dto = entityDataToDTO(sensor);
 			sensorList.add(dto);		
 		}
 		
@@ -93,7 +83,6 @@ public class SensorService {
      * @return ResponseServices con el sensor o mensaje de error
      */
 	public ResponseServices getSensorById(String companyApiKey, Integer sensorId) {
-		//Optional<Sensor> sensorOptional = sensorRepository.findById(sensorId);
 		
 		Optional<Sensor> sensorOptional = sensorRepository.findActiveByIdAndCompanyApiKey(companyApiKey, sensorId);
 		
@@ -102,7 +91,7 @@ public class SensorService {
 			return ResponseServices.builder()
 					.message("Sensor encontrado")
 					.code(200)
-					.modelDTO(sensor.toSensorDTO())
+					.modelDTO(entityDataToDTO(sensor))
 					.build();
 		}
 		
@@ -123,38 +112,35 @@ public class SensorService {
      */
 	public ResponseServices createSensor(String companyApiKey, SensorDTO sensorDTO) {
 		
-		//Optional<Sensor> existSensor = sensorRepository.findBySensorNameAndLocationId(sensorDTO.getSensorName(), sensorDTO.getLocationId());
-		
 		Optional<Sensor> existSensor = sensorRepository.findActiveBySensorNameLocationIdCompanyApiKey(sensorDTO.getSensorName(), sensorDTO.getLocationId(), companyApiKey);
 		
 		if(existSensor.isPresent()) {
 			return ResponseServices.builder()
-					.message("El sensro ya existe")
+					.message("El sensor ya existe")
 					.code(300)
-					.modelDTO(existSensor.map(Sensor::toSensorDTO).orElse(new SensorDTO()))
+					.modelDTO(existSensor.map(this::entityDataToDTO).orElse(new SensorDTO()))
 					.build();
 		}
 		
 		Sensor sensor = new Sensor();
 		sensor.setSensorName(sensorDTO.getSensorName());
 		sensor.setSensorCategory(sensorDTO.getSensorCategory());
-		//sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
 		sensor.setSensorApiKey(UUID.randomUUID().toString());
 		sensor.setSensorMeta(sensorDTO.getSensorMeta());
-		sensor.setLocationId(sensorDTO.getLocationId());
+		sensor.setLocation(locationRepository.findActiveByIdAndCompanyApiKey(sensorDTO.getLocationId(), companyApiKey).get());
 		sensor.setIsActive(true);
-		sensor.setCreatedDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-		sensor.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		sensor.setCreatedOn(LocalDateTime.now());
+		sensor.setUpdatedOn(LocalDateTime.now());
 		sensor.setLastAction(lastActionCacheData.getLastAction("CREATED"));
 		
 		Sensor savedSensor = sensorRepository.save(sensor);
 		
-		apiKeyCacheData.setNewSensorApiKey(getCompanyApiKeyFromSecurityContext(), savedSensor.getSensorApiKey(), savedSensor.getSensorId());
+		apiKeyCacheData.setNewSensorApiKey(companyApiKey, savedSensor.getSensorApiKey(), savedSensor.getSensorId());
 		
 		return ResponseServices.builder()
 				.message("Sensor creado exitosamente")
 				.code(201)
-				.modelDTO(savedSensor.toSensorDTO())
+				.modelDTO(entityDataToDTO(savedSensor))
 				.build();
 
 	}
@@ -168,13 +154,12 @@ public class SensorService {
      * @return ResponseServices con el sensor actualizado o mensaje de error
      */
 	public ResponseServices updateSensor(Integer sensorId, SensorDTO sensorDTO, String companyApiKey) {
-		//Optional<Sensor> optionalSensor = sensorRepository.findById(sensorId);
 		
 		Optional<Sensor> optionalSensor = sensorRepository.findActiveByIdAndCompanyApiKey(companyApiKey, sensorId);
 		
 		if(optionalSensor.isEmpty()) {
 			return ResponseServices.builder()
-					.message("Sensor con ID " + sensorId + " not encontrado")
+					.message("Sensor con ID " + sensorId + " no encontrado")
 					.code(404)
 					.modelDTO(new SensorDTO())
 					.build();
@@ -182,14 +167,11 @@ public class SensorService {
 		
 		Sensor sensor = optionalSensor.get();
 		
-		sensor.setSensorName(sensorDTO.getSensorName());
-		sensor.setSensorCategory(sensorDTO.getSensorCategory());
-		//sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
-		sensor.setSensorMeta(sensorDTO.getSensorMeta());
-		sensor.setLocationId(sensorDTO.getLocationId());
-		//sensor.setIsActive(sensorDTO.getIsActive());
-		//sensor.setCreatedDate(sensorDTO.getCreatedDate());
-		sensor.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		sensor.setSensorName(sensorDTO.getSensorName() == null ? sensor.getSensorName() : sensorDTO.getSensorName());
+		sensor.setSensorCategory(sensorDTO.getSensorCategory() == null ? sensor.getSensorCategory() : sensorDTO.getSensorCategory());
+		sensor.setSensorMeta(sensorDTO.getSensorMeta() == null ? sensor.getSensorMeta() : sensorDTO.getSensorMeta());
+		sensor.setLocation(sensorDTO.getLocationId() == null ? sensor.getLocation() : locationRepository.findActiveByIdAndCompanyApiKey(sensorDTO.getLocationId(), companyApiKey).get());
+		sensor.setUpdatedOn(LocalDateTime.now());
 		sensor.setLastAction(lastActionCacheData.getLastAction("UPDATED"));
 		
 		Sensor savedSensor = sensorRepository.save(sensor);
@@ -197,7 +179,7 @@ public class SensorService {
 		return ResponseServices.builder()
 				.message("Sensor actualizado exitosamente")
 				.code(200)
-				.modelDTO(savedSensor.toSensorDTO())
+				.modelDTO(entityDataToDTO(savedSensor))
 				.build();
 	}
 	
@@ -208,8 +190,8 @@ public class SensorService {
      * @return ResponseServices con confirmación o mensaje de error
      */
 	@Transactional
-	public ResponseServices deleteSensor(Integer id) {
-		Optional<Sensor> optionalSendor = sensorRepository.findById(id);
+	public ResponseServices deleteSensor(String companyApiKey, Integer id) {
+		Optional<Sensor> optionalSendor = sensorRepository.findActiveByIdAndCompanyApiKey(companyApiKey, id);
 		
 		if(optionalSendor.isEmpty()) {			
 			return ResponseServices.builder()
@@ -219,32 +201,21 @@ public class SensorService {
 		}
 		
 		Sensor sensorInfo = optionalSendor.get();
-		SensorDTO selectSensor = sensorInfo.toSensorDTO();
-		
-		//sensorRepository.deleteById(id);
-		
-		//sensorRepository.updateIsActiveBySensorId(id, false);
-		
+		SensorDTO selectSensor = entityDataToDTO(sensorInfo);
+				
 		sensorInfo.setIsActive(false);
-		sensorInfo.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		sensorInfo.setUpdatedOn(LocalDateTime.now());
 		sensorInfo.setLastAction(lastActionCacheData.getLastAction("DELETED"));
 		
 		sensorRepository.save(sensorInfo);
 		
-		apiKeyCacheData.deleteSensorApiKey(getCompanyApiKeyFromSecurityContext(), sensorInfo.getSensorApiKey());
+		apiKeyCacheData.deleteSensorApiKey(companyApiKey, sensorInfo.getSensorApiKey());
 		
 		return ResponseServices.builder()
 				.message("Sensor eliminado exitosamente")
 				.code(200)
 				.modelDTO(selectSensor)
 				.build();
-	}
-	
-	 /**
-     * Obtiene la API Key del contexto de seguridad.
-     */
-	private String getCompanyApiKeyFromSecurityContext() {
-		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
 	}
 	
 	 /**
@@ -262,5 +233,17 @@ public class SensorService {
 			sensorRepository.updateIsActiveByLocationId(event.getEntityId(), event.isStatus(), event.getLastAction().getId());
 			break;
 		}}
+	}
+
+	@Override
+	public SensorDTO entityDataToDTO(Sensor sensor) {
+		return SensorDTO.builder()
+				.sensorId(sensor.getSensorId())
+				.sensorName(sensor.getSensorName())
+				.sensorApiKey(sensor.getSensorApiKey())
+				.sensorCategory(sensor.getSensorCategory())
+				.sensorMeta(sensor.getSensorMeta())
+				.locationId(sensor.getLocation().getId())
+				.build();
 	}
 }

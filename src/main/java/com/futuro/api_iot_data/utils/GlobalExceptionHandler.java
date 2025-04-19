@@ -1,7 +1,11 @@
 package com.futuro.api_iot_data.utils;
 
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -50,9 +54,34 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        //ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error en el servidor");
-    	ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    	return ResponseEntity
+    			.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    			.body(new ErrorResponse(
+    						HttpStatus.INTERNAL_SERVER_ERROR,
+    						"Ocurrió un error interno en la aplicación, por favor contacte al administrador indicando path consultado, autenticación utilizada y body enviado."
+    						)
+    				);
     }
     
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handlerMethodArgumentNotValidException(MethodArgumentNotValidException ex){
+    	String errors = ex.getBindingResult()
+    	        .getFieldErrors()
+    	        .stream()
+    	        .map(error -> error.getDefaultMessage())
+    	        .collect(Collectors.joining("; "));
+    	        
+    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(HttpStatus.BAD_REQUEST, errors));
+    }
+    
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handlerMissingServletRequestParameterException(MissingServletRequestParameterException ex){
+    	return ResponseEntity
+    			.status(HttpStatus.BAD_REQUEST)
+    			.body(new ErrorResponse(
+    						HttpStatus.BAD_REQUEST,
+    						String.format("Parámetro requerido en path: %s (%s)", ex.getParameterName(), ex.getParameterType())
+    					)
+    			);
+    }
 }

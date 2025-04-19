@@ -1,8 +1,14 @@
 package com.futuro.api_iot_data.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import java.sql.Timestamp;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -14,7 +20,12 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
  *
  * Esta clase está mapeada a la tabla "companies" en la base de datos.
  */
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Builder
 @Entity
 @Table(name = "companies")
 public class Company {
@@ -39,26 +50,32 @@ public class Company {
     /**
      * TO-DO.
      */
-	@Column(name = "admin_id", nullable = false)
-	private Integer adminId;
+    //@Column(name = "admin_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "admin_id")
+	@JsonBackReference
+	private Admin admin;
     
     /**
      * Estado de actividad de la compañía. No puede ser nulo.
      */
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    @Builder.Default
+	private Boolean isActive = true;
 
     /**
      * Fecha de creación de la compañía. No puede ser nula.
      */
     @Column(name = "created_date", nullable = false)
-    private Timestamp createdDate;
+    @Builder.Default
+	private LocalDateTime createdOn = LocalDateTime.now();
 
     /**
      * Fecha de última actualización de la compañía. No puede ser nula.
      */
     @Column(name = "update_date", nullable = false)
-    private Timestamp updateDate;
+    @Builder.Default
+	private LocalDateTime updatedOn = LocalDateTime.now();
     
     @ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "last_action_id")

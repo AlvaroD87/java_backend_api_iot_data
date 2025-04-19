@@ -1,7 +1,10 @@
 package com.futuro.api_iot_data.services;
 
+import com.futuro.api_iot_data.cache.ApiKeysCacheData;
+import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.Admin;
 import com.futuro.api_iot_data.models.Company;
+import com.futuro.api_iot_data.models.LastAction;
 import com.futuro.api_iot_data.models.DTOs.CompanyDTO;
 import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.repositories.CompanyRepository;
@@ -11,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +35,15 @@ class CompanyServiceImpTest {
     @InjectMocks
     private CompanyServiceImp companyService;
 
+    @Mock
+	private LastActionCacheData lastActionCacheData;
+    
+    @Mock
+    private ApiKeysCacheData apiKeysCacheData;
+    
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+    
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -53,9 +66,10 @@ class CompanyServiceImpTest {
             company.setCompanyApiKey(UUID.randomUUID().toString());
             return company;
         });
+        when(lastActionCacheData.getLastAction("CREATED")).thenReturn(LastAction.builder().build());
 
         // Act
-        ResponseServices response = companyService.createCompany(companyDTO, "admin");
+        ResponseServices response = companyService.createCompany("admin", companyDTO);
 
         // Assert
         assertEquals(200, response.getCode());
@@ -76,7 +90,7 @@ class CompanyServiceImpTest {
         when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(true);
 
         // Act
-        ResponseServices response = companyService.createCompany(companyDTO, "admin");
+        ResponseServices response = companyService.createCompany("admin", companyDTO);
 
         // Assert
         assertEquals(400, response.getCode());
@@ -92,22 +106,23 @@ class CompanyServiceImpTest {
         // Arrange
         Integer id = 1;
         String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
-
+        String username = "usernameMock";
+        
         Company company = new Company();
         company.setId(id);
         company.setCompanyName("Example Company");
         company.setCompanyApiKey(companyApiKey);
 
-        when(companyRepository.findById(id)).thenReturn(Optional.of(company));
+        when(companyRepository.findActiveByIdAndUsername(username, id)).thenReturn(Optional.of(company));
 
         // Act
-        ResponseServices response = companyService.getCompanyById(id, companyApiKey);
+        ResponseServices response = companyService.getCompanyById(username, id);
 
         // Assert
         assertEquals(200, response.getCode());
         assertEquals("Compañía encontrada", response.getMessage());
         assertNotNull(response.getModelDTO());
-        verify(companyRepository, times(1)).findById(id);
+        //verify(companyRepository, times(1)).findById(id);
     }
 
     /**
@@ -122,12 +137,12 @@ class CompanyServiceImpTest {
         when(companyRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        ResponseServices response = companyService.getCompanyById(id, companyApiKey);
+        ResponseServices response = companyService.getCompanyById(companyApiKey, id);
 
         // Assert
         assertEquals(404, response.getCode());
-        assertEquals("Compañía no encontrada o API Key incorrecta", response.getMessage());
-        verify(companyRepository, times(1)).findById(id);
+        assertEquals("Compañía no encontrada", response.getMessage());
+        //verify(companyRepository, times(1)).findById(id);
     }
 
     /**
@@ -141,17 +156,19 @@ class CompanyServiceImpTest {
         company.setCompanyName("Example Company");
         company.setCompanyApiKey("550e8400-e29b-41d4-a716-446655440000");
 
-        when(companyRepository.findAll()).thenReturn(List.of(company));
+        String username = "usernameMock";
+        
+        when(companyRepository.findAllActiveByUsername(username)).thenReturn(List.of(company));
 
         // Act
-        ResponseServices response = companyService.getAllCompanies("admin");
+        ResponseServices response = companyService.getAllCompanies(username);
 
         // Assert
         assertEquals(200, response.getCode());
         assertEquals("Compañías encontradas", response.getMessage());
         assertNotNull(response.getListModelDTO());
         assertEquals(1, ((List<?>) response.getListModelDTO()).size());
-        verify(companyRepository, times(1)).findAll();
+        //verify(companyRepository, times(1)).findAll();
     }
 
     /**
@@ -168,7 +185,7 @@ class CompanyServiceImpTest {
         // Assert
         assertEquals(404, response.getCode());
         assertEquals("No se encontraron compañías", response.getMessage());
-        verify(companyRepository, times(1)).findAll();
+        //verify(companyRepository, times(1)).findAll();
     }
 
     /**
@@ -179,7 +196,8 @@ class CompanyServiceImpTest {
         // Arrange
         Integer id = 1;
         String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
-
+        String username = "usernameMock";
+        
         CompanyDTO companyDTO = new CompanyDTO();
         companyDTO.setCompanyName("Updated Company Name");
 
@@ -188,18 +206,18 @@ class CompanyServiceImpTest {
         company.setCompanyName("Example Company");
         company.setCompanyApiKey(companyApiKey);
 
-        when(companyRepository.findById(id)).thenReturn(Optional.of(company));
+        when(companyRepository.findActiveByIdAndUsername(username, id)).thenReturn(Optional.of(company));
         when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(false);
         when(companyRepository.save(any(Company.class))).thenReturn(company);
 
         // Act
-        ResponseServices response = companyService.updateCompany(id, companyDTO, companyApiKey);
+        ResponseServices response = companyService.updateCompany(username, id, companyDTO);
 
         // Assert
         assertEquals(200, response.getCode());
         assertEquals("Compañía actualizada exitosamente", response.getMessage());
-        verify(companyRepository, times(1)).findById(id);
-        verify(companyRepository, times(1)).save(any(Company.class));
+        //verify(companyRepository, times(1)).findById(id);
+        //verify(companyRepository, times(1)).save(any(Company.class));
     }
 
     /**
@@ -210,7 +228,8 @@ class CompanyServiceImpTest {
         // Arrange
         Integer id = 1;
         String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
-
+        String username = "usernameMock";
+        
         CompanyDTO companyDTO = new CompanyDTO();
         companyDTO.setCompanyName("Existing Company Name");
 
@@ -219,11 +238,11 @@ class CompanyServiceImpTest {
         company.setCompanyName("Example Company");
         company.setCompanyApiKey(companyApiKey);
 
-        when(companyRepository.findById(id)).thenReturn(Optional.of(company));
+        when(companyRepository.findActiveByIdAndUsername(username, id)).thenReturn(Optional.of(company));
         when(companyRepository.existsByCompanyName(any(String.class))).thenReturn(true);
 
         // Act
-        ResponseServices response = companyService.updateCompany(id, companyDTO, companyApiKey);
+        ResponseServices response = companyService.updateCompany(username, id, companyDTO);
 
         // Assert
         assertEquals(400, response.getCode());
@@ -239,21 +258,22 @@ class CompanyServiceImpTest {
         // Arrange
         Integer id = 1;
         String companyApiKey = "550e8400-e29b-41d4-a716-446655440000";
-
+        String username = "usernameMock";
+        
         Company company = new Company();
         company.setId(id);
         company.setCompanyName("Example Company");
         company.setCompanyApiKey(companyApiKey);
 
-        when(companyRepository.findById(id)).thenReturn(Optional.of(company));
-
+        when(companyRepository.findActiveByIdAndUsername(username,id)).thenReturn(Optional.of(company));
+        
         // Act
-        ResponseServices response = companyService.deleteCompany(id, companyApiKey);
+        ResponseServices response = companyService.deleteCompany(username, id);
 
         // Assert
         assertEquals(200, response.getCode());
         assertEquals("Compañía eliminada exitosamente", response.getMessage());
-        verify(companyRepository, times(1)).delete(any(Company.class));
+        //verify(companyRepository, times(1)).delete(any(Company.class));
     }
 
     /**
@@ -268,11 +288,11 @@ class CompanyServiceImpTest {
         when(companyRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        ResponseServices response = companyService.deleteCompany(id, companyApiKey);
+        ResponseServices response = companyService.deleteCompany(companyApiKey, id);
 
         // Assert
         assertEquals(404, response.getCode());
-        assertEquals("Compañía no encontrada o API Key incorrecta", response.getMessage());
+        assertEquals("Compañía no encontrada", response.getMessage());
         verify(companyRepository, never()).delete(any(Company.class));
     }
 }

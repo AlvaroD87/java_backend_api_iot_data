@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.NativeQuery;
+import org.springframework.data.jpa.repository.Query;
 
 import com.futuro.api_iot_data.models.Admin;
 
@@ -23,7 +23,7 @@ public interface AdminRepository extends JpaRepository<Admin, Integer>{
      * @param username Nombre de usuario del administrador a buscar
      * @return Optional que contiene el Admin si se encuentra y está activo, o vacío si no
      */
-	@NativeQuery("select * from admins where username = ?1 and is_active = true")
+	@Query("select a from Admin a where a.username = ?1 and a.isActive = true")
 	Optional<Admin> findByUsername(String username);
 
 }

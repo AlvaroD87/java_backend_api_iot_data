@@ -56,7 +56,7 @@ public class SensorDataServiceImp implements ISensorDataService{
 		if (sensorId == null) {
 			return ResponseServices.builder()
 					.code(400)
-					.message("sensor api-key invilado")
+					.message("sensor api-key invalido")
 					.build();
 		}
 		

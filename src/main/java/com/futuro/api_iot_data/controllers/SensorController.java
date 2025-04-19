@@ -1,11 +1,9 @@
 package com.futuro.api_iot_data.controllers;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,27 +44,13 @@ public class SensorController {
 	@Autowired
 	private SensorService sensorService;
 	
-	/*
-	 *	@RequestHeader(name = "api-key", required = true) String companyApiKey,
-	 *	@RequestParam(name = "from", required = false) Integer fromEpoch,
-	 */
-	
-	/*@GetMapping("/all")
-	public ResponseEntity<ResponseServices> getAllSensors() {
-		ResponseServices response = sensorService.getAllSensors();
-		if(response.getCode() == 200) {
-			return ResponseEntity.ok(response);
-		}
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-	}*/
-	
 	/**
 	 * Permite obtener un sensor a partir de su identificador
 	 * @param companyApiKey API key de la compañía asociada a este sensor
 	 * @param id Identificador único del sensor a buscar
 	 * @return Datos del sensor encontrado
 	 */
-	@GetMapping//("/{id}")
+	@GetMapping
 	@Operation(summary = "Listado de sensores", description = "Permite obtener un sensor a partir de su identificador")
 	@ApiResponses(
 		value = {
@@ -96,7 +79,7 @@ public class SensorController {
 	 * @param sensorDTO Datos del nuevo sensor
 	 * @return ResponseServices con los datos del sensor creado
 	 */
-	@PostMapping//("/create")
+	@PostMapping
 	@Operation(summary = "Registro de un nuevo sensor", description = "Permite registrar un nuevo sensor en el sistema")
 	@ApiResponses(
 		value = {
@@ -137,7 +120,7 @@ public class SensorController {
 	 * @param sensorDTO Datos actualizados del sensor
 	 * @return ResponseEntity con los datos del sensor
 	 */
-	@PutMapping//("/{id}")
+	@PutMapping
 	@Operation(summary = "Actualizar un sensor", description = "Permite actualizar un sensor existente en el sistema")
 	@ApiResponses(
 		value = {
@@ -198,9 +181,10 @@ public class SensorController {
 		}
 	)
 	public ResponseEntity<ResponseServices> deleteSensor(
+		@RequestHeader(name = "api-key", required = true) String companyApiKey,
 		@Parameter(description = "Identificador del sensor a eliminar")
-		@RequestParam(name = "sensor_id", required = true) Integer id) {
-		ResponseServices response = sensorService.deleteSensor(id);
+		@RequestParam(name = "id", required = true) Integer id) {
+		ResponseServices response = sensorService.deleteSensor(companyApiKey, id);
 		
 		if(response.getCode() == 200) {
 			return ResponseEntity.ok(response);

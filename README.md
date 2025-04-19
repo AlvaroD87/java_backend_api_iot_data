@@ -63,14 +63,8 @@ Copiar y pegar las estructuras de json puede romper el formato, se recomienda es
         "password": "1234"
     }
     ```
+    Es importante que la solicitud se realice desde la misma máquina donde está corriendo el servicio (p. ej: un vps) porque esta ruta valida que la solicitud se haga desde localhost
 
-4. **Visualizar listado de paises**
-
-	Para visualizar el listado de paises disponibles, se debe realizar una solicitud de tipo GET a la ruta: [localhost:8080/api/v1/country](localhost:8080/api/v1/country). En la cabecera de la solicitud, se debe proporcionar una clave "api-key" con una api key de una compañía registrada.
-
-5. **Visualizar listado de ciudades**
-
-	Para visualizar el listado de ciudades disponibles, se debe realizar una solicitud de tipo GET a la ruta: [localhost:8080/api/v1/city](localhost:8080/api/v1/city). En la cabecera de la solicitud, se debe proporcionar una clave "api-key" con una api key de una compañía registrada.
 
 4. **Crear una compañía**
 
@@ -103,7 +97,17 @@ Para editar una compañía, se debe realizar una solicitud de tipo PUT utilizand
 
 Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE utilizando autenticación básica a la ruta  [http://localhost:8080/api/v1/company?company_id=AQUI_ID_COMPAÑÍA](http://localhost:8080/api/v1/company?company_id=AQUI_ID_COMPAÑÍA)
 
-9. **Crear una locación**
+9. **Visualizar listado de paises**
+
+	Para visualizar el listado de paises disponibles, se debe realizar una solicitud de tipo GET a la ruta: [http://localhost:8080/api/v1/country](http://localhost:8080/api/v1/country). En la cabecera de la solicitud, se debe proporcionar una clave "api-key" con una api key de una compañía registrada.
+
+10. **Visualizar listado de ciudades**
+
+	Para visualizar el listado de ciudades disponibles, se debe realizar una solicitud de tipo GET a la ruta: [http://localhost:8080/api/v1/city](http://localhost:8080/api/v1/city). En la cabecera de la solicitud, se debe proporcionar una clave "api-key" con una api key de una compañía registrada.
+
+
+
+11. **Crear una locación**
 
 	Para crear una nueva locación, se debe realizar una solicitud de tipo POST a la ruta [http://localhost:8080/api/v1/location](http://localhost:8080/api/v1/location). En la cabecera de la solicitud se debe agregar la siguiente clave 
 	```json
@@ -126,15 +130,15 @@ Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE util
 	```
 	El id de la compañía y el id de la ciudad, deben existir en sus respectivas tablas.
 
-10. **Visualizar listado de locaciones**
+13. **Visualizar listado de locaciones**
 
 	Para visualizar el listado de locaciones se debe realizar una solicitud de tipo GET a la siguiente dirección: [http://localhost:8080/api/v1/location](http://localhost:8080/api/v1/location). Se debe proporcionar de igual manera la api key de la compañía en la cabecera de la solicitud.
 	
-11. **Visualizar una locación en concreto**
+13. **Visualizar una locación en concreto**
 
 	 Para visualizar una locación en concreto, se debe realizar una solicitud de tipo GET a la siguiente ruta: [http://localhost:8080/api/v1/location?location_id=AQUI_EL_ID](http://localhost:8080/api/v1/location?location_id=AQUÍ_EL_ID). Proporcionando la api key de la compañía asociada en la cabecera de la solicitud.
 	 
-12. **Actualizar los datos de una locación**
+14. **Actualizar los datos de una locación**
 
 	Para actualizar los datos de una locación, se debe realizar una solicitud de tipo PUT a la ruta: [http://localhost:8080/api/v1/location?location_id=AQUI_EL_ID](http://localhost:8080/api/v1/location?location_id=AQUÍ_EL_ID) proporcionando la api key de la compañía asociada en la cabecera y enviando los datos actualizados como en el siguiente ejemplo:
 	```json
@@ -149,10 +153,10 @@ Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE util
         }
     ```
 
-13. **Eliminar una locación**
+15. **Eliminar una locación**
 
 	Para eliminar una locación, se debe realizar una solicitud de tipo DELETE a la ruta: [http://localhost:8080/api/v1/location?location_id=AQUI_EL_ID](http://localhost:8080/api/v1/location?location_id=AQUÍ_EL_ID) proporcionando la api key de la compañía asociada en la cabecera
-14. **Crear un sensor**
+16. **Crear un sensor**
 
 	Para crear un nuevo sensor, se debe realizar una solicitud de tipo POST a la ruta: [http://localhost:8080/api/v1/sensor](http://localhost:8080/api/v1/sensor). Incluyendo la siguiente cabecera de ejemplo
 	```json
@@ -174,15 +178,15 @@ Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE util
 
 	El id de la locación específicada debe existir en la tabla correspondiente.
 
-15. **Ver listado de sensores**
+17. **Ver listado de sensores**
 
 	Para ver el listado de sensores, se debe realizar una solicitud de tipo GET a la ruta: [http://localhost:8080/api/v1/sensor](http://localhost:8080/api/v1/sensor). Especificando la api key de la compañía asociada en la cabecera de la solicitud.
 
-16. **Ver un sensor en concreto**
+18. **Ver un sensor en concreto**
 
 	Para ver un sensor en concreto, se debe realizar una solicitud de tipo GET a la ruta [http://localhost:8080/api/v1/sensor?id=ID_DEL_SENSOR](http://localhost:8080/api/v1/sensor?id=ID_DEL_SENSOR). Especificando en la cabecera el api key de la compañía asociada.
 
-17. **Actualizar un sensor**
+19. **Actualizar un sensor**
 
 	Para actualizar un sensor, se debe realizar una solicitud de tipo PUT a la ruta [http://localhost:8080/api/v1/sensor?id=ID_DEL_SENSOR](http://localhost:8080/api/v1/sensor?id=ID_DEL_SENSOR). Especificando en la cabecera el api key de la compañía asociada. y los datos actualizados del sensor como en el siguiente ejemplo:
 	```json
@@ -195,11 +199,11 @@ Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE util
         "locationId": 1
     }
     ```
-18. **Eliminar un sensor**
+20. **Eliminar un sensor**
 
 	Para eliminar un sensor, se debe realizar una solicitud de tipo DELETE a la ruta [http://localhost:8080/api/v1/sensor?sensor_id=ID_DEL_SENSOR](http://localhost:8080/api/v1/sensor?sensor_id=ID_DEL_SENSOR). Especificando el api key de la compañía asociada en la cabecera de la solicitud.
 
-19. **Agregar sensor data mediante api**
+21. **Agregar sensor data mediante api**
 
 	Para agregar sensor data mediante api, se debe realizar una solicitud de tipo POST a la ruta: [http://localhost:8080/api/v1/sensor_data](http://localhost:8080/api/v1/sensor_data). El cuerpo de la solicitud debe tener la siguiente estructura:
 	```json
@@ -214,7 +218,7 @@ Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE util
             ] 
         } 
     ```
-20. **Ver listado de sensor data**
+22. **Ver listado de sensor data**
 
 	Para ver el listado de sensor data, se debe realizar una solicitud de tipo GET a la ruta: [http://localhost:8080/api/v1/sensor_data](http://localhost:8080/api/v1/sensor_data). Se debe proporcionar la api key de la compañía asociada en la cabecera de la solicitud bajo la clave "api-key".
 	Además se pueden utilizar los siguientes filtros de búsqueda:
@@ -224,9 +228,9 @@ Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE util
 	- ***sensor_category:*** Listado de categorías de sensores separados por coma.
 	Por ejemplo: [http://localhost:8080/api/v1/sensor_data?from=1742861430](http://localhost:8080/api/v1/sensor_data?from=1742861430)
 
-21. **Agregar sensor data mediante cola de mensajería**
+23. **Agregar sensor data mediante cola de mensajería**
 
-	 Para probar la insersión de datos mediante la cola de mensajería, según como está configurada actualmente el proyecto, se puede realizar una solicitud de tipo POST a la siguiente cola de ActiveMq  [http://186.64.120.248:8161/api/message/grupo3_prueba1?type=queue](http://186.64.120.248:8161/api/message/grupo3_prueba1?type=queue) utilizando autenticación básica y usando las credenciales admin:admin y enviando un cuerpo de la solicitud parecido a lo siguiente:
+	 Para probar la insersión de datos mediante la cola de mensajería, según como está configurada actualmente el proyecto, se puede realizar una solicitud de tipo POST a al siguiente topic de ActiveMq  [http://186.64.120.248:8161/api/message?destination=topic://tf-minera-01&type=topic](http://186.64.120.248:8161/api/message?destination=topic://tf-minera-01&type=topic) utilizando autenticación básica y usando las credenciales admin:admin y enviando un cuerpo de la solicitud parecido a lo siguiente:
 	 ```json
     {
         "api_key": "b4d972dc-6ee5-444d-bd36-1d14d4c2cf57", 
@@ -244,7 +248,7 @@ Para eliminar una compañía, se debe realizar una solicitud de tipo DELETE util
             {
                 "datetime": 1744841119, 
                 "temp": 9.6, 
-                "humidity": 48.5
+                "humidity":48.5
             }
         ]
     }

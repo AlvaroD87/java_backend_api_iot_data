@@ -4,7 +4,6 @@ import com.futuro.api_iot_data.cache.ApiKeysCacheData;
 import com.futuro.api_iot_data.cache.LastActionCacheData;
 import com.futuro.api_iot_data.models.Company;
 import com.futuro.api_iot_data.models.DTOs.CompanyDTO;
-import com.futuro.api_iot_data.models.DTOs.ITemplateDTO;
 import com.futuro.api_iot_data.repositories.AdminRepository;
 import com.futuro.api_iot_data.repositories.CompanyRepository;
 import com.futuro.api_iot_data.services.util.EntityChangeStatusEvent;
@@ -12,16 +11,12 @@ import com.futuro.api_iot_data.services.util.EntityModel;
 import com.futuro.api_iot_data.services.util.ResponseServices;
 
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,10 +28,10 @@ import java.util.stream.Collectors;
  * incluyendo la creación, actualización, eliminación y consulta de compañías.
  */
 @Service
-@RequiredArgsConstructor
 public class CompanyServiceImp implements ICompanyService {
 
-    private final CompanyRepository companyRepository;
+	@Autowired
+    private CompanyRepository companyRepository;
     
     @Autowired
     private ApiKeysCacheData apiKeysCacheData;
@@ -59,7 +54,7 @@ public class CompanyServiceImp implements ICompanyService {
      *         - Si la compañía se crea correctamente, devuelve la compañía creada y su API Key.
      */
     @Override
-    public ResponseServices createCompany(CompanyDTO companyDTO, String username) {
+    public ResponseServices createCompany(String username, CompanyDTO companyDTO) {
         if (companyRepository.existsByCompanyName(companyDTO.getCompanyName())) {
             return ResponseServices.builder()
                     .message("Ya existe una compañía con el mismo nombre")
@@ -72,25 +67,17 @@ public class CompanyServiceImp implements ICompanyService {
         Company company = new Company();
         company.setCompanyName(companyDTO.getCompanyName());
         company.setCompanyApiKey(companyApiKey);
-        company.setAdminId(adminRepository.findByUsername(username).get().getId());
-        company.setIsActive(true);
-        company.setCreatedDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-        company.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+        company.setAdmin(adminRepository.findByUsername(username).get());
         company.setLastAction(lastActionCacheData.getLastAction("CREATED"));
         
         companyRepository.save(company);
         
         apiKeysCacheData.setNewCompanyApiKey(companyApiKey);
-        
-        // Crear un DTO para la respuesta
-        CompanyResponse response = new CompanyResponse();
-        response.setCompanyName(company.getCompanyName());
-        response.setCompanyApiKey(company.getCompanyApiKey());
 
         return ResponseServices.builder()
                 .message("Compañía creada exitosamente")
                 .code(200)
-                .modelDTO(response)
+                .modelDTO(companyToDTO(company))
                 .build();
     }
 
@@ -104,28 +91,22 @@ public class CompanyServiceImp implements ICompanyService {
      *         - Si la compañía existe, devuelve la compañía encontrada.
      */
     @Override
-    public ResponseServices getCompanyById(Integer id, String username) {
-        //Optional<Company> companyOptional = companyRepository.findById(id);
-    	//String username = ((UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-    	Optional<Company> companyOptional = companyRepository.findActiveByIdAndUsername(id, username);
+    public ResponseServices getCompanyById(String username, Integer id) {
+        Optional<Company> companyOptional = companyRepository.findActiveByIdAndUsername(username, id);
         
-    	//if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
     	if (companyOptional.isEmpty()) {
     		return ResponseServices.builder()
-                    .message("Compañía no encontrada o API Key incorrecta")
+                    .message("Compañía no encontrada")
                     .code(404)
                     .build();
         }
 
         Company company = companyOptional.get();
-        CompanyResponse response = new CompanyResponse();
-        response.setCompanyName(company.getCompanyName());
-        response.setCompanyApiKey(company.getCompanyApiKey());
 
         return ResponseServices.builder()
                 .message("Compañía encontrada")
                 .code(200)
-                .modelDTO(response)
+                .modelDTO(companyToDTO(company))
                 .build();
     }
 
@@ -137,9 +118,7 @@ public class CompanyServiceImp implements ICompanyService {
      */
     @Override
     public ResponseServices getAllCompanies(String username) {
-    	//String username = ((UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        //List<Company> companies = companyRepository.findAllByAdminId(adminRepository.findByUsername(username).get().getId());
-        List<Company> companies = companyRepository.findAllActiveByUsername(username);
+    	List<Company> companies = companyRepository.findAllActiveByUsername(username);
         if (companies.isEmpty()) {
             return ResponseServices.builder()
                     .message("No se encontraron compañías")
@@ -147,10 +126,8 @@ public class CompanyServiceImp implements ICompanyService {
                     .build();
         }
         
-        // Crear una lista de CompanyNameResponse (solo nombres)
-        //List<CompanyNameResponse> companyNames = companies.stream()
-        List<CompanyResponse> companyNames = companies.stream()
-                .map(company -> new CompanyResponse(company.getCompanyName(), company.getCompanyApiKey()))
+        List<CompanyDTO> companyNames = companies.stream()
+                .map(company -> companyToDTO(company))
                 .collect(Collectors.toList());
 
         return ResponseServices.builder()
@@ -172,13 +149,11 @@ public class CompanyServiceImp implements ICompanyService {
      *         - Si la compañía se actualiza correctamente, devuelve un mensaje de éxito.
      */
     @Override
-    public ResponseServices updateCompany(Integer id, CompanyDTO companyDTO, String username) {
-        //Optional<Company> companyOptional = companyRepository.findById(id);
-        Optional<Company> companyOptional = companyRepository.findActiveByIdAndUsername(id, username);
-        //if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
+    public ResponseServices updateCompany(String username, Integer id, CompanyDTO companyDTO) {
+        Optional<Company> companyOptional = companyRepository.findActiveByIdAndUsername(username, id);
         if (companyOptional.isEmpty()) {
             return ResponseServices.builder()
-                    .message("Compañía no encontrada o API Key incorrecta")
+                    .message("Compañía no encontrada")
                     .code(404)
                     .build();
         }
@@ -192,7 +167,7 @@ public class CompanyServiceImp implements ICompanyService {
 
         Company company = companyOptional.get();
         company.setCompanyName(companyDTO.getCompanyName());
-        company.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+        company.setUpdatedOn(LocalDateTime.now());
         company.setLastAction(lastActionCacheData.getLastAction("UPDATED"));
 
         companyRepository.save(company);
@@ -214,26 +189,20 @@ public class CompanyServiceImp implements ICompanyService {
      */
     @Override
     @Transactional
-    public ResponseServices deleteCompany(Integer id, String username) {
-    	//Optional<Company> companyOptional = companyRepository.findById(id);
-        Optional<Company> companyOptional = companyRepository.findActiveByIdAndUsername(id, username);
-        //if (companyOptional.isEmpty() || !companyOptional.get().getCompanyApiKey().equals(companyApiKey)) {
+    public ResponseServices deleteCompany(String username, Integer id) {
+    	Optional<Company> companyOptional = companyRepository.findActiveByIdAndUsername(username, id);
         if (companyOptional.isEmpty()) {
             return ResponseServices.builder()
-                    .message("Compañía no encontrada o API Key incorrecta")
+                    .message("Compañía no encontrada")
                     .code(404)
                     .build();
         }
 
-        //companyRepository.delete(companyOptional.get());
-        
-        //companyRepository.updateIsActiveStatus(id, false);
-        
         Company company = companyOptional.get();
         
         company.setIsActive(false);
         company.setLastAction(lastActionCacheData.getLastAction("DELETED"));
-        company.setUpdateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+        company.setUpdatedOn(LocalDateTime.now());
         
         companyRepository.save(company);
         
@@ -258,49 +227,12 @@ public class CompanyServiceImp implements ICompanyService {
      * Clase interna para representar la respuesta de una compañía.
      * Implementa ITemplateDTO para ser compatible con ResponseServices.
      */
-    public static class CompanyResponse implements ITemplateDTO {
-        private String companyName;
-        private String companyApiKey;
-        
-        public CompanyResponse () {}
-        
-        public CompanyResponse(String companyName, String companyApiKey) {
-        	this.companyName = companyName;
-        	this.companyApiKey = companyApiKey;
-        }
-        
-        // Getters y Setters
-        public String getCompanyName() {
-            return companyName;
-        }
-
-        public void setCompanyName(String companyName) {
-            this.companyName = companyName;
-        }
-
-        public String getCompanyApiKey() {
-            return companyApiKey;
-        }
-
-        public void setCompanyApiKey(String companyApiKey) {
-            this.companyApiKey = companyApiKey;
-        }
+    private CompanyDTO companyToDTO(Company company) {
+    	return CompanyDTO.builder()
+    			.companyId(company.getId())
+    			.companyName(company.getCompanyName())
+    			.companyApiKey(company.getCompanyApiKey())
+    			.build();
     }
 
-    /**
-     * Clase interna para representar solo el nombre de una compañía.
-     * Implementa ITemplateDTO para ser compatible con ResponseServices.
-     */
-    public static class CompanyNameResponse implements ITemplateDTO {
-        private String companyName;
-
-        public CompanyNameResponse(String companyName) {
-            this.companyName = companyName;
-        }
-
-        // Getter
-        public String getCompanyName() {
-            return companyName;
-        }
-    }
 }
